@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { createClient } from "@supabase/supabase-js";
 import "./SpeciesDetail.css";
@@ -8,29 +8,21 @@ const supabase = createClient(
   import.meta.env.VITE_SUPABASE_ANON_KEY
 );
 
-// ======================
-// Helpers (pure functions)
-// ======================
+const SCALE_MAX_MM = 15;
+
 const fmt3 = (val) => (val != null ? Number(val).toFixed(3) : "-");
 
-// Mean between min/max, null-safe
 const meanLen = (row) => {
-  if (!row) return null;
-  if (row.min_len == null || row.max_len == null) return null;
+  if (!row || row.min_len == null || row.max_len == null) return null;
   return (Number(row.min_len) + Number(row.max_len)) / 2;
 };
 
 const clamp01 = (x) => Math.min(1, Math.max(0, x));
 
-// ======================
-// UI components (local)
-// ======================
-
-// External links block (only if link exists and is meaningful)
 function ExternalLinks({ wormsLink, razoulsLink }) {
-  const hasWorms = wormsLink != null && String(wormsLink).trim() !== "";
+  const hasWorms = wormsLink && String(wormsLink).trim() !== "";
   const hasRazouls =
-    razoulsLink != null &&
+    razoulsLink &&
     String(razoulsLink).trim() !== "" &&
     String(razoulsLink).trim().toLowerCase() !== "nan";
 
@@ -59,7 +51,6 @@ function ExternalLinks({ wormsLink, razoulsLink }) {
   );
 }
 
-// Scale 0–15 mm (ticks + labels + TL mm)
 function Scale15mm() {
   return (
     <div className="sd-scaleWrap" aria-label="Total length scale 0–15 mm">
@@ -88,7 +79,6 @@ function Scale15mm() {
   );
 }
 
-// One bar (F or M). If missing length -> show "?"
 function SexBar({
   row,
   label,
@@ -99,10 +89,9 @@ function SexBar({
   setHoveredKey,
 }) {
   const avg = meanLen(row);
-  const widthPct = avg == null ? 0 : clamp01(avg / scaleMax) * 100;
   const hasData = avg != null;
+  const widthPct = hasData ? clamp01(avg / scaleMax) * 100 : 0;
 
-  // No numeric data → just show "?"
   if (!hasData) {
     return (
       <div className={`sd-qmark ${colorClass}`}>
@@ -115,48 +104,51 @@ function SexBar({
     <div
       className="sd-barWrap"
       onMouseEnter={() => setHoveredKey(barKey)}
-      onMouseLeave={() =>
-        setHoveredKey((prev) => (prev === barKey ? null : prev))
-      }
+      onMouseLeave={() => setHoveredKey((prev) => (prev === barKey ? null : prev))}
     >
       <div
-        className={`sd-bar ${colorClass} ${
-          hoveredKey === barKey ? "sd-barHover" : ""
-        }`}
+        className={`sd-bar ${colorClass} ${hoveredKey === barKey ? "sd-barHover" : ""}`}
         style={{ width: `${widthPct}%` }}
       />
 
-      {/* Tooltip: appears instantly when hoveredKey matches */}
       {hoveredKey === barKey && (
         <div className={`sd-tooltip ${colorClass}`}>
-          <strong>{label}:</strong> {fmt3(row.min_len)} – {fmt3(row.max_len)} mm
+          <strong>{label}:</strong>{" "}
+          {fmt3(row.min_len)} – {fmt3(row.max_len)} mm
         </div>
       )}
     </div>
   );
 }
 
-// ======================
-// Main page
-// ======================
 export default function SpeciesDetail() {
   const { scientificName } = useParams();
-  const decodedName = decodeURIComponent(scientificName || "");
 
-  // ---- Page state ----
+  // Decode safely
+  const decodedName = useMemo(() => {
+    try {
+      return decodeURIComponent(scientificName || "");
+    } catch {
+      return "";
+    }
+  }, [scientificName]);
+
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Tooltip hover state (shared between the 2 bars)
-  const [hoveredKey, setHoveredKey] = useState(null); // "F" | "M" | null
+  const [hoveredKey, setHoveredKey] = useState(null);
 
-  // Fixed scale for now
-  const SCALE_MAX_MM = 15;
-
-  // ---- Data fetch ----
   useEffect(() => {
-    async function loadDetail() {
+    if (!decodedName) {
+      setLoading(false);
+      setRecords([]);
+      return;
+    }
+
+    let alive = true;
+
+    (async () => {
       setLoading(true);
       setError(null);
 
@@ -168,6 +160,8 @@ export default function SpeciesDetail() {
         .eq("scientific_name", decodedName)
         .order("sex", { ascending: true });
 
+      if (!alive) return;
+
       if (error) {
         console.error(error);
         setError(error.message);
@@ -177,48 +171,44 @@ export default function SpeciesDetail() {
       }
 
       setLoading(false);
-    }
+    })();
 
-    if (decodedName) loadDetail();
+    return () => {
+      alive = false;
+    };
   }, [decodedName]);
 
-  // ---- Guard clauses ----
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
+  if (!decodedName) return <p>Invalid species name in URL.</p>;
   if (!records.length) return <p>No data for this species.</p>;
 
-  // ---- Derived data (F/M rows) ----
   const base = records[0];
+  if (!base) return <p>No usable record found.</p>;
+
   const female = records.find((r) => r.sex === "F");
   const male = records.find((r) => r.sex === "M");
 
-  // Config for loop-based rendering of sex bars
   const SEX_BARS = [
-    { key: "F", label: "Female", row: female, color: "sd-f", top: 0 },
-    { key: "M", label: "Male", row: male, color: "sd-m", top: 10 },
+    { key: "F", label: "Female", row: female, color: "sd-f" },
+    { key: "M", label: "Male", row: male, color: "sd-m" },
   ];
 
   return (
     <div className="sd-page">
-      {/* =========
-          HEADER
-          ========= */}
       <header className="sd-header">
         <h1 className="sd-title">
-          <em>{base.scientific_name}</em>
+          <em>{base.scientific_name || decodedName}</em>
         </h1>
         {base.authority && <div className="sd-authority">{base.authority}</div>}
       </header>
 
-      {/* ===================
-          TAXONOMY + LINKS
-          =================== */}
       <section className="sd-meta">
         <div className="sd-metaRow">
-          <strong>Family:</strong> {base.family}
+          <strong>Family:</strong> {base.family || "-"}
         </div>
         <div className="sd-metaRow">
-          <strong>Genus:</strong> <em>{base.genus}</em>
+          <strong>Genus:</strong> <em>{base.genus || "-"}</em>
         </div>
         {base.environment && (
           <div className="sd-metaRow">
@@ -226,20 +216,13 @@ export default function SpeciesDetail() {
           </div>
         )}
 
-        <ExternalLinks
-          wormsLink={base.worms_link}
-          razoulsLink={base.razouls_link}
-        />
+        <ExternalLinks wormsLink={base.worms_link} razoulsLink={base.razouls_link} />
       </section>
 
-      {/* ======================
-          LENGTH BARS + SCALE
-          ====================== */}
       <section className="sd-length">
-        {/* Bars layer (above the scale) */}
         <div className="sd-barsLayer">
-          {SEX_BARS.map(({ key, label, row, color, top }) => (
-            <div key={key} className="sd-barRow" style={{ top }}>
+          {SEX_BARS.map(({ key, label, row, color }) => (
+            <div key={key} className={`sd-barRow sd-barRow--${key}`}>
               <SexBar
                 row={row}
                 label={label}

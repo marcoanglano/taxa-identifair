@@ -28,7 +28,10 @@
   margin: 2px 0;
 }
 
-/* Links block: adds separation before bars */
+/* ======================
+   Links
+   ====================== */
+
 .sd-links {
   margin-top: 10px;
 }
@@ -44,16 +47,18 @@
 .sd-length {
   margin-top: 18px;
   position: relative;
+
+  /* Design token */
+  --sd-tooltip-w: 260px;
 }
 
-/* Bars are positioned relative to the same "0" as the scale */
+/* Bars layer aligned to scale "0" */
 .sd-barsLayer {
   position: relative;
-  height: 18px; /* reserve vertical space for bars + ? */
+  height: 18px; /* space for bars + ? */
   margin-bottom: 6px;
 }
 
-/* each row overlays; we adjust with inline top */
 .sd-barRow {
   position: absolute;
   left: 0;
@@ -61,11 +66,32 @@
   height: 8px;
 }
 
-/* The bar itself */
+/* Vertical offsets (avoid inline styles) */
+.sd-barRow--F {
+  top: 0px;
+}
+
+.sd-barRow--M {
+  top: 10px;
+}
+
+/* Bar wrapper */
+.sd-barWrap {
+  position: relative;
+  width: 100%;
+  height: 8px;
+}
+
+/* Actual bar */
 .sd-bar {
   height: 6px;
   border-radius: 4px;
-  transition: filter 0.12s ease, opacity 0.12s ease;
+  transition: filter 0.12s ease;
+}
+
+/* Highlight on hover */
+.sd-barHover {
+  filter: brightness(1.15);
 }
 
 /* "?" marker aligned to 0 */
@@ -77,15 +103,35 @@
   line-height: 1;
 }
 
-/* Colors (tenui) */
+/* Colors */
 .sd-f {
-  background-color: #c94f7c; /* fucsia tenue */
+  background-color: #c94f7c;
   color: #c94f7c;
 }
 
 .sd-m {
-  background-color: #4f7cc9; /* blu tenue */
+  background-color: #4f7cc9;
   color: #4f7cc9;
+}
+
+/* ======================
+   Tooltip
+   ====================== */
+
+.sd-tooltip {
+  position: absolute;
+  left: 0;
+  top: -28px;
+  width: var(--sd-tooltip-w);
+  background: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 0.8rem;
+  color: #000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  z-index: 50;
+  pointer-events: none; /* prevents flicker */
 }
 
 /* ======================
@@ -94,7 +140,7 @@
 
 .sd-scaleWrap {
   position: relative;
-  padding-right: 34px; /* spazio per "TL mm" a destra */
+  padding-right: 34px;
 }
 
 .sd-scaleLine {
@@ -131,34 +177,6 @@
   top: 2px;
   right: 0;
   font-size: 0.75rem;
-  line-height: 1;
   writing-mode: vertical-rl;
   text-orientation: mixed;
-}
-
-.sd-barWrap {
-  position: relative;
-  width: 100%;
-  height: 8px;
-}
-
-.sd-tooltip {
-  position: absolute;
-  left: 0;              /* allineata allo “0” */
-  top: -28px;           /* sopra la barra, evita sovrapposizione */
-  width: 260px;
-  background: #ffffff;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 6px 8px;
-  font-size: 0.8rem;
-  color: #000;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-  z-index: 50;
-  pointer-events: none; /* ✅ evita flicker */
-}
-
-/* piccolo highlight quando hover */
-.sd-barHover {
-  filter: brightness(1.15);
 }
