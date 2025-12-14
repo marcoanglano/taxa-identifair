@@ -1,0 +1,34 @@
+/* ======================
+   SpeciesList (page)
+   Coerente con SpeciesDetail.css: layout semplice, pulito, left-aligned
+   ====================== */
+
+.sl-page {
+  padding: 20px;
+  text-align: left;
+}
+
+.sl-title {
+  margin: 0 0 12px 0;
+}
+
+.sl-item {
+  margin-bottom: 6px;
+}
+
+/* Titoli gerarchici */
+.sl-family {
+  margin: 14px 0 6px 0;
+}
+
+.sl-genus {
+  font-style: italic;
+  margin: 6px 0 4px 0;
+  margin-left: 16px;
+}
+
+/* Riga specie (indent più profondo) */
+.sl-species {
+  margin-left: 32px;
+  margin-bottom: 4px;
+}
