@@ -146,14 +146,14 @@
 .sd-scaleLine {
   position: relative;
   height: 32px;
-  border-bottom: 2px solid #000;
+  border-bottom: 2px solid #ffffff;
 }
 
 .sd-tick {
   position: absolute;
   bottom: 0;
   width: 1px;
-  background: #000;
+  background: #ffffff;
   transform: translateX(-0.5px);
 }
 

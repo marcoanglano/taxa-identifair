@@ -1,5 +1,7 @@
 import { Routes, Route, Link } from "react-router-dom";
 
+import "./App.css";
+
 import Identify from "./pages/Identify";
 import SpeciesDetail from "./pages/SpeciesDetail";
 import SpeciesList from "./pages/SpeciesList";
@@ -7,10 +9,12 @@ import SpeciesList from "./pages/SpeciesList";
 export default function App() {
   return (
     <div>
-      <nav style={{ padding: 10, borderBottom: "1px solid #ddd" }}>
-        <Link to="/" style={{ marginRight: 10 }}>Home</Link>
-        <Link to="/species" style={{ marginRight: 10 }}>Species</Link>
-        <Link to="/identify">Identify</Link>
+      <nav className="app-nav">
+        <div className="app-navInner">
+          <Link to="/" className="app-link">Home</Link>
+          <Link to="/species" className="app-link">Species</Link>
+          <Link to="/identify" className="app-link">Identify</Link>
+        </div>
       </nav>
 
       <Routes>

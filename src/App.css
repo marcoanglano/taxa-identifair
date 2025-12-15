@@ -40,3 +40,36 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Contenitore full-width */
+.app-nav {
+  width: 100%;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Contenuto interno coerente con le pagine */
+.app-navInner {
+  padding: 12px 20px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.app-link:hover {
+  border-color: var(--border);
+  background: var(--panel-2);
+  text-decoration: none;
+}
