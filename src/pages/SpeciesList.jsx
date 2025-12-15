@@ -54,7 +54,7 @@ export default function SpeciesList() {
     let lastFamily = null;
     let lastGenus = null;
 
-    return (species || []).map((sp) => {
+    return species.map((sp) => {
       const showFamily = sp.family !== lastFamily;
       const showGenus = showFamily || sp.genus !== lastGenus;
 
