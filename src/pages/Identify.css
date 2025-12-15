@@ -200,6 +200,10 @@
   border-bottom: 1px dashed #eee;
 }
 
+.id-rowName {
+  display: inline;
+}
+
 .id-rowTop {
   display: flex;
   align-items: center;

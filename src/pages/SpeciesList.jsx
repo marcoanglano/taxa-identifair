@@ -1,36 +1,37 @@
 import { useEffect, useMemo, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "../supabaseClient";
 import { Link } from "react-router-dom";
 import "./SpeciesList.css";
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
-
 export default function SpeciesList() {
-  // =========================
-  // State: lista specie (uniche) + loading
-  // =========================
   const [species, setSpecies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // =========================
-  // Fetch: species (dedupe per scientific_name)
-  // Nota: in DB hai F/M duplicati, qui vogliamo 1 voce per specie
-  // =========================
   useEffect(() => {
     let alive = true;
 
     (async () => {
-      const { data } = await supabase
+      setLoading(true);
+      setError(null);
+
+      const { data, error } = await supabase
         .from("species")
         .select("family, genus, scientific_name")
         .order("family")
         .order("genus")
         .order("scientific_name");
 
-      // Dedupe preservando l’ordine già ordinato dal DB
+      if (!alive) return;
+
+      if (error) {
+        console.error(error);
+        setError(error.message);
+        setSpecies([]);
+        setLoading(false);
+        return;
+      }
+
       const seen = new Set();
       const unique = [];
       for (const row of data || []) {
@@ -39,7 +40,6 @@ export default function SpeciesList() {
         unique.push(row);
       }
 
-      if (!alive) return;
       setSpecies(unique);
       setLoading(false);
     })();
@@ -49,14 +49,12 @@ export default function SpeciesList() {
     };
   }, []);
 
-  // =========================
-  // Preparazione righe: decide quando mostrare Family / Genus
-  // =========================
+  // ✅ Hook sempre chiamato (anche quando loading=true)
   const rows = useMemo(() => {
     let lastFamily = null;
     let lastGenus = null;
 
-    return species.map((sp) => {
+    return (species || []).map((sp) => {
       const showFamily = sp.family !== lastFamily;
       const showGenus = showFamily || sp.genus !== lastGenus;
 
@@ -73,11 +71,14 @@ export default function SpeciesList() {
     });
   }, [species]);
 
+  // ---- Guard clauses (dopo gli hook) ----
   if (loading) return <p>Loading...</p>;
+  if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
+  if (!rows.length) return <p>No species found.</p>;
 
   return (
     <div className="sl-page">
-      <h1 className="sl-title">Elenco specie</h1>
+      <h1 className="sl-title">Species List</h1>
 
       {rows.map((sp) => (
         <div key={sp.key} className="sl-item">
