@@ -48,22 +48,45 @@
   padding: 20px;
 }
 
-/* Contenitore full-width */
+/* Contenuto interno coerente con le pagine */
 .app-nav {
   width: 100%;
   background: var(--panel);
   border-bottom: 1px solid var(--border);
 }
 
-/* Contenuto interno coerente con le pagine */
 .app-navInner {
   max-width: 1280px;
   margin: 0 auto;
   padding: 12px 20px;
 
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ===== Brand ===== */
+.app-brand {
+  text-align: center;
+  line-height: 1.2;
+}
+
+.app-brandTitle {
+  font-size: 2.5rem;
+  font-weight: 600;
+}
+
+.app-brandVersion {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-left: 6px;
+}
+
+/* ===== Links ===== */
+.app-navLinks {
+  display: flex;
   gap: 12px;
+  align-items: center;
 }
 
 .app-link {

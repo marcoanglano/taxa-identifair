@@ -11,9 +11,18 @@ export default function App() {
     <div>
       <nav className="app-nav">
         <div className="app-navInner">
-          <Link to="/" className="app-link">Home</Link>
-          <Link to="/species" className="app-link">Species</Link>
-          <Link to="/identify" className="app-link">Identify</Link>
+          {/* Brand (centrato) */}
+          <div className="app-brand">
+            <span className="app-brandTitle">ZP id - ZooPlankton identifier</span>
+            <span className="app-brandVersion">(v0.1)</span>
+          </div>
+
+          {/* Links (a sinistra) */}
+          <div className="app-navLinks">
+            <Link to="/" className="app-link">Home</Link>
+            <Link to="/species" className="app-link">Species</Link>
+            <Link to="/identify" className="app-link">Identify</Link>
+          </div>
         </div>
       </nav>
 
