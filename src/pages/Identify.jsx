@@ -7,52 +7,92 @@ const supabase = createClient(
   import.meta.env.VITE_SUPABASE_ANON_KEY
 );
 
+// ======================
+// Helpers (pure functions)
+// ======================
+const hasText = (v) => v != null && String(v).trim().length > 0;
+
+const isNoDataState = (states) =>
+  states === null || (Array.isArray(states) && states.length === 0);
+
+const includesSelected = (states, selected) =>
+  Array.isArray(states) && states.includes(String(selected));
+
+const buildNotesByTrait = (selectedFilters, byTrait) =>
+  selectedFilters.map((f) => {
+    const n = byTrait[f.traitId]?.notes;
+    return hasText(n) ? String(n).trim() : null;
+  });
+
+const sortEntries = (list) =>
+  list.slice().sort((a, b) => {
+    const sa = a.species;
+    const sb = b.species;
+    if (sa.family !== sb.family) return sa.family.localeCompare(sb.family);
+    if (sa.genus !== sb.genus) return sa.genus.localeCompare(sb.genus);
+    if (sa.scientific_name !== sb.scientific_name)
+      return sa.scientific_name.localeCompare(sb.scientific_name);
+    return sa.sex.localeCompare(sb.sex);
+  });
+
 export default function Identify() {
+  // ======================
+  // State: traits + UI
+  // ======================
   const [traitsByCategory, setTraitsByCategory] = useState({});
   const [loadingTraits, setLoadingTraits] = useState(true);
   const [traitsError, setTraitsError] = useState(null);
-
   const [openCategory, setOpenCategory] = useState(null);
 
-  // ✅ Multi-filters (ordine di selezione preservato)
+  // ======================
+  // State: multi-filters (ordine preservato)
   // [{ traitId, traitName, state }]
+  // ======================
   const [selectedFilters, setSelectedFilters] = useState([]);
 
-  // utile per evidenziare i bottoni attivi per ogni trait
+  // Evidenziazione bottoni: traitId -> state selezionato
   const selectedStateByTraitId = useMemo(() => {
     const obj = {};
     for (const f of selectedFilters) obj[f.traitId] = f.state;
     return obj;
   }, [selectedFilters]);
 
-  const [matches, setMatches] = useState([]); // [{ species, notes }]
-  const [noDataMatches, setNoDataMatches] = useState([]); // [{ species, notes }]
+  // ======================
+  // State: risultati
+  // ======================
+  const [matches, setMatches] = useState([]); // [{ species, notesByTrait }]
+  const [noDataMatches, setNoDataMatches] = useState([]); // [{ species, notesByTrait }]
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [matchesError, setMatchesError] = useState(null);
 
-  // tooltip trait (?)
-  const [hoverTraitId, setHoverTraitId] = useState(null);
-  // tooltip specie (i)
-  const [hoverNoteKey, setHoverNoteKey] = useState(null); 
-  // es: "speciesId__sex__match__t0"
+  // ======================
+  // State: tooltips
+  // ======================
+  const [hoverTraitId, setHoverTraitId] = useState(null); // tooltip "?"
+  const [hoverNoteKey, setHoverNoteKey] = useState(null); // tooltip note (i1, i2...)
 
-  // Carica tutti i traits e raggruppali per trait_category
+  // ======================
+  // Fetch: traits (raggruppati per categoria)
+  // ======================
   useEffect(() => {
-    async function loadTraits() {
+    let alive = true;
+
+    (async () => {
       setLoadingTraits(true);
       setTraitsError(null);
 
       const { data, error } = await supabase
         .from("traits")
-        .select(
-          "id, trait_category, trait_name, description, possible_states, image_url"
-        )
+        .select("id, trait_category, trait_name, description, possible_states, image_url")
         .order("trait_category", { ascending: true })
         .order("trait_name", { ascending: true });
+
+      if (!alive) return;
 
       if (error) {
         console.error(error);
         setTraitsError(error.message);
+        setTraitsByCategory({});
         setLoadingTraits(false);
         return;
       }
@@ -60,7 +100,6 @@ export default function Identify() {
       const byCat = {};
       for (const row of data || []) {
         if (!row.possible_states || row.possible_states.length === 0) continue;
-
         const cat = row.trait_category || "Other";
         if (!byCat[cat]) byCat[cat] = [];
         byCat[cat].push(row);
@@ -68,14 +107,20 @@ export default function Identify() {
 
       setTraitsByCategory(byCat);
       setLoadingTraits(false);
-    }
+    })();
 
-    loadTraits();
+    return () => {
+      alive = false;
+    };
   }, []);
 
-  // ✅ Carica matches con N filtri
+  // ======================
+  // Fetch + matching: species_traits per N filtri
+  // ======================
   useEffect(() => {
-    async function loadMatches() {
+    let alive = true;
+
+    (async () => {
       if (!selectedFilters.length) {
         setMatches([]);
         setNoDataMatches([]);
@@ -105,6 +150,8 @@ export default function Identify() {
         )
         .in("trait_id", traitIds);
 
+      if (!alive) return;
+
       if (error) {
         console.error(error);
         setMatchesError(error.message);
@@ -112,7 +159,7 @@ export default function Identify() {
         return;
       }
 
-      // Mappa: speciesKey -> { species, byTrait: {trait_id: {state, notes}} }
+      // speciesKey -> { species, byTrait: { traitId: { state, notes } } }
       const bySpecies = new Map();
 
       for (const row of data || []) {
@@ -144,7 +191,7 @@ export default function Identify() {
         for (const f of selectedFilters) {
           const info = byTrait[f.traitId];
 
-          // se manca proprio la riga per quel trait → trattiamo come no data
+          // manca proprio la riga -> no data
           if (!info) {
             hasAnyNoData = true;
             okAll = false;
@@ -152,67 +199,40 @@ export default function Identify() {
           }
 
           const states = info.state; // text[] oppure null
-          const isNoData =
-            states === null || (Array.isArray(states) && states.length === 0);
 
-          if (isNoData) {
+          if (isNoDataState(states)) {
             hasAnyNoData = true;
             okAll = false;
             continue;
           }
 
-          const hasSelected =
-            Array.isArray(states) && states.includes(String(f.state));
-
-          if (!hasSelected) {
-            okAll = false;
-          }
+          if (!includesSelected(states, f.state)) okAll = false;
         }
 
-        if (okAll) {
-          // ⚠️ notes: per ora prendiamo la prima non-vuota trovata (semplice),
-          // poi la gestiamo meglio quando mi spieghi la tua idea.
-          const notesByTrait = selectedFilters.map((f) => {
-            const n = byTrait[f.traitId]?.notes;
-            return n != null && String(n).trim().length > 0 ? String(n).trim() : null;
-          });
+        const notesByTrait = buildNotesByTrait(selectedFilters, byTrait);
 
-          // poi nel push:
-          present.push({ species: sp, notesByTrait });
-        } else if (hasAnyNoData) {
-          const notesByTrait = selectedFilters.map((f) => {
-            const n = byTrait[f.traitId]?.notes;
-            return n != null && String(n).trim().length > 0 ? String(n).trim() : null;
-          });
-
-          noData.push({ species: sp, notesByTrait });
-        }
+        if (okAll) present.push({ species: sp, notesByTrait });
+        else if (hasAnyNoData) noData.push({ species: sp, notesByTrait });
       }
-
-      const sortEntries = (list) =>
-        list.slice().sort((a, b) => {
-          const sa = a.species;
-          const sb = b.species;
-          if (sa.family !== sb.family) return sa.family.localeCompare(sb.family);
-          if (sa.genus !== sb.genus) return sa.genus.localeCompare(sb.genus);
-          if (sa.scientific_name !== sb.scientific_name)
-            return sa.scientific_name.localeCompare(sb.scientific_name);
-          return sa.sex.localeCompare(sb.sex);
-        });
 
       setMatches(sortEntries(present));
       setNoDataMatches(sortEntries(noData));
       setLoadingMatches(false);
-    }
+    })();
 
-    loadMatches();
+    return () => {
+      alive = false;
+    };
   }, [selectedFilters]);
 
+  // ======================
+  // UI handlers
+  // ======================
   const handleToggleCategory = (cat) => {
     setOpenCategory((prev) => (prev === cat ? null : cat));
   };
 
-  // ✅ selezione: se trait già presente aggiorna solo lo state (mantiene ordine),
+  // Se il trait è già presente aggiorna solo lo state (mantiene ordine),
   // altrimenti aggiunge in fondo (nuovo numero)
   const handleSelectState = (trait, state) => {
     setSelectedFilters((prev) => {
@@ -226,8 +246,9 @@ export default function Identify() {
     });
   };
 
-  const hasNotes = (notes) => notes != null && String(notes).trim().length > 0;
-
+  // ======================
+  // Render
+  // ======================
   return (
     <div
       style={{
@@ -237,7 +258,9 @@ export default function Identify() {
         alignItems: "flex-start",
       }}
     >
-      {/* Colonna sinistra: traits / tendine */}
+      {/* ======================
+          LEFT: traits (accordion)
+         ====================== */}
       <div style={{ flex: 1, minWidth: "300px" }}>
         <h1>Identify</h1>
 
@@ -257,7 +280,7 @@ export default function Identify() {
               marginBottom: "10px",
             }}
           >
-            {/* Header tendina */}
+            {/* Accordion header */}
             <button
               onClick={() => handleToggleCategory(cat)}
               style={{
@@ -278,7 +301,7 @@ export default function Identify() {
               <span>{openCategory === cat ? "▴" : "▾"}</span>
             </button>
 
-            {/* Contenuto tendina */}
+            {/* Accordion body */}
             {openCategory === cat && (
               <div
                 style={{
@@ -295,7 +318,7 @@ export default function Identify() {
                       position: "relative",
                     }}
                   >
-                    {/* Nome tratto + icona ? */}
+                    {/* Trait title + "?" tooltip */}
                     <div
                       style={{
                         display: "flex",
@@ -304,17 +327,13 @@ export default function Identify() {
                         marginBottom: "4px",
                       }}
                     >
-                      <div style={{ fontWeight: "bold" }}>
-                        {trait.trait_name}
-                      </div>
+                      <div style={{ fontWeight: "bold" }}>{trait.trait_name}</div>
 
                       {trait.description && (
                         <div
                           onMouseEnter={() => setHoverTraitId(trait.id)}
                           onMouseLeave={() =>
-                            setHoverTraitId((prev) =>
-                              prev === trait.id ? null : prev
-                            )
+                            setHoverTraitId((prev) => (prev === trait.id ? null : prev))
                           }
                           style={{
                             width: "18px",
@@ -335,7 +354,7 @@ export default function Identify() {
                       )}
                     </div>
 
-                    {/* Tooltip descrizione tratto */}
+                    {/* Tooltip (trait description + optional image) */}
                     {trait.description && hoverTraitId === trait.id && (
                       <div
                         style={{
@@ -372,7 +391,7 @@ export default function Identify() {
                       </div>
                     )}
 
-                    {/* Bottoni degli states */}
+                    {/* State buttons */}
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
                       {(trait.possible_states || []).map((state) => {
                         const isActive = selectedStateByTraitId[trait.id] === state;
@@ -385,12 +404,8 @@ export default function Identify() {
                               padding: "4px 10px",
                               fontSize: "0.85rem",
                               borderRadius: "12px",
-                              border: isActive
-                                ? "2px solid #0077cc"
-                                : "1px solid #ccc",
-                              backgroundColor: isActive
-                                ? "#e6f2ff"
-                                : "#f9f9f9",
+                              border: isActive ? "2px solid #0077cc" : "1px solid #ccc",
+                              backgroundColor: isActive ? "#e6f2ff" : "#f9f9f9",
                               color: "#222",
                               cursor: "pointer",
                               transition: "0.15s",
@@ -417,7 +432,9 @@ export default function Identify() {
         ))}
       </div>
 
-      {/* Colonna destra: risultati (specie) */}
+      {/* ======================
+          RIGHT: results
+         ====================== */}
       <div style={{ flex: 1 }}>
         <h2>Matching species:</h2>
 
@@ -425,9 +442,7 @@ export default function Identify() {
           <p>Select one or more trait states to see matching species.</p>
         ) : (
           <div style={{ fontSize: "0.9rem" }}>
-            <div style={{ marginBottom: "6px" }}>
-              Filters (order of selection):
-            </div>
+            <div style={{ marginBottom: "6px" }}>Filters (order of selection):</div>
             <ol style={{ marginTop: 0, paddingLeft: "18px" }}>
               {selectedFilters.map((f, idx) => (
                 <li key={`${f.traitId}__${idx}`}>
@@ -445,16 +460,16 @@ export default function Identify() {
           <p>No species found for this combination.</p>
         )}
 
-        {/* SPECIE MATCH */}
+        {/* MATCH */}
         {!loadingMatches && matches.length > 0 && (
           <div style={{ marginTop: "10px" }}>
             {matches.map((entry) => {
               const sp = entry.species;
-              const key = `${sp.id}__${sp.sex}__match`;
-              
+              const rowKey = `${sp.id}__${sp.sex}__match`;
+
               return (
                 <div
-                  key={key}
+                  key={rowKey}
                   style={{
                     borderBottom: "1px solid #eee",
                     padding: "4px 0",
@@ -469,11 +484,10 @@ export default function Identify() {
                       <span style={{ fontSize: "0.85rem" }}>({sp.sex})</span>
                     </div>
 
-                    {/* Icone info per-tratto (i1, i2, ...) */}
+                    {/* Note icons: (i1), (i2), ... only if note exists */}
                     {(entry.notesByTrait || []).map((note, idx) => {
-                      if (note == null || String(note).trim().length === 0) return null;
-
-                      const noteKey = `${sp.id}__${sp.sex}__${key}__t${idx}`;
+                      if (!hasText(note)) return null;
+                      const noteKey = `${sp.id}__${sp.sex}__${rowKey}__t${idx}`;
 
                       return (
                         <span key={noteKey} style={{ position: "relative", display: "inline-block" }}>
@@ -501,7 +515,6 @@ export default function Identify() {
                             i{idx + 1}
                           </div>
 
-                          {/* Tooltip */}
                           {hoverNoteKey === noteKey && (
                             <div
                               style={{
@@ -547,11 +560,11 @@ export default function Identify() {
 
             {noDataMatches.map((entry) => {
               const sp = entry.species;
-              const key = `${sp.id}__${sp.sex}__nodata`;
-              
+              const rowKey = `${sp.id}__${sp.sex}__nodata`;
+
               return (
                 <div
-                  key={key}
+                  key={rowKey}
                   style={{
                     borderBottom: "1px dashed #eee",
                     padding: "4px 0",
@@ -566,11 +579,9 @@ export default function Identify() {
                       <span style={{ fontSize: "0.85rem" }}>({sp.sex})</span>
                     </div>
 
-                    {/* Icone info per-tratto (i1, i2, ...) */}
                     {(entry.notesByTrait || []).map((note, idx) => {
-                      if (note == null || String(note).trim().length === 0) return null;
-
-                      const noteKey = `${sp.id}__${sp.sex}__${key}__t${idx}`;
+                      if (!hasText(note)) return null;
+                      const noteKey = `${sp.id}__${sp.sex}__${rowKey}__t${idx}`;
 
                       return (
                         <span key={noteKey} style={{ position: "relative", display: "inline-block" }}>
@@ -598,7 +609,6 @@ export default function Identify() {
                             i{idx + 1}
                           </div>
 
-                          {/* Tooltip */}
                           {hoverNoteKey === noteKey && (
                             <div
                               style={{
