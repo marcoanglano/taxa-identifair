@@ -17,13 +17,15 @@ export default function App() {
         </div>
       </nav>
 
-      <Routes>
-        <Route path="/" element={<h1>Home</h1>} />
-        <Route path="/identify" element={<Identify />} />
-        <Route path="/species" element={<SpeciesList />} />
-        {/* Dettaglio specie aggregato (maschio + femmina) identificato dal nome scientifico */}
-        <Route path="/species/:scientificName" element={<SpeciesDetail />} />
-      </Routes>
+      <main className="app-main">
+        <Routes>
+          <Route path="/" element={<h1>Home</h1>} />
+          <Route path="/identify" element={<Identify />} />
+          <Route path="/species" element={<SpeciesList />} />
+          {/* Dettaglio specie aggregato (maschio + femmina) identificato dal nome scientifico */}
+          <Route path="/species/:scientificName" element={<SpeciesDetail />} />
+        </Routes>
+      </main>
     </div>
   );
 }
