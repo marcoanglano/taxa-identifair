@@ -35,6 +35,306 @@ const sortEntries = (list) =>
     return sa.sex.localeCompare(sb.sex);
   });
 
+// ======================
+// Small UI bits (local)
+// ======================
+
+function NoteIcons({ notesByTrait, rowKey, sp, hoverNoteKey, setHoverNoteKey }) {
+  return (notesByTrait || []).map((note, idx) => {
+    if (!hasText(note)) return null;
+
+    const noteKey = `${sp.id}__${sp.sex}__${rowKey}__t${idx}`;
+
+    return (
+      <span
+        key={noteKey}
+        style={{ position: "relative", display: "inline-block" }}
+      >
+        <div
+          onMouseEnter={() => setHoverNoteKey(noteKey)}
+          onMouseLeave={() =>
+            setHoverNoteKey((prev) => (prev === noteKey ? null : prev))
+          }
+          style={{
+            width: "18px",
+            height: "18px",
+            borderRadius: "50%",
+            border: "1px solid #888",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "0.7rem",
+            cursor: "default",
+            backgroundColor: "#eef3ff",
+            color: "#333",
+            marginLeft: "4px",
+            userSelect: "none",
+          }}
+        >
+          i{idx + 1}
+        </div>
+
+        {hoverNoteKey === noteKey && (
+          <div
+            style={{
+              position: "absolute",
+              top: "24px",
+              left: "0px",
+              width: "260px",
+              background: "#ffffff",
+              border: "1px solid #ccc",
+              borderRadius: "4px",
+              padding: "6px 8px",
+              fontSize: "0.8rem",
+              color: "#000",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+              zIndex: 50,
+              pointerEvents: "none",
+            }}
+          >
+            {note}
+          </div>
+        )}
+      </span>
+    );
+  });
+}
+
+function SpeciesRow({
+  entry,
+  type, // "match" | "nodata"
+  hoverNoteKey,
+  setHoverNoteKey,
+}) {
+  const sp = entry.species;
+  const rowKey = `${sp.id}__${sp.sex}__${type}`;
+
+  const borderStyle =
+    type === "match" ? "1px solid #eee" : "1px dashed #eee";
+
+  return (
+    <div
+      key={rowKey}
+      style={{
+        borderBottom: borderStyle,
+        padding: "4px 0",
+        position: "relative",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <div>
+          <Link to={`/species/${encodeURIComponent(sp.scientific_name)}`}>
+            <em>{sp.scientific_name}</em>
+          </Link>{" "}
+          <span style={{ fontSize: "0.85rem" }}>({sp.sex})</span>
+        </div>
+
+        {/* Note icons: (i1), (i2), ... only if note exists */}
+        <NoteIcons
+          notesByTrait={entry.notesByTrait}
+          rowKey={rowKey}
+          sp={sp}
+          hoverNoteKey={hoverNoteKey}
+          setHoverNoteKey={setHoverNoteKey}
+        />
+      </div>
+
+      <div style={{ fontSize: "0.8rem", color: type === "match" ? "#555" : "#777" }}>
+        {sp.family} – <i>{sp.genus}</i>
+      </div>
+    </div>
+  );
+}
+
+function TraitBlock({
+  trait,
+  selectedState,
+  onSelectState,
+  hoverTraitId,
+  setHoverTraitId,
+}) {
+  return (
+    <div
+      key={trait.id}
+      style={{
+        marginBottom: "10px",
+        position: "relative",
+      }}
+    >
+      {/* Trait title + "?" tooltip */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "6px",
+          marginBottom: "4px",
+        }}
+      >
+        <div style={{ fontWeight: "bold" }}>{trait.trait_name}</div>
+
+        {trait.description && (
+          <div
+            onMouseEnter={() => setHoverTraitId(trait.id)}
+            onMouseLeave={() =>
+              setHoverTraitId((prev) => (prev === trait.id ? null : prev))
+            }
+            style={{
+              width: "18px",
+              height: "18px",
+              borderRadius: "50%",
+              border: "1px solid #888",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "0.75rem",
+              cursor: "default",
+              backgroundColor: "#f0f0f0",
+              color: "#333",
+            }}
+          >
+            ?
+          </div>
+        )}
+      </div>
+
+      {/* Tooltip (trait description + optional image) */}
+      {trait.description && hoverTraitId === trait.id && (
+        <div
+          style={{
+            position: "absolute",
+            top: "0px",
+            left: "160px",
+            width: "260px",
+            background: "#ffffff",
+            border: "1px solid #ccc",
+            borderRadius: "4px",
+            padding: "6px 8px",
+            fontSize: "0.8rem",
+            color: "#000",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+            zIndex: 20,
+            pointerEvents: "none",
+          }}
+        >
+          {trait.image_url && (
+            <div style={{ marginBottom: "6px", textAlign: "center" }}>
+              <img
+                src={trait.image_url}
+                alt={trait.trait_name}
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: "280px",
+                  objectFit: "contain",
+                  borderRadius: "3px",
+                }}
+              />
+            </div>
+          )}
+          <div>{trait.description}</div>
+        </div>
+      )}
+
+      {/* State buttons */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+        {(trait.possible_states || []).map((state) => {
+          const isActive = selectedState === state;
+
+          return (
+            <button
+              key={state}
+              onClick={() => onSelectState(trait, state)}
+              style={{
+                padding: "4px 10px",
+                fontSize: "0.85rem",
+                borderRadius: "12px",
+                border: isActive ? "2px solid #0077cc" : "1px solid #ccc",
+                backgroundColor: isActive ? "#e6f2ff" : "#f9f9f9",
+                color: "#222",
+                cursor: "pointer",
+                transition: "0.15s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = isActive
+                  ? "#d9eaff"
+                  : "#ececec";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = isActive
+                  ? "#e6f2ff"
+                  : "#f9f9f9";
+              }}
+            >
+              {state}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function TraitCategoryAccordion({
+  cat,
+  traits,
+  isOpen,
+  onToggle,
+  selectedStateByTraitId,
+  onSelectState,
+  hoverTraitId,
+  setHoverTraitId,
+}) {
+  return (
+    <div
+      key={cat}
+      style={{
+        border: "1px solid #ccc",
+        borderRadius: "6px",
+        marginBottom: "10px",
+      }}
+    >
+      {/* Accordion header */}
+      <button
+        onClick={() => onToggle(cat)}
+        style={{
+          width: "100%",
+          textAlign: "left",
+          padding: "8px 10px",
+          background: "#f5f5f5",
+          border: "none",
+          cursor: "pointer",
+          fontWeight: "bold",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          color: "#222",
+        }}
+      >
+        <span>{cat.toUpperCase()}</span>
+        <span>{isOpen ? "▴" : "▾"}</span>
+      </button>
+
+      {/* Accordion body */}
+      {isOpen && (
+        <div style={{ padding: "8px 10px", background: "#fafafa", color: "#222" }}>
+          {traits.map((trait) => (
+            <TraitBlock
+              key={trait.id}
+              trait={trait}
+              selectedState={selectedStateByTraitId[trait.id]}
+              onSelectState={onSelectState}
+              hoverTraitId={hoverTraitId}
+              setHoverTraitId={setHoverTraitId}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ======================
+// Main page
+// ======================
 export default function Identify() {
   // ======================
   // State: traits + UI
@@ -42,6 +342,7 @@ export default function Identify() {
   const [traitsByCategory, setTraitsByCategory] = useState({});
   const [loadingTraits, setLoadingTraits] = useState(true);
   const [traitsError, setTraitsError] = useState(null);
+
   const [openCategory, setOpenCategory] = useState(null);
 
   // ======================
@@ -272,163 +573,17 @@ export default function Identify() {
         )}
 
         {Object.entries(traitsByCategory).map(([cat, traits]) => (
-          <div
+          <TraitCategoryAccordion
             key={cat}
-            style={{
-              border: "1px solid #ccc",
-              borderRadius: "6px",
-              marginBottom: "10px",
-            }}
-          >
-            {/* Accordion header */}
-            <button
-              onClick={() => handleToggleCategory(cat)}
-              style={{
-                width: "100%",
-                textAlign: "left",
-                padding: "8px 10px",
-                background: "#f5f5f5",
-                border: "none",
-                cursor: "pointer",
-                fontWeight: "bold",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                color: "#222",
-              }}
-            >
-              <span>{cat.toUpperCase()}</span>
-              <span>{openCategory === cat ? "▴" : "▾"}</span>
-            </button>
-
-            {/* Accordion body */}
-            {openCategory === cat && (
-              <div
-                style={{
-                  padding: "8px 10px",
-                  background: "#fafafa",
-                  color: "#222",
-                }}
-              >
-                {traits.map((trait) => (
-                  <div
-                    key={trait.id}
-                    style={{
-                      marginBottom: "10px",
-                      position: "relative",
-                    }}
-                  >
-                    {/* Trait title + "?" tooltip */}
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      <div style={{ fontWeight: "bold" }}>{trait.trait_name}</div>
-
-                      {trait.description && (
-                        <div
-                          onMouseEnter={() => setHoverTraitId(trait.id)}
-                          onMouseLeave={() =>
-                            setHoverTraitId((prev) => (prev === trait.id ? null : prev))
-                          }
-                          style={{
-                            width: "18px",
-                            height: "18px",
-                            borderRadius: "50%",
-                            border: "1px solid #888",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: "0.75rem",
-                            cursor: "default",
-                            backgroundColor: "#f0f0f0",
-                            color: "#333",
-                          }}
-                        >
-                          ?
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Tooltip (trait description + optional image) */}
-                    {trait.description && hoverTraitId === trait.id && (
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: "0px",
-                          left: "160px",
-                          width: "260px",
-                          background: "#ffffff",
-                          border: "1px solid #ccc",
-                          borderRadius: "4px",
-                          padding: "6px 8px",
-                          fontSize: "0.8rem",
-                          color: "#000",
-                          boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
-                          zIndex: 20,
-                          pointerEvents: "none",
-                        }}
-                      >
-                        {trait.image_url && (
-                          <div style={{ marginBottom: "6px", textAlign: "center" }}>
-                            <img
-                              src={trait.image_url}
-                              alt={trait.trait_name}
-                              style={{
-                                maxWidth: "100%",
-                                maxHeight: "280px",
-                                objectFit: "contain",
-                                borderRadius: "3px",
-                              }}
-                            />
-                          </div>
-                        )}
-                        <div>{trait.description}</div>
-                      </div>
-                    )}
-
-                    {/* State buttons */}
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                      {(trait.possible_states || []).map((state) => {
-                        const isActive = selectedStateByTraitId[trait.id] === state;
-
-                        return (
-                          <button
-                            key={state}
-                            onClick={() => handleSelectState(trait, state)}
-                            style={{
-                              padding: "4px 10px",
-                              fontSize: "0.85rem",
-                              borderRadius: "12px",
-                              border: isActive ? "2px solid #0077cc" : "1px solid #ccc",
-                              backgroundColor: isActive ? "#e6f2ff" : "#f9f9f9",
-                              color: "#222",
-                              cursor: "pointer",
-                              transition: "0.15s",
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor =
-                                isActive ? "#d9eaff" : "#ececec";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor =
-                                isActive ? "#e6f2ff" : "#f9f9f9";
-                            }}
-                          >
-                            {state}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+            cat={cat}
+            traits={traits}
+            isOpen={openCategory === cat}
+            onToggle={handleToggleCategory}
+            selectedStateByTraitId={selectedStateByTraitId}
+            onSelectState={handleSelectState}
+            hoverTraitId={hoverTraitId}
+            setHoverTraitId={setHoverTraitId}
+          />
         ))}
       </div>
 
@@ -442,7 +597,9 @@ export default function Identify() {
           <p>Select one or more trait states to see matching species.</p>
         ) : (
           <div style={{ fontSize: "0.9rem" }}>
-            <div style={{ marginBottom: "6px" }}>Filters (order of selection):</div>
+            <div style={{ marginBottom: "6px" }}>
+              Filters (order of selection):
+            </div>
             <ol style={{ marginTop: 0, paddingLeft: "18px" }}>
               {selectedFilters.map((f, idx) => (
                 <li key={`${f.traitId}__${idx}`}>
@@ -463,90 +620,15 @@ export default function Identify() {
         {/* MATCH */}
         {!loadingMatches && matches.length > 0 && (
           <div style={{ marginTop: "10px" }}>
-            {matches.map((entry) => {
-              const sp = entry.species;
-              const rowKey = `${sp.id}__${sp.sex}__match`;
-
-              return (
-                <div
-                  key={rowKey}
-                  style={{
-                    borderBottom: "1px solid #eee",
-                    padding: "4px 0",
-                    position: "relative",
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <div>
-                      <Link to={`/species/${encodeURIComponent(sp.scientific_name)}`}>
-                        <em>{sp.scientific_name}</em>
-                      </Link>{" "}
-                      <span style={{ fontSize: "0.85rem" }}>({sp.sex})</span>
-                    </div>
-
-                    {/* Note icons: (i1), (i2), ... only if note exists */}
-                    {(entry.notesByTrait || []).map((note, idx) => {
-                      if (!hasText(note)) return null;
-                      const noteKey = `${sp.id}__${sp.sex}__${rowKey}__t${idx}`;
-
-                      return (
-                        <span key={noteKey} style={{ position: "relative", display: "inline-block" }}>
-                          <div
-                            onMouseEnter={() => setHoverNoteKey(noteKey)}
-                            onMouseLeave={() =>
-                              setHoverNoteKey((prev) => (prev === noteKey ? null : prev))
-                            }
-                            style={{
-                              width: "18px",
-                              height: "18px",
-                              borderRadius: "50%",
-                              border: "1px solid #888",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              fontSize: "0.7rem",
-                              cursor: "default",
-                              backgroundColor: "#eef3ff",
-                              color: "#333",
-                              marginLeft: "4px",
-                              userSelect: "none",
-                            }}
-                          >
-                            i{idx + 1}
-                          </div>
-
-                          {hoverNoteKey === noteKey && (
-                            <div
-                              style={{
-                                position: "absolute",
-                                top: "24px",
-                                left: "0px",
-                                width: "260px",
-                                background: "#ffffff",
-                                border: "1px solid #ccc",
-                                borderRadius: "4px",
-                                padding: "6px 8px",
-                                fontSize: "0.8rem",
-                                color: "#000",
-                                boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
-                                zIndex: 50,
-                                pointerEvents: "none",
-                              }}
-                            >
-                              {note}
-                            </div>
-                          )}
-                        </span>
-                      );
-                    })}
-                  </div>
-
-                  <div style={{ fontSize: "0.8rem", color: "#555" }}>
-                    {sp.family} – <i>{sp.genus}</i>
-                  </div>
-                </div>
-              );
-            })}
+            {matches.map((entry) => (
+              <SpeciesRow
+                key={`${entry.species.id}__${entry.species.sex}__match`}
+                entry={entry}
+                type="match"
+                hoverNoteKey={hoverNoteKey}
+                setHoverNoteKey={setHoverNoteKey}
+              />
+            ))}
           </div>
         )}
 
@@ -558,89 +640,15 @@ export default function Identify() {
               Species for which at least one selected trait has no recorded state.
             </p>
 
-            {noDataMatches.map((entry) => {
-              const sp = entry.species;
-              const rowKey = `${sp.id}__${sp.sex}__nodata`;
-
-              return (
-                <div
-                  key={rowKey}
-                  style={{
-                    borderBottom: "1px dashed #eee",
-                    padding: "4px 0",
-                    position: "relative",
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <div>
-                      <Link to={`/species/${encodeURIComponent(sp.scientific_name)}`}>
-                        <em>{sp.scientific_name}</em>
-                      </Link>{" "}
-                      <span style={{ fontSize: "0.85rem" }}>({sp.sex})</span>
-                    </div>
-
-                    {(entry.notesByTrait || []).map((note, idx) => {
-                      if (!hasText(note)) return null;
-                      const noteKey = `${sp.id}__${sp.sex}__${rowKey}__t${idx}`;
-
-                      return (
-                        <span key={noteKey} style={{ position: "relative", display: "inline-block" }}>
-                          <div
-                            onMouseEnter={() => setHoverNoteKey(noteKey)}
-                            onMouseLeave={() =>
-                              setHoverNoteKey((prev) => (prev === noteKey ? null : prev))
-                            }
-                            style={{
-                              width: "18px",
-                              height: "18px",
-                              borderRadius: "50%",
-                              border: "1px solid #888",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              fontSize: "0.7rem",
-                              cursor: "default",
-                              backgroundColor: "#eef3ff",
-                              color: "#333",
-                              marginLeft: "4px",
-                              userSelect: "none",
-                            }}
-                          >
-                            i{idx + 1}
-                          </div>
-
-                          {hoverNoteKey === noteKey && (
-                            <div
-                              style={{
-                                position: "absolute",
-                                top: "24px",
-                                left: "0px",
-                                width: "260px",
-                                background: "#ffffff",
-                                border: "1px solid #ccc",
-                                borderRadius: "4px",
-                                padding: "6px 8px",
-                                fontSize: "0.8rem",
-                                color: "#000",
-                                boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
-                                zIndex: 50,
-                                pointerEvents: "none",
-                              }}
-                            >
-                              {note}
-                            </div>
-                          )}
-                        </span>
-                      );
-                    })}
-                  </div>
-
-                  <div style={{ fontSize: "0.8rem", color: "#777" }}>
-                    {sp.family} – <i>{sp.genus}</i>
-                  </div>
-                </div>
-              );
-            })}
+            {noDataMatches.map((entry) => (
+              <SpeciesRow
+                key={`${entry.species.id}__${entry.species.sex}__nodata`}
+                entry={entry}
+                type="nodata"
+                hoverNoteKey={hoverNoteKey}
+                setHoverNoteKey={setHoverNoteKey}
+              />
+            ))}
           </div>
         )}
       </div>
