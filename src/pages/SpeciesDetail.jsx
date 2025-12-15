@@ -8,17 +8,36 @@ const supabase = createClient(
   import.meta.env.VITE_SUPABASE_ANON_KEY
 );
 
+// ======================
+// Constants + helpers
+// ======================
 const SCALE_MAX_MM = 15;
 
+// Render helper: 3 decimals or "-"
 const fmt3 = (val) => (val != null ? Number(val).toFixed(3) : "-");
 
-const meanLen = (row) => {
-  if (!row || row.min_len == null || row.max_len == null) return null;
-  return (Number(row.min_len) + Number(row.max_len)) / 2;
-};
+// Mean between min/max, null-safe
+const meanLen = (row) =>
+  !row || row.min_len == null || row.max_len == null
+    ? null
+    : (Number(row.min_len) + Number(row.max_len)) / 2;
 
 const clamp01 = (x) => Math.min(1, Math.max(0, x));
 
+// Pick a record by sex ("F" / "M")
+const findBySex = (records, sex) => records.find((r) => r.sex === sex);
+
+// Bars config (pure; rendering uses CSS classes sd-barRow--F / sd-barRow--M)
+const SEX_BARS = [
+  { key: "F", label: "Female", color: "sd-f" },
+  { key: "M", label: "Male", color: "sd-m" },
+];
+
+// ======================
+// Local UI components
+// ======================
+
+// External links block (render only if at least one is valid)
 function ExternalLinks({ wormsLink, razoulsLink }) {
   const hasWorms = wormsLink && String(wormsLink).trim() !== "";
   const hasRazouls =
@@ -51,6 +70,7 @@ function ExternalLinks({ wormsLink, razoulsLink }) {
   );
 }
 
+// Scale 0–15 mm (ticks + labels + TL mm)
 function Scale15mm() {
   return (
     <div className="sd-scaleWrap" aria-label="Total length scale 0–15 mm">
@@ -79,15 +99,8 @@ function Scale15mm() {
   );
 }
 
-function SexBar({
-  row,
-  label,
-  colorClass,
-  scaleMax,
-  barKey,
-  hoveredKey,
-  setHoveredKey,
-}) {
+// One bar (F or M). If missing length -> show "?"
+function SexBar({ row, label, colorClass, scaleMax, barKey, hoveredKey, setHoveredKey }) {
   const avg = meanLen(row);
   const hasData = avg != null;
   const widthPct = hasData ? clamp01(avg / scaleMax) * 100 : 0;
@@ -113,18 +126,20 @@ function SexBar({
 
       {hoveredKey === barKey && (
         <div className={`sd-tooltip ${colorClass}`}>
-          <strong>{label}:</strong>{" "}
-          {fmt3(row.min_len)} – {fmt3(row.max_len)} mm
+          <strong>{label}:</strong> {fmt3(row.min_len)} – {fmt3(row.max_len)} mm
         </div>
       )}
     </div>
   );
 }
 
+// ======================
+// Main page
+// ======================
 export default function SpeciesDetail() {
   const { scientificName } = useParams();
 
-  // Decode safely
+  // Decode safely (prevents crashes on malformed URL encoding)
   const decodedName = useMemo(() => {
     try {
       return decodeURIComponent(scientificName || "");
@@ -133,12 +148,15 @@ export default function SpeciesDetail() {
     }
   }, [scientificName]);
 
+  // ---- Page state ----
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [hoveredKey, setHoveredKey] = useState(null);
+  // Shared tooltip state for both bars
+  const [hoveredKey, setHoveredKey] = useState(null); // "F" | "M" | null
 
+  // ---- Data fetch ----
   useEffect(() => {
     if (!decodedName) {
       setLoading(false);
@@ -178,24 +196,22 @@ export default function SpeciesDetail() {
     };
   }, [decodedName]);
 
+  // ---- Guard clauses ----
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
   if (!decodedName) return <p>Invalid species name in URL.</p>;
   if (!records.length) return <p>No data for this species.</p>;
 
+  // ---- Derived data ----
   const base = records[0];
   if (!base) return <p>No usable record found.</p>;
 
-  const female = records.find((r) => r.sex === "F");
-  const male = records.find((r) => r.sex === "M");
-
-  const SEX_BARS = [
-    { key: "F", label: "Female", row: female, color: "sd-f" },
-    { key: "M", label: "Male", row: male, color: "sd-m" },
-  ];
+  const female = findBySex(records, "F");
+  const male = findBySex(records, "M");
 
   return (
     <div className="sd-page">
+      {/* Header */}
       <header className="sd-header">
         <h1 className="sd-title">
           <em>{base.scientific_name || decodedName}</em>
@@ -203,6 +219,7 @@ export default function SpeciesDetail() {
         {base.authority && <div className="sd-authority">{base.authority}</div>}
       </header>
 
+      {/* Taxonomy + links */}
       <section className="sd-meta">
         <div className="sd-metaRow">
           <strong>Family:</strong> {base.family || "-"}
@@ -219,12 +236,13 @@ export default function SpeciesDetail() {
         <ExternalLinks wormsLink={base.worms_link} razoulsLink={base.razouls_link} />
       </section>
 
+      {/* Length bars + scale */}
       <section className="sd-length">
         <div className="sd-barsLayer">
-          {SEX_BARS.map(({ key, label, row, color }) => (
+          {SEX_BARS.map(({ key, label, color }) => (
             <div key={key} className={`sd-barRow sd-barRow--${key}`}>
               <SexBar
-                row={row}
+                row={key === "F" ? female : male}
                 label={label}
                 colorClass={color}
                 scaleMax={SCALE_MAX_MM}
