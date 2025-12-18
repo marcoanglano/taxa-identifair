@@ -19,10 +19,7 @@ const meanLen = (row) =>
 
 const clamp01 = (x) => Math.min(1, Math.max(0, x));
 
-// Pick a record by sex ("F" / "M")
-const findBySex = (records, sex) => records.find((r) => r.sex === sex);
-
-// Bars config (pure; rendering uses CSS classes sd-barRow--F / sd-barRow--M)
+// Bars config
 const SEX_BARS = [
   { key: "F", label: "Female", color: "sd-f" },
   { key: "M", label: "Male", color: "sd-m" },
@@ -32,7 +29,6 @@ const SEX_BARS = [
 // Local UI components
 // ======================
 
-// External links block (render only if at least one is valid)
 function ExternalLinks({ wormsLink, razoulsLink }) {
   const hasWorms = wormsLink && String(wormsLink).trim() !== "";
   const hasRazouls =
@@ -65,7 +61,6 @@ function ExternalLinks({ wormsLink, razoulsLink }) {
   );
 }
 
-// Scale 0–15 mm (ticks + labels + TL mm)
 function Scale15mm() {
   return (
     <div className="sd-scaleWrap" aria-label="Total length scale 0–15 mm">
@@ -94,8 +89,15 @@ function Scale15mm() {
   );
 }
 
-// One bar (F or M). If missing length -> show "?"
-function SexBar({ row, label, colorClass, scaleMax, barKey, hoveredKey, setHoveredKey }) {
+function SexBar({
+  row,
+  label,
+  colorClass,
+  scaleMax,
+  barKey,
+  hoveredKey,
+  setHoveredKey,
+}) {
   const avg = meanLen(row);
   const hasData = avg != null;
   const widthPct = hasData ? clamp01(avg / scaleMax) * 100 : 0;
@@ -132,19 +134,19 @@ function SexBar({ row, label, colorClass, scaleMax, barKey, hoveredKey, setHover
 // Main page
 // ======================
 export default function SpeciesDetail() {
-  const { scientificName } = useParams();
+  const { id_species } = useParams();
 
   // Decode safely (prevents crashes on malformed URL encoding)
-  const decodedName = useMemo(() => {
+  const decodedId = useMemo(() => {
     try {
-      return decodeURIComponent(scientificName || "");
+      return decodeURIComponent(id_species || "");
     } catch {
       return "";
     }
-  }, [scientificName]);
+  }, [id_species]);
 
   // ---- Page state ----
-  const [records, setRecords] = useState([]);
+  const [base, setBase] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -153,9 +155,9 @@ export default function SpeciesDetail() {
 
   // ---- Data fetch ----
   useEffect(() => {
-    if (!decodedName) {
+    if (!decodedId) {
       setLoading(false);
-      setRecords([]);
+      setBase(null);
       return;
     }
 
@@ -168,19 +170,19 @@ export default function SpeciesDetail() {
       const { data, error } = await supabase
         .from("species")
         .select(
-          "id, scientific_name, authority, worms_link, razouls_link, family, genus, environment, sex, min_len, max_len"
+          "id_species, scientific_name, authority, worms_link, razouls_link, family, genus, environment, f_min, f_max, m_min, m_max"
         )
-        .eq("scientific_name", decodedName)
-        .order("sex", { ascending: true });
+        .eq("id_species", decodedId)
+        .single();
 
       if (!alive) return;
 
       if (error) {
         console.error(error);
         setError(error.message);
-        setRecords([]);
+        setBase(null);
       } else {
-        setRecords(data || []);
+        setBase(data || null);
       }
 
       setLoading(false);
@@ -189,27 +191,24 @@ export default function SpeciesDetail() {
     return () => {
       alive = false;
     };
-  }, [decodedName]);
+  }, [decodedId]);
 
   // ---- Guard clauses ----
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
-  if (!decodedName) return <p>Invalid species name in URL.</p>;
-  if (!records.length) return <p>No data for this species.</p>;
+  if (!decodedId) return <p>Invalid species id in URL.</p>;
+  if (!base) return <p>No data for this species.</p>;
 
-  // ---- Derived data ----
-  const base = records[0];
-  if (!base) return <p>No usable record found.</p>;
-
-  const female = findBySex(records, "F");
-  const male = findBySex(records, "M");
+  // ---- Derived data (virtual rows for bars) ----
+  const female = { min_len: base.f_min, max_len: base.f_max };
+  const male = { min_len: base.m_min, max_len: base.m_max };
 
   return (
     <div className="sd-page">
       {/* Header */}
       <header className="sd-header">
         <h1 className="sd-title">
-          <em>{base.scientific_name || decodedName}</em>
+          <em>{base.scientific_name || decodedId}</em>
         </h1>
         {base.authority && <div className="sd-authority">{base.authority}</div>}
       </header>
