@@ -8,14 +8,13 @@ import SpeciesList from "./pages/SpeciesList";
 
 export default function App() {
   return (
-    <div>
+    <div className="app-root">
       <nav className="app-nav">
         <div className="app-navInner">
           {/* Brand (centrato) */}
           <div className="app-brand">
             <span className="app-brandTitle">ZP id - ZooPlankton identifier</span>
             <span className="app-brandSubtitle">Calanoida</span>
-            <span className="app-brandVersion">(v0.2.01)</span>
           </div>
 
           {/* Links (a sinistra) */}
@@ -35,6 +34,24 @@ export default function App() {
           <Route path="/species/:id_species" element={<SpeciesDetail />} />
         </Routes>
       </main>
+      
+      {/* Footer */}
+      <footer className="app-footer">
+        <div className="app-footerInner">
+          {/* Left */}
+          <div className="app-footerLeft"></div>
+
+          {/* Center */}
+          <div className="app-footerCenter">
+            ZP id - ZooPlankton identifier © Marco Anglano 2025
+          </div>
+
+          {/* Right */}
+          <div className="app-footerRight">
+            v0.2.01
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
