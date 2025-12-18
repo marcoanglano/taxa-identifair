@@ -14,6 +14,7 @@ export default function App() {
           {/* Brand (centrato) */}
           <div className="app-brand">
             <span className="app-brandTitle">ZP id - ZooPlankton identifier</span>
+            <span className="app-brandSubtitle">Calanoida</span>
             <span className="app-brandVersion">(v0.2.01)</span>
           </div>
 
