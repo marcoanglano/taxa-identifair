@@ -8,11 +8,11 @@ import "../styles/Identify.css";
 // ======================
 const hasText = (v) => v != null && String(v).trim().length > 0;
 
-const isNoDataState = (states) =>
-  states === null || (Array.isArray(states) && states.length === 0);
+// In v0.2 states are always arrays (default '{}'), but keep it safe:
+const isNoDataState = (states) => states === null || (Array.isArray(states) && states.length === 0);
 
-const includesSelected = (states, selected) =>
-  Array.isArray(states) && states.includes(String(selected));
+const includesSelected = (states, selectedIdState) =>
+  Array.isArray(states) && states.includes(String(selectedIdState));
 
 const buildNotesByTrait = (selectedFilters, byTrait) =>
   selectedFilters.map((f) => {
@@ -38,7 +38,7 @@ function NoteIcons({ notesByTrait, rowKey, sp, hoverNoteKey, setHoverNoteKey }) 
   return (notesByTrait || []).map((note, idx) => {
     if (!hasText(note)) return null;
 
-    const noteKey = `${sp.id}__${sp.sex}__${rowKey}__t${idx}`;
+    const noteKey = `${sp.id_species}__${sp.sex}__${rowKey}__t${idx}`;
 
     return (
       <span key={noteKey} className="id-noteWrap">
@@ -52,9 +52,7 @@ function NoteIcons({ notesByTrait, rowKey, sp, hoverNoteKey, setHoverNoteKey }) 
           i{idx + 1}
         </div>
 
-        {hoverNoteKey === noteKey && (
-          <div className="id-noteTooltip">{note}</div>
-        )}
+        {hoverNoteKey === noteKey && <div className="id-noteTooltip">{note}</div>}
       </span>
     );
   });
@@ -62,14 +60,14 @@ function NoteIcons({ notesByTrait, rowKey, sp, hoverNoteKey, setHoverNoteKey }) 
 
 function SpeciesRow({ entry, type, hoverNoteKey, setHoverNoteKey }) {
   const sp = entry.species;
-  const rowKey = `${sp.id}__${sp.sex}__${type}`;
+  const rowKey = `${sp.id_species}__${sp.sex}__${type}`;
   const rowClass = type === "match" ? "id-row--match" : "id-row--nodata";
 
   return (
     <div className={`id-row ${rowClass}`}>
       <div className="id-rowTop">
         <div className="id-rowName">
-          <Link to={`/species/${encodeURIComponent(sp.scientific_name)}`}>
+          <Link to={`/species/${encodeURIComponent(sp.id_species)}`}>
             <em>{sp.scientific_name}</em>
           </Link>{" "}
           <span className="id-rowSex">({sp.sex})</span>
@@ -93,7 +91,7 @@ function SpeciesRow({ entry, type, hoverNoteKey, setHoverNoteKey }) {
 
 function TraitBlock({
   trait,
-  selectedState,
+  selectedStateId,
   onSelectState,
   hoverTraitId,
   setHoverTraitId,
@@ -107,9 +105,9 @@ function TraitBlock({
         {trait.description && (
           <div
             className="id-qIcon"
-            onMouseEnter={() => setHoverTraitId(trait.id)}
+            onMouseEnter={() => setHoverTraitId(trait.id_trait)}
             onMouseLeave={() =>
-              setHoverTraitId((prev) => (prev === trait.id ? null : prev))
+              setHoverTraitId((prev) => (prev === trait.id_trait ? null : prev))
             }
           >
             ?
@@ -117,13 +115,13 @@ function TraitBlock({
         )}
       </div>
 
-      {/* Tooltip (trait description + optional image) */}
-      {trait.description && hoverTraitId === trait.id && (
+      {/* Tooltip (trait description + optional icon) */}
+      {trait.description && hoverTraitId === trait.id_trait && (
         <div className="id-traitTooltip">
-          {trait.image_url && (
+          {trait.description_url && (
             <div className="id-traitTooltipImgWrap">
               <img
-                src={trait.image_url}
+                src={trait.description_url}
                 alt={trait.trait_name}
                 className="id-traitTooltipImg"
               />
@@ -133,19 +131,19 @@ function TraitBlock({
         </div>
       )}
 
-      {/* State buttons */}
+      {/* State buttons (from trait_states) */}
       <div className="id-states">
-        {(trait.possible_states || []).map((state) => {
-          const isActive = selectedState === state;
+        {(trait.states || []).map((st) => {
+          const isActive = selectedStateId === st.id_state;
 
           return (
             <button
-              key={state}
-              onClick={() => onSelectState(trait, state)}
+              key={`${trait.id_trait}__${st.id_state}`}
+              onClick={() => onSelectState(trait, st)}
               className={`id-stateBtn ${isActive ? "id-stateBtn--active" : ""}`}
               type="button"
             >
-              {state}
+              {st.state_label}
             </button>
           );
         })}
@@ -166,11 +164,7 @@ function TraitCategoryAccordion({
 }) {
   return (
     <div className="id-acc">
-      <button
-        className="id-accHeader"
-        onClick={() => onToggle(cat)}
-        type="button"
-      >
+      <button className="id-accHeader" onClick={() => onToggle(cat)} type="button">
         <span>{cat.toUpperCase()}</span>
         <span className="id-accChevron">{isOpen ? "▴" : "▾"}</span>
       </button>
@@ -179,9 +173,9 @@ function TraitCategoryAccordion({
         <div className="id-accBody">
           {traits.map((trait) => (
             <TraitBlock
-              key={trait.id}
+              key={trait.id_trait}
               trait={trait}
-              selectedState={selectedStateByTraitId[trait.id]}
+              selectedStateId={selectedStateByTraitId[trait.id_trait]}
               onSelectState={onSelectState}
               hoverTraitId={hoverTraitId}
               setHoverTraitId={setHoverTraitId}
@@ -204,13 +198,13 @@ export default function Identify() {
   const [openCategory, setOpenCategory] = useState(null);
 
   // ---- Multi-filters (order preserved) ----
-  // [{ traitId, traitName, state }]
+  // [{ traitId, traitName, stateId, stateLabel }]
   const [selectedFilters, setSelectedFilters] = useState([]);
 
-  // traitId -> selected state (for "active" UI)
+  // traitId -> selected stateId (for "active" UI)
   const selectedStateByTraitId = useMemo(() => {
     const obj = {};
-    for (const f of selectedFilters) obj[f.traitId] = f.state;
+    for (const f of selectedFilters) obj[f.traitId] = f.stateId;
     return obj;
   }, [selectedFilters]);
 
@@ -221,11 +215,11 @@ export default function Identify() {
   const [matchesError, setMatchesError] = useState(null);
 
   // ---- Tooltip state ----
-  const [hoverTraitId, setHoverTraitId] = useState(null); // "?"
-  const [hoverNoteKey, setHoverNoteKey] = useState(null); // (i1), (i2), ...
+  const [hoverTraitId, setHoverTraitId] = useState(null);
+  const [hoverNoteKey, setHoverNoteKey] = useState(null);
 
   // ======================
-  // Fetch: traits (grouped by category)
+  // Fetch: traits + trait_states (grouped by category)
   // ======================
   useEffect(() => {
     let alive = true;
@@ -236,9 +230,23 @@ export default function Identify() {
 
       const { data, error } = await supabase
         .from("traits")
-        .select("id, trait_category, trait_name, description, possible_states, image_url")
+        .select(
+          `
+          id_trait,
+          trait_category,
+          trait_name,
+          description,
+          description_url,
+          trait_states (
+            id_state,
+            state_label,
+            sort_order
+          )
+        `
+        )
         .order("trait_category", { ascending: true })
-        .order("trait_name", { ascending: true });
+        .order("trait_name", { ascending: true })
+        .order("sort_order", { foreignTable: "trait_states", ascending: true });
 
       if (!alive) return;
 
@@ -252,10 +260,16 @@ export default function Identify() {
 
       const byCat = {};
       for (const row of data || []) {
-        if (!row.possible_states || row.possible_states.length === 0) continue;
+        const states = Array.isArray(row.trait_states) ? row.trait_states : [];
+        if (states.length === 0) continue; // like old "possible_states empty => skip"
+
         const cat = row.trait_category || "Other";
         if (!byCat[cat]) byCat[cat] = [];
-        byCat[cat].push(row);
+
+        byCat[cat].push({
+          ...row,
+          states,
+        });
       }
 
       setTraitsByCategory(byCat);
@@ -289,19 +303,21 @@ export default function Identify() {
         .from("species_traits")
         .select(
           `
-          trait_id,
-          state,
-          notes,
-          species:species_id (
-            id,
+          id_species,
+          id_trait,
+          f_states,
+          f_notes,
+          m_states,
+          m_notes,
+          species:species (
+            id_species,
             scientific_name,
-            sex,
             family,
             genus
           )
         `
         )
-        .in("trait_id", traitIds);
+        .in("id_trait", traitIds);
 
       if (!alive) return;
 
@@ -312,29 +328,50 @@ export default function Identify() {
         return;
       }
 
-      // speciesKey -> { species, byTrait: { traitId: { state, notes } } }
-      const bySpecies = new Map();
+      // Build 2 “virtual entries” per species (F and M), similar to old behavior
+      // Map key: `${id_species}__F` and `${id_species}__M`
+      const bySpeciesSex = new Map();
 
       for (const row of data || []) {
         if (!row.species) continue;
 
-        const sp = row.species;
-        const speciesKey = `${sp.id}__${sp.sex}`;
+        const spBase = row.species;
 
-        if (!bySpecies.has(speciesKey)) {
-          bySpecies.set(speciesKey, { species: sp, byTrait: {} });
+        // FEMALE
+        {
+          const key = `${spBase.id_species}__F`;
+          if (!bySpeciesSex.has(key)) {
+            bySpeciesSex.set(key, {
+              species: { ...spBase, sex: "F" },
+              byTrait: {},
+            });
+          }
+          bySpeciesSex.get(key).byTrait[row.id_trait] = {
+            state: row.f_states,
+            notes: row.f_notes,
+          };
         }
 
-        bySpecies.get(speciesKey).byTrait[row.trait_id] = {
-          state: row.state,
-          notes: row.notes,
-        };
+        // MALE
+        {
+          const key = `${spBase.id_species}__M`;
+          if (!bySpeciesSex.has(key)) {
+            bySpeciesSex.set(key, {
+              species: { ...spBase, sex: "M" },
+              byTrait: {},
+            });
+          }
+          bySpeciesSex.get(key).byTrait[row.id_trait] = {
+            state: row.m_states,
+            notes: row.m_notes,
+          };
+        }
       }
 
       const present = [];
       const noData = [];
 
-      for (const entry of bySpecies.values()) {
+      for (const entry of bySpeciesSex.values()) {
         const sp = entry.species;
         const byTrait = entry.byTrait;
 
@@ -351,7 +388,7 @@ export default function Identify() {
             continue;
           }
 
-          const states = info.state; // text[] or null
+          const states = info.state; // text[] (or null if something odd)
 
           if (isNoDataState(states)) {
             hasAnyNoData = true;
@@ -359,7 +396,7 @@ export default function Identify() {
             continue;
           }
 
-          if (!includesSelected(states, f.state)) okAll = false;
+          if (!includesSelected(states, f.stateId)) okAll = false;
         }
 
         const notesByTrait = buildNotesByTrait(selectedFilters, byTrait);
@@ -386,15 +423,23 @@ export default function Identify() {
   };
 
   // If trait already selected: update state (keep order). Else: push at end.
-  const handleSelectState = (trait, state) => {
+  const handleSelectState = (trait, st) => {
     setSelectedFilters((prev) => {
-      const idx = prev.findIndex((f) => f.traitId === trait.id);
+      const idx = prev.findIndex((f) => f.traitId === trait.id_trait);
       if (idx >= 0) {
         const copy = prev.slice();
-        copy[idx] = { ...copy[idx], state };
+        copy[idx] = { ...copy[idx], stateId: st.id_state, stateLabel: st.state_label };
         return copy;
       }
-      return [...prev, { traitId: trait.id, traitName: trait.trait_name, state }];
+      return [
+        ...prev,
+        {
+          traitId: trait.id_trait,
+          traitName: trait.trait_name,
+          stateId: st.id_state,
+          stateLabel: st.state_label,
+        },
+      ];
     });
   };
 
@@ -408,7 +453,7 @@ export default function Identify() {
         {traitsError && <p className="id-err">Error: {traitsError}</p>}
 
         {!loadingTraits && !Object.keys(traitsByCategory).length && (
-          <p>No traits with possible_states found.</p>
+          <p>No traits with states found.</p>
         )}
 
         {Object.entries(traitsByCategory).map(([cat, traits]) => (
@@ -438,7 +483,7 @@ export default function Identify() {
             <ol className="id-filtersList">
               {selectedFilters.map((f, idx) => (
                 <li key={`${f.traitId}__${idx}`}>
-                  <strong>{f.traitName}</strong> = <code>{f.state}</code>
+                  <strong>{f.traitName}</strong> = <code>{f.stateLabel}</code>
                 </li>
               ))}
             </ol>
@@ -456,7 +501,7 @@ export default function Identify() {
           <div className="id-results">
             {matches.map((entry) => (
               <SpeciesRow
-                key={`${entry.species.id}__${entry.species.sex}__match`}
+                key={`${entry.species.id_species}__${entry.species.sex}__match`}
                 entry={entry}
                 type="match"
                 hoverNoteKey={hoverNoteKey}
@@ -475,7 +520,7 @@ export default function Identify() {
 
             {noDataMatches.map((entry) => (
               <SpeciesRow
-                key={`${entry.species.id}__${entry.species.sex}__nodata`}
+                key={`${entry.species.id_species}__${entry.species.sex}__nodata`}
                 entry={entry}
                 type="nodata"
                 hoverNoteKey={hoverNoteKey}
