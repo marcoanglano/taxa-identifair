@@ -1,6 +1,6 @@
 import { Routes, Route, Link } from "react-router-dom";
 
-import "./App.css";
+import "./styles/App.css";
 
 import Identify from "./pages/Identify";
 import SpeciesDetail from "./pages/SpeciesDetail";
@@ -14,7 +14,7 @@ export default function App() {
           {/* Brand (centrato) */}
           <div className="app-brand">
             <span className="app-brandTitle">ZP id - ZooPlankton identifier</span>
-            <span className="app-brandVersion">(v0.1)</span>
+            <span className="app-brandVersion">(v0.2.01)</span>
           </div>
 
           {/* Links (a sinistra) */}
@@ -32,7 +32,7 @@ export default function App() {
           <Route path="/identify" element={<Identify />} />
           <Route path="/species" element={<SpeciesList />} />
           {/* Dettaglio specie aggregato (maschio + femmina) identificato dal nome scientifico */}
-          <Route path="/species/:scientificName" element={<SpeciesDetail />} />
+          <Route path="/species/:id_species" element={<SpeciesDetail />} />
         </Routes>
       </main>
     </div>
