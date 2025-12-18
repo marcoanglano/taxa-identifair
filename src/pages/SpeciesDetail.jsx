@@ -260,6 +260,21 @@ export default function SpeciesDetail() {
         <aside className="sd-col sd-colRight" aria-label="Species detail sidebar">
           <p><b>Traits:</b></p>
           <p><i>Coming in a future update!</i></p>
+
+          <div className="sd-iconTest">
+            <p><strong>Icon test:</strong></p>
+
+            {[24, 32, 48].map((size) => (
+              <div key={size} className="sd-iconRow">
+                <img
+                  src="https://fraywmircvjqozsywdfx.supabase.co/storage/v1/object/public/icons/test_v2.svg"
+                  alt={`Test icon ${size}px`}
+                  className={`sd-icon sd-icon--${size}`}
+                />
+                <span>{size} px</span>
+              </div>
+            ))}
+          </div>
         </aside>
       </div>
     </div>

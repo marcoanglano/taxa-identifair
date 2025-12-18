@@ -209,3 +209,37 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ======================
+   Icon test (temporary)
+   ====================== */
+
+.sd-iconTest {
+  margin-top: 16px;
+}
+
+.sd-iconRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.sd-icon {
+  display: block;
+}
+
+.sd-icon--24 {
+  width: 24px;
+  height: 24px;
+}
+
+.sd-icon--32 {
+  width: 32px;
+  height: 32px;
+}
+
+.sd-icon--48 {
+  width: 48px;
+  height: 48px;
+}
