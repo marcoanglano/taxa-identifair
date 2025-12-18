@@ -17,7 +17,7 @@ export default function SpeciesList() {
 
       const { data, error } = await supabase
         .from("species")
-        .select("family, genus, scientific_name")
+        .select("id_species, family, genus, scientific_name")
         .order("family")
         .order("genus")
         .order("scientific_name");
@@ -32,15 +32,7 @@ export default function SpeciesList() {
         return;
       }
 
-      const seen = new Set();
-      const unique = [];
-      for (const row of data || []) {
-        if (seen.has(row.scientific_name)) continue;
-        seen.add(row.scientific_name);
-        unique.push(row);
-      }
-
-      setSpecies(unique);
+      setSpecies(data || []);
       setLoading(false);
     })();
 
@@ -65,8 +57,8 @@ export default function SpeciesList() {
         ...sp,
         showFamily,
         showGenus,
-        key: `${sp.family}__${sp.genus}__${sp.scientific_name}`,
-        encodedName: encodeURIComponent(sp.scientific_name),
+        key: sp.id_species,
+        encodedId: encodeURIComponent(sp.id_species),
       };
     });
   }, [species]);
@@ -86,7 +78,7 @@ export default function SpeciesList() {
           {sp.showGenus && <h3 className="sl-genus">{sp.genus}</h3>}
 
           <div className="sl-species">
-            <Link to={`/species/${sp.encodedName}`}>
+            <Link to={`/species/${sp.encodedId}`}>
               <em>{sp.scientific_name}</em>
             </Link>
           </div>
