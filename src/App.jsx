@@ -31,7 +31,6 @@ export default function App() {
           <Route path="/" element={<h1>Home</h1>} />
           <Route path="/identify" element={<Identify />} />
           <Route path="/species" element={<SpeciesList />} />
-          {/* Dettaglio specie aggregato (maschio + femmina) identificato dal nome scientifico */}
           <Route path="/species/:id_species" element={<SpeciesDetail />} />
         </Routes>
       </main>
