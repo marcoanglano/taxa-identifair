@@ -27,12 +27,14 @@ export default function App() {
       </nav>
 
       <main className="app-main">
-        <Routes>
-          <Route path="/" element={<h1>Home</h1>} />
-          <Route path="/identify" element={<Identify />} />
-          <Route path="/species" element={<SpeciesList />} />
-          <Route path="/species/:id_species" element={<SpeciesDetail />} />
-        </Routes>
+        <div className="app-container">
+          <Routes>
+            <Route path="/" element={<h1>Home</h1>} />
+            <Route path="/identify" element={<Identify />} />
+            <Route path="/species" element={<SpeciesList />} />
+            <Route path="/species/:id_species" element={<SpeciesDetail />} />
+          </Routes>
+        </div>
       </main>
       
       {/* Footer */}
@@ -43,7 +45,7 @@ export default function App() {
 
           {/* Center */}
           <div className="app-footerCenter">
-            ZP id - ZooPlankton identifier © Marco Anglano 2025
+            ZP id - ZooPlankton identifier &copy; Marco Anglano 2025
           </div>
 
           {/* Right */}
