@@ -213,43 +213,55 @@ export default function SpeciesDetail() {
         {base.authority && <div className="sd-authority">{base.authority}</div>}
       </header>
 
-      {/* Taxonomy + links */}
-      <section className="sd-meta">
-        <div className="sd-metaRow">
-          <strong>Family:</strong> {base.family || "-"}
-        </div>
-        <div className="sd-metaRow">
-          <strong>Genus:</strong> <em>{base.genus || "-"}</em>
-        </div>
-        {base.environment && (
-          <div className="sd-metaRow">
-            <strong>Environment:</strong> {base.environment}
-          </div>
-        )}
-
-        <ExternalLinks wormsLink={base.worms_link} razoulsLink={base.razouls_link} />
-      </section>
-
-      {/* Length bars + scale */}
-      <section className="sd-length">
-        <div className="sd-barsLayer">
-          {SEX_BARS.map(({ key, label, color }) => (
-            <div key={key} className={`sd-barRow sd-barRow--${key}`}>
-              <SexBar
-                row={key === "F" ? female : male}
-                label={label}
-                colorClass={color}
-                scaleMax={SCALE_MAX_MM}
-                barKey={key}
-                hoveredKey={hoveredKey}
-                setHoveredKey={setHoveredKey}
-              />
+      {/* 2-column layout */}
+      <div className="sd-grid">
+        {/* LEFT (2/3) */}
+        <div className="sd-col sd-colLeft">
+          {/* Taxonomy + links */}
+          <section className="sd-meta">
+            <div className="sd-metaRow">
+              <strong>Family:</strong> {base.family || "-"}
             </div>
-          ))}
+            <div className="sd-metaRow">
+              <strong>Genus:</strong> <em>{base.genus || "-"}</em>
+            </div>
+            {base.environment && (
+              <div className="sd-metaRow">
+                <strong>Environment:</strong> {base.environment}
+              </div>
+            )}
+
+            <ExternalLinks wormsLink={base.worms_link} razoulsLink={base.razouls_link} />
+          </section>
+
+          {/* Length bars + scale */}
+          <section className="sd-length">
+            <div className="sd-barsLayer">
+              {SEX_BARS.map(({ key, label, color }) => (
+                <div key={key} className={`sd-barRow sd-barRow--${key}`}>
+                  <SexBar
+                    row={key === "F" ? female : male}
+                    label={label}
+                    colorClass={color}
+                    scaleMax={SCALE_MAX_MM}
+                    barKey={key}
+                    hoveredKey={hoveredKey}
+                    setHoveredKey={setHoveredKey}
+                  />
+                </div>
+              ))}
+            </div>
+
+            <Scale15mm />
+          </section>
         </div>
 
-        <Scale15mm />
-      </section>
+        {/* RIGHT (1/3) */}
+        <aside className="sd-col sd-colRight" aria-label="Species detail sidebar">
+          <p><b>Traits:</b></p>
+          <p><i>Coming in a future update!</i></p>
+        </aside>
+      </div>
     </div>
   );
 }

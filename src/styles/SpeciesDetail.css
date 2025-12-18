@@ -187,3 +187,25 @@
   writing-mode: vertical-rl;
   text-orientation: mixed;
 }
+
+/* ======================
+   Columns
+   ====================== */
+
+.sd-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.sd-colLeft,
+.sd-colRight {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .sd-grid {
+    grid-template-columns: 1fr;
+  }
+}
