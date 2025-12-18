@@ -260,7 +260,8 @@ export default function SpeciesDetail() {
         <aside className="sd-col sd-colRight" aria-label="Species detail sidebar">
           <p><b>Traits:</b></p>
           <p><i>Coming in a future update!</i></p>
-
+          
+          {/* TEMP: trait icon visual test (remove in next versions) */}
           <div className="sd-iconTest">
             <p><strong>Icon test:</strong></p>
 

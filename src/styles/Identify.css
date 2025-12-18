@@ -1,6 +1,5 @@
 /* ======================
    Identify (page)
-   Coerente con SpeciesDetail.css / SpeciesList.css: pulito, left-aligned
    ====================== */
 
 .id-page {
@@ -36,7 +35,7 @@
 }
 
 /* ======================
-   Accordion (categories)
+   Accordion (trait_category)
    ====================== */
 
 .id-acc {
@@ -131,7 +130,8 @@
   border-radius: 3px;
 }
 
-/* States buttons */
+/* ===== States buttons ===== */
+
 .id-states {
   display: flex;
   flex-wrap: wrap;
@@ -226,7 +226,7 @@
   color: #777;
 }
 
-/* Note icons + tooltip */
+/* ===== Note icons + tooltip ===== */
 .id-noteWrap {
   position: relative;
   display: inline-block;

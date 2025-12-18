@@ -56,10 +56,11 @@
   --sd-tooltip-w: 260px;
 }
 
-/* Bars layer aligned to scale "0" */
+/* ===== Bar ===== */
+
 .sd-barsLayer {
   position: relative;
-  height: 28px; /* space for bars + ? */
+  height: 28px;
 }
 
 .sd-barRow {
@@ -69,30 +70,25 @@
   height: 12px;
 }
 
-/* Vertical offsets (avoid inline styles) */
 .sd-barRow--F { top: 0px; }
 .sd-barRow--M { top: 16px; }
 
-/* Bar wrapper */
 .sd-barWrap {
   position: relative;
   width: 100%;
   height: 12px;
 }
 
-/* Actual bar */
 .sd-bar {
   height: 10px;
   border-radius: 6px;
   transition: filter 0.12s ease;
 }
 
-/* Highlight on hover */
 .sd-barHover {
   filter: brightness(1.15);
 }
 
-/* "?" marker aligned to 0 */
 .sd-qmark {
   position: absolute;
   left: 0;
@@ -104,13 +100,12 @@
   padding: 0;
 }
 
-/* Assicura che anche con sd-f / sd-m non compaia alcuno sfondo */
 .sd-qmark.sd-f,
 .sd-qmark.sd-m {
   background-color: transparent !important;
 }
 
-/* Colors */
+/* ===== Colors ===== */
 .sd-f {
   background-color: #c94f7c;
   color: #c94f7c;
@@ -121,9 +116,7 @@
   color: #4f7cc9;
 }
 
-/* ======================
-   Tooltip
-   ====================== */
+/* ===== Tooltip ===== */
 
 .sd-tooltip {
   position: absolute;
@@ -138,12 +131,10 @@
   color: #000;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   z-index: 50;
-  pointer-events: none; /* prevents flicker */
+  pointer-events: none;
 }
 
-/* ======================
-   Scale 0–15 mm
-   ====================== */
+/* ===== Scale ===== */
 
 .sd-scaleWrap {
   position: relative;

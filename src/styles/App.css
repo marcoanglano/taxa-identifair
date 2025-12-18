@@ -1,3 +1,7 @@
+/* ======================
+   Root
+   ====================== */
+
 #root {
   width: 100%;
   max-width: none;
@@ -42,7 +46,6 @@
   color: #888;
 }
 
-/* Root layout */
 .app-root {
   min-height: 100vh;
   display: flex;
@@ -55,13 +58,10 @@
   padding: 0 24px;
 }
 
-.app-main {
-  flex: 1;
-  width: 100%;
-  padding: 20px 0;
-}
+/* ======================
+   Nav
+   ====================== */
 
-/* Contenuto interno coerente con le pagine */
 .app-nav {
   width: 100%;
   background: var(--panel);
@@ -119,6 +119,16 @@
   border-color: var(--border);
   background: var(--panel-2);
   text-decoration: none;
+}
+
+/* ======================
+   Main
+   ====================== */
+
+.app-main {
+  flex: 1;
+  width: 100%;
+  padding: 20px 0;
 }
 
 /* ======================
