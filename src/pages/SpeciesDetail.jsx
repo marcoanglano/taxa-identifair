@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import { supabase } from "../supabaseClient";
-import "./SpeciesDetail.css";
+import { supabase } from "../lib/supabaseClient";
+import "../styles/SpeciesDetail.css";
 
 // ======================
 // Constants + helpers

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "../supabaseClient";
+import { supabase } from "../lib/supabaseClient";
 import { Link } from "react-router-dom";
-import "./Identify.css";
+import "../styles/Identify.css";
 
 // ======================
 // Helpers (pure functions)
