@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
+import { ICON_VERSION } from "../lib/assets";
 import "../styles/SpeciesDetail.css";
 
 // ======================
@@ -268,8 +269,13 @@ export default function SpeciesDetail() {
             {[24, 32, 48].map((size) => (
               <div key={size} className="sd-iconRow">
                 <img
-                  src="https://fraywmircvjqozsywdfx.supabase.co/storage/v1/object/public/icons/test_v2.svg"
+                  src={`${"https://fraywmircvjqozsywdfx.supabase.co/storage/v1/object/public/icons/Prosome/Prosome%20somites/PR_som_5i.svg"}?v=${ICON_VERSION}`}
                   alt={`Test icon ${size}px`}
+                  className={`sd-icon sd-icon--${size}`}
+                />
+                <img
+                  src={`${"https://fraywmircvjqozsywdfx.supabase.co/storage/v1/object/public/icons/Urosome/Urosome%20somites/UR_som_3.svg"}?v=${ICON_VERSION}`}
+                  alt={`Test icon 2 ${size}px`}
                   className={`sd-icon sd-icon--${size}`}
                 />
                 <span>{size} px</span>
