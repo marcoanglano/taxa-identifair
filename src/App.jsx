@@ -50,7 +50,7 @@ export default function App() {
 
           {/* Right */}
           <div className="app-footerRight">
-            v0.2.02.01
+            v0.2.03.00
           </div>
         </div>
       </footer>
