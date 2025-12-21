@@ -324,4 +324,6 @@
   font-size: 0.9rem;
   white-space: nowrap;
   pointer-events: none;
+  line-height: 1.25;
+  text-align: left;
 }

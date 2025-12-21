@@ -259,52 +259,61 @@ export default function SpeciesDetail() {
 
       setBase(sp || null);
 
-      // 2) traits (for categories + neutral icon urls)
-      const { data: traitsRows, error: traitsErr } = await supabase
-        .from("traits")
-        .select("id_trait, trait_category, trait_name, trait_icon_url")
-        .order("trait_category", { ascending: true })
-        .order("trait_name", { ascending: true });
+      // 2–4) secondary data in parallel
+      const [
+        traitsRes,
+        statesRes,
+        speciesTraitsRes,
+      ] = await Promise.all([
+        supabase
+          .from("traits")
+          .select("id_trait, trait_category, trait_name, trait_icon_url")
+          .order("trait_category", { ascending: true })
+          .order("trait_name", { ascending: true }),
+
+        supabase
+          .from("trait_states")
+          .select("id_trait, id_state, state_label, sort_order, state_icon_url")
+          .order("id_trait", { ascending: true })
+          .order("sort_order", { ascending: true }),
+
+        supabase
+          .from("species_traits")
+          .select(
+            "id_trait, f_states, f_notes, f_notes_url, m_states, m_notes, m_notes_url"
+          )
+          .eq("id_species", decodedId),
+      ]);
 
       if (!alive) return;
 
-      if (traitsErr) {
-        console.error(traitsErr);
-        setError(traitsErr.message);
+      // --- error handling (minimale, come ora) ---
+      if (traitsRes.error || statesRes.error || speciesTraitsRes.error) {
+        console.error(traitsRes.error, statesRes.error, speciesTraitsRes.error);
+        setError(
+          traitsRes.error?.message ||
+          statesRes.error?.message ||
+          speciesTraitsRes.error?.message
+        );
         setLoading(false);
         return;
       }
 
+      // --- traits ---
       const byCat = {};
       const iconByTrait = {};
-      for (const t of traitsRows || []) {
+      for (const t of traitsRes.data || []) {
         const cat = t.trait_category || "Other";
         if (!byCat[cat]) byCat[cat] = [];
         byCat[cat].push(t);
         iconByTrait[t.id_trait] = t.trait_icon_url || "";
       }
-
       setTraitsByCategory(byCat);
       setTraitIconByTraitId(iconByTrait);
 
-      // 3) trait_states (label + icon_url)
-      const { data: stateRows, error: stateErr } = await supabase
-        .from("trait_states")
-        .select("id_trait, id_state, state_label, sort_order, state_icon_url")
-        .order("id_trait", { ascending: true })
-        .order("sort_order", { ascending: true });
-
-      if (!alive) return;
-
-      if (stateErr) {
-        console.error(stateErr);
-        setError(stateErr.message);
-        setLoading(false);
-        return;
-      }
-
+      // --- trait_states ---
       const meta = {};
-      for (const s of stateRows || []) {
+      for (const s of statesRes.data || []) {
         meta[String(s.id_state)] = {
           id_trait: s.id_trait,
           label: s.state_label || s.id_state,
@@ -313,25 +322,9 @@ export default function SpeciesDetail() {
       }
       setTraitStatesMeta(meta);
 
-      // 4) species_traits (for this species)
-      const { data: stRows, error: stErr } = await supabase
-        .from("species_traits")
-        .select(
-          "id_trait, f_states, f_notes, f_notes_url, m_states, m_notes, m_notes_url"
-        )
-        .eq("id_species", decodedId);
-
-      if (!alive) return;
-
-      if (stErr) {
-        console.error(stErr);
-        setError(stErr.message);
-        setLoading(false);
-        return;
-      }
-
+      // --- species_traits ---
       const byTrait = {};
-      for (const r of stRows || []) {
+      for (const r of speciesTraitsRes.data || []) {
         byTrait[r.id_trait] = r;
       }
       setSpeciesTraitsByTrait(byTrait);
