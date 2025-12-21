@@ -335,23 +335,19 @@ export default function SpeciesDetail() {
                   {items.map((n) => {
                     const tipKey = `${cat}__${n}`;
                     return (
-                      <div key={tipKey} className="sd-traitState">
+                      <div
+                        key={tipKey}
+                        className="sd-traitState"
+                        onMouseEnter={() => setHoverTipKey(tipKey)}
+                        onMouseLeave={() =>
+                          setHoverTipKey((prev) => (prev === tipKey ? null : prev))
+                        }
+                      >
                         <img
                           className="sd-traitIcon"
                           src={`https://fraywmircvjqozsywdfx.supabase.co/storage/v1/object/public/icons/Prosome/Prosome%20somites/PR_som_5i.svg?v=${ICON_VERSION}`}
                           alt="State icon test"
                         />
-
-                        <div
-                          className="sd-traitTipTarget"
-                          onMouseEnter={() => setHoverTipKey(tipKey)}
-                          onMouseLeave={() =>
-                            setHoverTipKey((prev) => (prev === tipKey ? null : prev))
-                          }
-                          aria-label="Trait tooltip"
-                        >
-                          ?
-                        </div>
 
                         {hoverTipKey === tipKey && (
                           <div className="sd-traitTooltip">test</div>
