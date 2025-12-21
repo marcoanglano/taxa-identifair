@@ -192,6 +192,10 @@ export default function SpeciesDetail() {
   // Shared tooltip state for both bars
   const [hoveredKey, setHoveredKey] = useState(null); // "F" | "M" | null
 
+  // Traits sidebar (scaffold)
+  const [openTraitCategory, setOpenTraitCategory] = useState(null);
+  const [hoverTipKey, setHoverTipKey] = useState(null);
+
   // ---- Data fetch ----
   useEffect(() => {
     if (!decodedId) {
@@ -231,9 +235,6 @@ export default function SpeciesDetail() {
       alive = false;
     };
   }, [decodedId]);
-
-  const [openTraitCategory, setOpenTraitCategory] = useState(null);
-  const [hoverTipKey, setHoverTipKey] = useState(null);
 
   // ---- Guard clauses ----
   if (loading) return <p>Loading...</p>;

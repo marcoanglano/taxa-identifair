@@ -202,54 +202,22 @@
 }
 
 /* ======================
-   Icon test (temporary)
-   ====================== */
-
-.sd-iconTest {
-  margin-top: 16px;
-}
-
-.sd-iconRow {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.sd-icon {
-  display: block;
-}
-
-.sd-icon--24 {
-  width: 24px;
-  height: 24px;
-}
-
-.sd-icon--32 {
-  width: 32px;
-  height: 32px;
-}
-
-.sd-icon--48 {
-  width: 48px;
-  height: 48px;
-}
-
-/* ======================
    Traits sidebar (scaffold)
    ====================== */
 
 .sd-traitsLegend {
   margin: 10px 0 16px;
-  display: grid;
-  gap: 8px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
   font-size: 0.95rem;
+  flex-wrap: wrap; /* sicurezza su schermi stretti */
 }
 
 .sd-legendRow {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
 }
 
 .sd-legendSwatch {
@@ -261,8 +229,8 @@
 }
 
 .sd-legendSwatch--f { background: #e3790f; }
-.sd-legendSwatch--m { background: #4f7cc9; } /* placeholder azzurro: cambieremo quando scegli quello definitivo */
-.sd-legendSwatch--both { background: #ffffff; }
+.sd-legendSwatch--m { background: #4f7cc9; }
+.sd-legendSwatch--both { background: #bbbbbb; }
 
 .sd-traitsAccWrap {
   margin-top: 8px;
