@@ -316,7 +316,9 @@ export default function SpeciesDetail() {
       // 4) species_traits (for this species)
       const { data: stRows, error: stErr } = await supabase
         .from("species_traits")
-        .select("id_trait, f_states, f_notes, f_notes_url, m_states, m_notes, m_notes_url")
+        .select(
+          "id_trait, f_states, f_notes, f_notes_url, m_states, m_notes, m_notes_url"
+        )
         .eq("id_species", decodedId);
 
       if (!alive) return;
@@ -437,16 +439,17 @@ export default function SpeciesDetail() {
     ];
   };
 
-  // Tooltip text (for now: "test" if you want, or something more useful)
-  const tooltipTextFor = (row) => {
-    // If you literally want ONLY "test", return "test".
-    // return "test";
+  // Tooltip: "<b>{trait}: {state_label}</b>\n{notes}"
+  const tooltipTextFor = (row, icon) => {
+    const title = `${row.traitName}: ${icon?.label || "State"}`;
+    const notes = hasText(row?.notes) ? row.notes : null;
 
-    // Slightly more useful while still simple:
-    const parts = [];
-    parts.push(row.traitName);
-    if (hasText(row.notes)) parts.push(row.notes);
-    return parts.join(" — ") || "test";
+    return (
+      <>
+        <strong>{title}</strong>
+        {notes && <div style={{ marginTop: 4 }}>{notes}</div>}
+      </>
+    );
   };
 
   return (
@@ -525,51 +528,45 @@ export default function SpeciesDetail() {
                 isOpen={openTraitCategory === cat}
                 onToggle={handleToggleTraitCategory}
               >
-                <div className="sd-traitsList">
-                  {(traits || []).flatMap((t) => buildTraitRows(t)).map((r) => {
-                    const rowClass =
-                      r.sexKey === "F"
-                        ? "sd-traitRow--f"
-                        : r.sexKey === "M"
-                        ? "sd-traitRow--m"
-                        : "sd-traitRow--both";
+                <div className="sd-traitsGrid">
+                  {(traits || [])
+                    .flatMap((t) => buildTraitRows(t)) // rows: F / M / BOTH
+                    .flatMap((r) =>
+                      (r.icons || []).map((ic, idx) => ({
+                        key: `${r.key}__${ic.id_state || "nodata"}__${idx}`,
+                        sexKey: r.sexKey, // "F" | "M" | "BOTH"
+                        icon: ic.icon,
+                        ic,
+                        label: ic.label,
+                        rowForTooltip: r,
+                      }))
+                    )
+                    .map(({ key, sexKey, icon, label, rowForTooltip, ic }) => (
+                      <div
+                        key={key}
+                        className={`sd-traitState sd-traitState--${
+                          sexKey || "BOTH"
+                        }`}
+                        onMouseEnter={() => setHoverTipKey(key)}
+                        onMouseLeave={() =>
+                          setHoverTipKey((prev) => (prev === key ? null : prev))
+                        }
+                      >
+                        <div
+                          className={`sd-traitIconMask sd-traitIconMask--${String(
+                            sexKey || "BOTH"
+                          ).toUpperCase()}`}
+                          style={{ "--icon-url": `url("${icon}")` }}
+                          aria-label={label}
+                        />
 
-                    return (
-                      <div key={r.key} className={`sd-traitRow ${rowClass}`}>
-                        <div className="sd-traitRowTitle">{r.traitName}</div>
-
-                        <div className="sd-traitIcons">
-                          {(r.icons || []).map((ic, idx) => {
-                            const tipKey = `${r.key}__${ic.id_state || "nodata"}__${idx}`;
-                            return (
-                              <div
-                                key={tipKey}
-                                className="sd-traitIconWrap"
-                                onMouseEnter={() => setHoverTipKey(tipKey)}
-                                onMouseLeave={() =>
-                                  setHoverTipKey((prev) =>
-                                    prev === tipKey ? null : prev
-                                  )
-                                }
-                              >
-                                <img
-                                  className="sd-traitIcon"
-                                  src={ic.icon}
-                                  alt={ic.label}
-                                />
-
-                                {hoverTipKey === tipKey && (
-                                  <div className="sd-traitTooltip">
-                                    {tooltipTextFor(r)}
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
+                        {hoverTipKey === key && (
+                          <div className="sd-traitTooltip">
+                            {tooltipTextFor(rowForTooltip, ic)}
+                          </div>
+                        )}
                       </div>
-                    );
-                  })}
+                    ))}
                 </div>
               </TraitsAccordion>
             ))}

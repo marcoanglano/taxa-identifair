@@ -202,7 +202,7 @@
 }
 
 /* ======================
-   Traits sidebar
+   Traits sidebar (grid)
    ====================== */
 
 .sd-traitsLegend {
@@ -211,7 +211,7 @@
   gap: 16px;
   align-items: center;
   font-size: 0.95rem;
-  flex-wrap: wrap; /* sicurezza su schermi stretti */
+  flex-wrap: wrap;
 }
 
 .sd-legendRow {
@@ -224,7 +224,7 @@
   width: 14px;
   height: 14px;
   border-radius: 3px;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   display: inline-block;
 }
 
@@ -240,7 +240,7 @@
 .sd-acc {
   border: 1px solid var(--border);
   border-radius: 10px;
-  overflow: hidden;
+  overflow: visible; /* allow tooltip outside */
   margin-bottom: 10px;
   background: var(--panel);
 }
@@ -266,61 +266,51 @@
   padding: 12px;
 }
 
-/* ======================
-   Traits list (real)
-   ====================== */
-
-.sd-traitsList {
+/* Grid of icons */
+.sd-traitsGrid {
   display: grid;
-  gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
 }
 
-/* One “row” = one trait (or one sex-row of a trait) */
-.sd-traitRow {
+.sd-traitState {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 8px;
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--panel-2);
-  padding: 10px;
-}
-
-.sd-traitRowTitle {
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-bottom: 8px;
-  opacity: 0.95;
-}
-
-/* Icons line */
-.sd-traitIcons {
-  display: flex;
-  flex-wrap: wrap;      /* multiple icons in a row */
-  gap: 10px;
-  align-items: center;
-}
-
-/* Each icon is the hover target */
-.sd-traitIconWrap {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  padding: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
   cursor: help;
 }
 
-.sd-traitIconWrap:hover {
+.sd-traitState:hover {
   border-color: rgba(255, 255, 255, 0.18);
 }
 
-.sd-traitIcon {
+/* Mask-based monochrome SVG coloring */
+.sd-traitIconMask {
   width: 48px;
   height: 48px;
-  display: block;
+  background-color: currentColor;
+
+  -webkit-mask-image: var(--icon-url);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+
+  mask-image: var(--icon-url);
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
 }
 
-/* Tooltip anchored to the icon */
+/* Sex colors */
+.sd-traitIconMask--F { color: #e3790f; }
+.sd-traitIconMask--M { color: #4f7cc9; }
+.sd-traitIconMask--BOTH { color: #bbbbbb; }
+
+/* Tooltip */
 .sd-traitTooltip {
   position: absolute;
   left: 50%;
@@ -335,8 +325,3 @@
   white-space: nowrap;
   pointer-events: none;
 }
-
-/* Optional: subtle “sex context” styling */
-.sd-traitRow--f .sd-traitRowTitle { color: #e3790f; }
-.sd-traitRow--m .sd-traitRowTitle { color: #4f7cc9; }
-.sd-traitRow--both .sd-traitRowTitle { color: #bbbbbb; }
