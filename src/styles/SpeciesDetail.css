@@ -266,21 +266,52 @@
   padding: 12px;
 }
 
-/* Placeholder trait grid + tooltip */
-.sd-traitsGrid {
+/* ======================
+   Traits list (real)
+   ====================== */
+
+.sd-traitsList {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  gap: 12px;
 }
 
-.sd-traitState {
-  position: relative;
-  display: grid;
-  place-items: center;
-  padding: 8px;
+/* One “row” = one trait (or one sex-row of a trait) */
+.sd-traitRow {
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--panel-2);
+  padding: 10px;
+}
+
+.sd-traitRowTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  opacity: 0.95;
+}
+
+/* Icons line */
+.sd-traitIcons {
+  display: flex;
+  flex-wrap: wrap;      /* multiple icons in a row */
+  gap: 10px;
+  align-items: center;
+}
+
+/* Each icon is the hover target */
+.sd-traitIconWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: help;
+}
+
+.sd-traitIconWrap:hover {
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 .sd-traitIcon {
@@ -289,15 +320,23 @@
   display: block;
 }
 
+/* Tooltip anchored to the icon */
 .sd-traitTooltip {
   position: absolute;
-  top: 26px;
-  right: 2px;
-  z-index: 20;
+  left: 50%;
+  top: calc(100% + 8px);
+  transform: translateX(-50%);
+  z-index: 50;
   background: var(--panel);
   border: 1px solid var(--border);
   padding: 8px 10px;
   border-radius: 10px;
   font-size: 0.9rem;
   white-space: nowrap;
+  pointer-events: none;
 }
+
+/* Optional: subtle “sex context” styling */
+.sd-traitRow--f .sd-traitRowTitle { color: #e3790f; }
+.sd-traitRow--m .sd-traitRowTitle { color: #4f7cc9; }
+.sd-traitRow--both .sd-traitRowTitle { color: #bbbbbb; }
