@@ -131,6 +131,44 @@ function SexBar({
   );
 }
 
+function TraitLegend() {
+  return (
+    <div className="sd-traitsLegend" aria-label="Sex legend">
+      <div className="sd-legendRow">
+        <span className="sd-legendSwatch sd-legendSwatch--f" aria-hidden="true" />
+        <span>Female</span>
+      </div>
+
+      <div className="sd-legendRow">
+        <span className="sd-legendSwatch sd-legendSwatch--m" aria-hidden="true" />
+        <span>Male</span>
+      </div>
+
+      <div className="sd-legendRow">
+        <span className="sd-legendSwatch sd-legendSwatch--both" aria-hidden="true" />
+        <span>Both</span>
+      </div>
+    </div>
+  );
+}
+
+function TraitsAccordion({ cat, isOpen, onToggle, children }) {
+  return (
+    <div className="sd-acc">
+      <button
+        className="sd-accHeader"
+        type="button"
+        onClick={() => onToggle(cat)}
+      >
+        <span>{String(cat).toUpperCase()}</span>
+        <span className="sd-accChevron">{isOpen ? "▴" : "▾"}</span>
+      </button>
+
+      {isOpen && <div className="sd-accBody">{children}</div>}
+    </div>
+  );
+}
+
 // ======================
 // Main page
 // ======================
@@ -194,6 +232,9 @@ export default function SpeciesDetail() {
     };
   }, [decodedId]);
 
+  const [openTraitCategory, setOpenTraitCategory] = useState(null);
+  const [hoverTipKey, setHoverTipKey] = useState(null);
+
   // ---- Guard clauses ----
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -203,6 +244,16 @@ export default function SpeciesDetail() {
   // ---- Derived data (virtual rows for bars) ----
   const female = { min_len: base.f_min, max_len: base.f_max };
   const male = { min_len: base.m_min, max_len: base.m_max };
+
+  const handleToggleTraitCategory = (cat) => {
+    setOpenTraitCategory((prev) => (prev === cat ? null : cat));
+  };
+
+  // MOCK categories for scaffold (replace with real fetched categories later)
+  const traitCategories = [
+    { cat: "Prosome", items: [1, 2, 3] },
+    { cat: "Urosome", items: [1, 2] },
+  ];
 
   return (
     <div className="sd-page">
@@ -214,7 +265,6 @@ export default function SpeciesDetail() {
         {base.authority && <div className="sd-authority">{base.authority}</div>}
       </header>
 
-      {/* 2-column layout */}
       <div className="sd-grid">
         {/* LEFT (2/3) */}
         <div className="sd-col sd-colLeft">
@@ -223,16 +273,21 @@ export default function SpeciesDetail() {
             <div className="sd-metaRow">
               <strong>Family:</strong> {base.family || "-"}
             </div>
+
             <div className="sd-metaRow">
               <strong>Genus:</strong> <em>{base.genus || "-"}</em>
             </div>
+
             {base.environment && (
               <div className="sd-metaRow">
                 <strong>Environment:</strong> {base.environment}
               </div>
             )}
 
-            <ExternalLinks wormsLink={base.worms_link} razoulsLink={base.razouls_link} />
+            <ExternalLinks
+              wormsLink={base.worms_link}
+              razoulsLink={base.razouls_link}
+            />
           </section>
 
           {/* Length bars + scale */}
@@ -259,27 +314,52 @@ export default function SpeciesDetail() {
 
         {/* RIGHT (1/3) */}
         <aside className="sd-col sd-colRight" aria-label="Species detail sidebar">
+          {/* Title must not vary */}
           <p><b>Traits:</b></p>
-          <p><i>Coming in a future update!</i></p>
-          
-          {/* TEMP: trait icon visual test (remove in next versions) */}
-          <div className="sd-iconTest">
-            <p><strong>Icon test:</strong></p>
 
-            {[24, 32, 48].map((size) => (
-              <div key={size} className="sd-iconRow">
-                <img
-                  src={`https://fraywmircvjqozsywdfx.supabase.co/storage/v1/object/public/icons/Prosome/Prosome%20somites/PR_som_5i.svg?v=${ICON_VERSION}`}
-                  alt={`Test icon ${size}px`}
-                  className={`sd-icon sd-icon--${size}`}
-                />
-                <img
-                  src={`https://fraywmircvjqozsywdfx.supabase.co/storage/v1/object/public/icons/Urosome/Urosome%20somites/UR_som_3.svg?v=${ICON_VERSION}`}
-                  alt={`Test icon 2 ${size}px`}
-                  className={`sd-icon sd-icon--${size}`}
-                />
-                <span>{size} px</span>
-              </div>
+          {/* Legend */}
+          <TraitLegend />
+
+          {/* Accordion */}
+          <div className="sd-traitsAccWrap">
+            {traitCategories.map(({ cat, items }) => (
+              <TraitsAccordion
+                key={cat}
+                cat={cat}
+                isOpen={openTraitCategory === cat}
+                onToggle={handleToggleTraitCategory}
+              >
+                {/* Placeholder state icons (temporary) */}
+                <div className="sd-traitsGrid">
+                  {items.map((n) => {
+                    const tipKey = `${cat}__${n}`;
+                    return (
+                      <div key={tipKey} className="sd-traitState">
+                        <img
+                          className="sd-traitIcon"
+                          src={`https://fraywmircvjqozsywdfx.supabase.co/storage/v1/object/public/icons/Prosome/Prosome%20somites/PR_som_5i.svg?v=${ICON_VERSION}`}
+                          alt="State icon test"
+                        />
+
+                        <div
+                          className="sd-traitTipTarget"
+                          onMouseEnter={() => setHoverTipKey(tipKey)}
+                          onMouseLeave={() =>
+                            setHoverTipKey((prev) => (prev === tipKey ? null : prev))
+                          }
+                          aria-label="Trait tooltip"
+                        >
+                          ?
+                        </div>
+
+                        {hoverTipKey === tipKey && (
+                          <div className="sd-traitTooltip">test</div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </TraitsAccordion>
             ))}
           </div>
         </aside>

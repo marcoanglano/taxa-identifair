@@ -234,3 +234,117 @@
   width: 48px;
   height: 48px;
 }
+
+/* ======================
+   Traits sidebar (scaffold)
+   ====================== */
+
+.sd-traitsLegend {
+  margin: 10px 0 16px;
+  display: grid;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+.sd-legendRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sd-legendSwatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  display: inline-block;
+}
+
+.sd-legendSwatch--f { background: #e3790f; }
+.sd-legendSwatch--m { background: #4f7cc9; } /* placeholder azzurro: cambieremo quando scegli quello definitivo */
+.sd-legendSwatch--both { background: #ffffff; }
+
+.sd-traitsAccWrap {
+  margin-top: 8px;
+}
+
+/* Accordion look similar to Identify */
+.sd-acc {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  background: var(--panel);
+}
+
+.sd-accHeader {
+  width: 100%;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--panel-2);
+  border: 0;
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.sd-accChevron {
+  opacity: 0.9;
+}
+
+.sd-accBody {
+  padding: 12px;
+}
+
+/* Placeholder trait grid + tooltip */
+.sd-traitsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.sd-traitState {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel-2);
+}
+
+.sd-traitIcon {
+  width: 32px;
+  height: 32px;
+  display: block;
+}
+
+.sd-traitTipTarget {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 0.85rem;
+  background: #ffffff;
+  color: #000000;
+  cursor: default;
+}
+
+.sd-traitTooltip {
+  position: absolute;
+  top: 26px;
+  right: 6px;
+  z-index: 20;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
