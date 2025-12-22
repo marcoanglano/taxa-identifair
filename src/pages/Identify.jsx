@@ -447,7 +447,10 @@ export default function Identify() {
     <div className="id-page">
       {/* LEFT: traits accordion */}
       <div className="id-left">
-        <h1 className="id-title">Identify</h1>
+        <header className="page-header">
+          <h1>Identify</h1>
+          <p className="page-subtitle">Key for adult calanoid copepods only.</p>
+        </header>
 
         {loadingTraits && <p>Loading traits...</p>}
         {traitsError && <p className="id-err">Error: {traitsError}</p>}

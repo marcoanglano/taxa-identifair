@@ -26,6 +26,13 @@
   margin: 0 0 10px 0;
 }
 
+.page-subtitle{
+  margin-top: 6px;
+  opacity: 0.85;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
 .id-subtitle {
   margin: 0 0 10px 0;
 }
