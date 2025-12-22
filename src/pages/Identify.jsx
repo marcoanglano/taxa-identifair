@@ -448,7 +448,7 @@ export default function Identify() {
           ...copy[idx],
           stateId: st.id_state,
           stateLabel: st.state_label,
-          traitIconUrl: trait.trait_icon_url ?? null,
+          traitIconUrl: trait.trait_icon_url ?? copy[idx].traitIconUrl ?? null,
         };
         return copy;
       }
