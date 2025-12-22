@@ -138,12 +138,16 @@ function TraitBlock({
 
           return (
             <button
-              key={`${trait.id_trait}__${st.id_state}`}
-              onClick={() => onSelectState(trait, st)}
-              className={`id-stateBtn ${isActive ? "id-stateBtn--active" : ""}`}
               type="button"
+              className={`id-accIconBtn ${isActive ? "is-selected" : ""}`}
+              onClick={() => onSelectState(trait, st)}
+              aria-label={st.state_label}
+              data-tooltip={st.state_label}
             >
-              {st.state_label}
+              <span
+                className="id-traitIconMask"
+                style={{ "--icon-url": `url(${st.state_icon_url})` }}
+              />
             </button>
           );
         })}
@@ -240,7 +244,8 @@ export default function Identify() {
           trait_states (
             id_state,
             state_label,
-            sort_order
+            sort_order,
+            state_icon_url
           )
         `
         )
