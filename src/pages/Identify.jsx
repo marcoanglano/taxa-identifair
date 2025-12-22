@@ -17,7 +17,9 @@ const includesSelected = (states, selectedIdState) =>
 const buildNotesByTrait = (selectedFilters, byTrait) =>
   selectedFilters.map((f) => {
     const n = byTrait[f.traitId]?.notes;
-    return hasText(n) ? String(n).trim() : null;
+    return hasText(n)
+      ? { note: String(n).trim(), traitIconUrl: f.traitIconUrl ?? null }
+      : null;
   });
 
 const sortEntries = (list) =>
@@ -36,7 +38,7 @@ const sortEntries = (list) =>
 // ======================
 function NoteIcons({ notesByTrait, rowKey, sp, hoverNoteKey, setHoverNoteKey }) {
   return (notesByTrait || []).map((note, idx) => {
-    if (!hasText(note)) return null;
+    if (!note || !hasText(note.note)) return null;
 
     const noteKey = `${sp.id_species}__${sp.sex}__${rowKey}__t${idx}`;
 
@@ -49,10 +51,17 @@ function NoteIcons({ notesByTrait, rowKey, sp, hoverNoteKey, setHoverNoteKey }) 
             setHoverNoteKey((prev) => (prev === noteKey ? null : prev))
           }
         >
-          i{idx + 1}
+          {note.traitIconUrl ? (
+            <span
+              className="id-noteTraitIconMask"
+              style={{ "--icon-url": `url(${note.traitIconUrl})` }}
+            />
+          ) : (
+            "i"
+          )}
         </div>
 
-        {hoverNoteKey === noteKey && <div className="id-noteTooltip">{note}</div>}
+        {hoverNoteKey === noteKey && <div className="id-noteTooltip">{note.note}</div>}
       </span>
     );
   });
@@ -138,6 +147,7 @@ function TraitBlock({
 
           return (
             <button
+              key={`${trait.id_trait}__${st.id_state}`}
               type="button"
               className={`id-accIconBtn ${isActive ? "is-selected" : ""}`}
               onClick={() => onSelectState(trait, st)}
@@ -241,6 +251,7 @@ export default function Identify() {
           trait_name,
           description,
           description_url,
+          trait_icon_url,
           trait_states (
             id_state,
             state_label,
@@ -433,7 +444,12 @@ export default function Identify() {
       const idx = prev.findIndex((f) => f.traitId === trait.id_trait);
       if (idx >= 0) {
         const copy = prev.slice();
-        copy[idx] = { ...copy[idx], stateId: st.id_state, stateLabel: st.state_label };
+        copy[idx] = {
+          ...copy[idx],
+          stateId: st.id_state,
+          stateLabel: st.state_label,
+          traitIconUrl: trait.trait_icon_url ?? null,
+        };
         return copy;
       }
       return [
@@ -443,6 +459,7 @@ export default function Identify() {
           traitName: trait.trait_name,
           stateId: st.id_state,
           stateLabel: st.state_label,
+          traitIconUrl: trait.trait_icon_url ?? null,
         },
       ];
     });
