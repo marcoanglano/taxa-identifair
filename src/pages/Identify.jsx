@@ -460,6 +460,9 @@ export default function Identify() {
     setOpenCategory((prev) => (prev === cat ? null : cat));
   };
 
+  // For a future update:
+  const [resultFilters, setResultFilters] = useState({});
+
   // If trait already selected: update state (keep order). Else: push at end.
   const handleSelectState = (trait, st) => {
     setSelectedTraits((prev) => {
@@ -487,10 +490,13 @@ export default function Identify() {
     });
   };
 
+  const handleRemoveSelectedTrait = (traitId) => {
+    setSelectedTraits((prev) => prev.filter((t) => t.traitId !== traitId));
+    setHoverNoteKey(null);
+  };
+
   const handleResetTraits = () => {
     setSelectedTraits([]);
-    setHoverNoteKey(null);
-    setOpenCategory(null);
   };
 
   return (
@@ -565,8 +571,20 @@ export default function Identify() {
             <div className="id-traitsTitle">Traits (order of selection):</div>
             <ol className="id-traitsList">
               {selectedTraits.map((f, idx) => (
-                <li key={`${f.traitId}__${idx}`}>
-                  <strong>{f.traitName}</strong> = <code>{f.stateLabel}</code>
+                <li key={`${f.traitId}__${idx}`} className="id-traitsItem">
+                  <button
+                    type="button"
+                    className="id-traitsRemoveBtn"
+                    onClick={() => handleRemoveSelectedTrait(f.traitId)}
+                    aria-label={`Remove trait ${f.traitName}`}
+                    title="Remove"
+                  >
+                    ×
+                  </button>
+
+                  <span className="id-traitsItemText">
+                    <strong>{f.traitName}</strong> = <code>{f.stateLabel}</code>
+                  </span>
                 </li>
               ))}
             </ol>

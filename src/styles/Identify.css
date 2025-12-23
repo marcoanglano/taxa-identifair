@@ -480,3 +480,34 @@
   opacity: 0.55;
   cursor: not-allowed;
 }
+
+.id-traitsItem{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+}
+
+.id-traitsRemoveBtn{
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  line-height: 1;
+  font-size: 17px;
+  padding: 0;
+  flex: 0 0 auto;
+}
+
+.id-traitsRemoveBtn:hover{
+  border-color: rgba(255,255,255,0.18);
+}
+
+.id-traitsItemText{
+  min-width: 0;
+}
