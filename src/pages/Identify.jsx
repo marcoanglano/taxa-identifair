@@ -15,8 +15,8 @@ const isNoDataState = (states) =>
 const includesSelected = (states, selectedIdState) =>
   Array.isArray(states) && states.includes(String(selectedIdState));
 
-const buildNotesByTrait = (selectedFilters, byTrait) =>
-  selectedFilters.map((f) => {
+const buildNotesByTrait = (selectedTraits, byTrait) =>
+  selectedTraits.map((f) => {
     const n = byTrait[f.traitId]?.notes;
     return hasText(n)
       ? { note: String(n).trim(), traitIconUrl: f.traitIconUrl ?? null }
@@ -235,16 +235,16 @@ export default function Identify() {
   const [traitsError, setTraitsError] = useState(null);
   const [openCategory, setOpenCategory] = useState(null);
 
-  // ---- Multi-filters (order preserved) ----
+  // ---- Multi-traits (order preserved) ----
   // [{ traitId, traitName, stateId, stateLabel }]
-  const [selectedFilters, setSelectedFilters] = useState([]);
+  const [selectedTraits, setSelectedTraits] = useState([]);
 
   // traitId -> selected stateId (for "active" UI)
   const selectedStateByTraitId = useMemo(() => {
     const obj = {};
-    for (const f of selectedFilters) obj[f.traitId] = f.stateId;
+    for (const f of selectedTraits) obj[f.traitId] = f.stateId;
     return obj;
-  }, [selectedFilters]);
+  }, [selectedTraits]);
 
   // ---- Results state ----
   const [matches, setMatches] = useState([]); // [{ species, notesByTrait }]
@@ -322,13 +322,13 @@ export default function Identify() {
   }, []);
 
   // ======================
-  // Fetch + matching: species_traits for N filters
+  // Fetch + matching: species_traits for N traits
   // ======================
   useEffect(() => {
     let alive = true;
 
     (async () => {
-      if (!selectedFilters.length) {
+      if (!selectedTraits.length) {
         setMatches([]);
         setNoDataMatches([]);
         return;
@@ -337,7 +337,7 @@ export default function Identify() {
       setLoadingMatches(true);
       setMatchesError(null);
 
-      const traitIds = selectedFilters.map((f) => f.traitId);
+      const traitIds = selectedTraits.map((f) => f.traitId);
 
       const { data, error } = await supabase
         .from("species_traits")
@@ -417,7 +417,7 @@ export default function Identify() {
         let okAll = true;
         let hasAnyNoData = false;
 
-        for (const f of selectedFilters) {
+        for (const f of selectedTraits) {
           const info = byTrait[f.traitId];
 
           if (!info) {
@@ -437,7 +437,7 @@ export default function Identify() {
           if (!includesSelected(states, f.stateId)) okAll = false;
         }
 
-        const notesByTrait = buildNotesByTrait(selectedFilters, byTrait);
+        const notesByTrait = buildNotesByTrait(selectedTraits, byTrait);
 
         if (okAll) present.push({ species: sp, notesByTrait });
         else if (hasAnyNoData) noData.push({ species: sp, notesByTrait });
@@ -451,7 +451,7 @@ export default function Identify() {
     return () => {
       alive = false;
     };
-  }, [selectedFilters]);
+  }, [selectedTraits]);
 
   // ======================
   // UI handlers
@@ -462,7 +462,7 @@ export default function Identify() {
 
   // If trait already selected: update state (keep order). Else: push at end.
   const handleSelectState = (trait, st) => {
-    setSelectedFilters((prev) => {
+    setSelectedTraits((prev) => {
       const idx = prev.findIndex((f) => f.traitId === trait.id_trait);
       if (idx >= 0) {
         const copy = prev.slice();
@@ -487,48 +487,84 @@ export default function Identify() {
     });
   };
 
+  const handleResetTraits = () => {
+    setSelectedTraits([]);
+    setHoverNoteKey(null);
+    setOpenCategory(null);
+  };
+
   return (
     <div className="id-page">
-      {/* LEFT: traits accordion */}
+      {/* LEFT */}
       <div className="id-left">
         <header className="page-header">
           <h1>Identify</h1>
           <p className="page-subtitle">Key for adult calanoid copepods only.</p>
         </header>
 
-        {loadingTraits && <p>Loading traits...</p>}
-        {traitsError && <p className="id-err">Error: {traitsError}</p>}
+        {/* Filters section */}
+        <section className="id-leftSection" aria-label="Filters panel">
+          <div className="id-leftSectionHeader">
+            <h2 className="id-leftSectionTitle">Filters</h2>
+          </div>
 
-        {!loadingTraits && !Object.keys(traitsByCategory).length && (
-          <p>No traits with states found.</p>
-        )}
+          <div className="id-leftSectionBody">
+            <p className="id-muted">Coming soon...</p>
+          </div>
+        </section>
 
-        {Object.entries(traitsByCategory).map(([cat, traits]) => (
-          <TraitCategoryAccordion
-            key={cat}
-            cat={cat}
-            traits={traits}
-            isOpen={openCategory === cat}
-            onToggle={handleToggleCategory}
-            selectedStateByTraitId={selectedStateByTraitId}
-            onSelectState={handleSelectState}
-            hoverTraitId={hoverTraitId}
-            setHoverTraitId={setHoverTraitId}
-          />
-        ))}
+        {/* Traits section */}
+        <section className="id-leftSection" aria-label="Traits panel">
+          <div className="id-leftSectionHeader">
+            <h2 className="id-leftSectionTitle">Traits</h2>
+
+            <button
+              type="button"
+              className="id-resetBtn"
+              onClick={handleResetTraits}
+              disabled={!selectedTraits.length}
+              title={!selectedTraits.length ? "No traits selected" : "Reset selected traits"}
+            >
+              Reset traits
+            </button>
+          </div>
+
+          <div className="id-leftSectionBody">
+            {loadingTraits && <p>Loading traits...</p>}
+            {traitsError && <p className="id-err">Error: {traitsError}</p>}
+
+            {!loadingTraits && !Object.keys(traitsByCategory).length && (
+              <p>No traits with states found.</p>
+            )}
+
+            {Object.entries(traitsByCategory).map(([cat, traits]) => (
+              <TraitCategoryAccordion
+                key={cat}
+                cat={cat}
+                traits={traits}
+                isOpen={openCategory === cat}
+                onToggle={handleToggleCategory}
+                selectedStateByTraitId={selectedStateByTraitId}
+                onSelectState={handleSelectState}
+                hoverTraitId={hoverTraitId}
+                setHoverTraitId={setHoverTraitId}
+              />
+            ))}
+          </div>
+        </section>
       </div>
 
       {/* RIGHT: results */}
       <div className="id-right">
         <h2 className="id-subtitle">Matching species:</h2>
 
-        {!selectedFilters.length ? (
+        {!selectedTraits.length ? (
           <p>Select one or more trait states to see matching species.</p>
         ) : (
-          <div className="id-filters">
-            <div className="id-filtersTitle">Filters (order of selection):</div>
-            <ol className="id-filtersList">
-              {selectedFilters.map((f, idx) => (
+          <div className="id-traits">
+            <div className="id-traitsTitle">Traits (order of selection):</div>
+            <ol className="id-traitsList">
+              {selectedTraits.map((f, idx) => (
                 <li key={`${f.traitId}__${idx}`}>
                   <strong>{f.traitName}</strong> = <code>{f.stateLabel}</code>
                 </li>
@@ -540,7 +576,7 @@ export default function Identify() {
         {loadingMatches && <p>Loading matching species...</p>}
         {matchesError && <p className="id-err">Error: {matchesError}</p>}
 
-        {!loadingMatches && selectedFilters.length > 0 && matches.length === 0 && (
+        {!loadingMatches && selectedTraits.length > 0 && matches.length === 0 && (
           <p>No species found for this combination.</p>
         )}
 
@@ -559,7 +595,7 @@ export default function Identify() {
         )}
 
         {!loadingMatches &&
-          selectedFilters.length > 0 &&
+          selectedTraits.length > 0 &&
           noDataMatches.length > 0 && (
             <div className="id-nodata">
               <h3 className="id-nodataTitle">No data:</h3>

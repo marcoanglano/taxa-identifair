@@ -217,18 +217,18 @@
 }
 
 /* ======================
-   Filters block
+   Traits block
    ====================== */
 
-.id-filters {
+.id-traits {
   font-size: 0.9rem;
 }
 
-.id-filtersTitle {
+.id-traitsTitle {
   margin-bottom: 6px;
 }
 
-.id-filtersList {
+.id-traitsList {
   margin-top: 0;
   padding-left: 18px;
 }
@@ -421,4 +421,62 @@
   font-size: 0.8rem;
   color: #666;
   margin: 0 0 10px 0;
+}
+
+/* ======================
+   Left panel sections
+   ====================== */
+
+.id-leftSection {
+  margin-bottom: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+  overflow: hidden;
+}
+
+.id-leftSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 10px 12px;
+  background: var(--panel-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.id-leftSectionTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.id-leftSectionBody {
+  padding: 12px;
+}
+
+.id-muted {
+  opacity: 0.8;
+}
+
+/* Reset button */
+.id-resetBtn {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.id-resetBtn:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.id-resetBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
