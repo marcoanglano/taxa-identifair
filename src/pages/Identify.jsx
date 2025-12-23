@@ -9,7 +9,8 @@ import "../styles/Identify.css";
 const hasText = (v) => v != null && String(v).trim().length > 0;
 
 // In v0.2 states are always arrays (default '{}'), but keep it safe:
-const isNoDataState = (states) => states === null || (Array.isArray(states) && states.length === 0);
+const isNoDataState = (states) =>
+  states === null || (Array.isArray(states) && states.length === 0);
 
 const includesSelected = (states, selectedIdState) =>
   Array.isArray(states) && states.includes(String(selectedIdState));
@@ -61,7 +62,9 @@ function NoteIcons({ notesByTrait, rowKey, sp, hoverNoteKey, setHoverNoteKey }) 
           )}
         </div>
 
-        {hoverNoteKey === noteKey && <div className="id-noteTooltip">{note.note}</div>}
+        {hoverNoteKey === noteKey && (
+          <div className="id-noteTooltip">{note.note}</div>
+        )}
       </span>
     );
   });
@@ -69,30 +72,47 @@ function NoteIcons({ notesByTrait, rowKey, sp, hoverNoteKey, setHoverNoteKey }) 
 
 function SpeciesRow({ entry, type, hoverNoteKey, setHoverNoteKey }) {
   const sp = entry.species;
+  const sex = String(sp.sex || "").toUpperCase();
+  const sexClass = sex === "F" ? "is-f" : "is-m";
   const rowKey = `${sp.id_species}__${sp.sex}__${type}`;
-  const rowClass = type === "match" ? "id-row--match" : "id-row--nodata";
 
   return (
-    <div className={`id-row ${rowClass}`}>
-      <div className="id-rowTop">
-        <div className="id-rowName">
-          <Link to={`/species/${encodeURIComponent(sp.id_species)}`}>
-            <em>{sp.scientific_name}</em>
-          </Link>{" "}
-          <span className="id-rowSex">({sp.sex})</span>
+    <div
+      className={`id-resultCard ${sexClass} ${
+        type === "nodata" ? "is-nodata" : ""
+      }`}
+    >
+      <div className="id-resultTop">
+        <div className="id-resultText">
+          <div className="id-resultSci">
+            <Link
+              className="id-resultLink"
+              to={`/species/${encodeURIComponent(sp.id_species)}`}
+            >
+              <em>{sp.scientific_name}</em>
+            </Link>
+          </div>
+
+          <div className="id-resultMeta">
+            {sp.family} — <em>{sp.genus}</em>
+          </div>
         </div>
 
-        <NoteIcons
-          notesByTrait={entry.notesByTrait}
-          rowKey={rowKey}
-          sp={sp}
-          hoverNoteKey={hoverNoteKey}
-          setHoverNoteKey={setHoverNoteKey}
-        />
-      </div>
+        <div className="id-resultRightBits">
+          <div className="id-resultSex" aria-label={`Sex ${sex}`}>
+            {sex}
+          </div>
 
-      <div className={`id-rowMeta ${type === "match" ? "id-rowMeta--match" : "id-rowMeta--nodata"}`}>
-        {sp.family} – <i>{sp.genus}</i>
+          <div className="id-resultIconSlot" aria-hidden="true">
+            <NoteIcons
+              notesByTrait={entry.notesByTrait}
+              rowKey={rowKey}
+              sp={sp}
+              hoverNoteKey={hoverNoteKey}
+              setHoverNoteKey={setHoverNoteKey}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -178,7 +198,11 @@ function TraitCategoryAccordion({
 }) {
   return (
     <div className="id-acc">
-      <button className="id-accHeader" onClick={() => onToggle(cat)} type="button">
+      <button
+        className="id-accHeader"
+        onClick={() => onToggle(cat)}
+        type="button"
+      >
         <span>{cat.toUpperCase()}</span>
         <span className="id-accChevron">{isOpen ? "▴" : "▾"}</span>
       </button>
@@ -277,7 +301,7 @@ export default function Identify() {
       const byCat = {};
       for (const row of data || []) {
         const states = Array.isArray(row.trait_states) ? row.trait_states : [];
-        if (states.length === 0) continue; // like old "possible_states empty => skip"
+        if (states.length === 0) continue;
 
         const cat = row.trait_category || "Other";
         if (!byCat[cat]) byCat[cat] = [];
@@ -344,8 +368,7 @@ export default function Identify() {
         return;
       }
 
-      // Build 2 “virtual entries” per species (F and M), similar to old behavior
-      // Map key: `${id_species}__F` and `${id_species}__M`
+      // Build 2 “virtual entries” per species (F and M)
       const bySpeciesSex = new Map();
 
       for (const row of data || []) {
@@ -397,14 +420,13 @@ export default function Identify() {
         for (const f of selectedFilters) {
           const info = byTrait[f.traitId];
 
-          // Missing row -> treat as "no data"
           if (!info) {
             hasAnyNoData = true;
             okAll = false;
             continue;
           }
 
-          const states = info.state; // text[] (or null if something odd)
+          const states = info.state;
 
           if (isNoDataState(states)) {
             hasAnyNoData = true;
@@ -536,24 +558,27 @@ export default function Identify() {
           </div>
         )}
 
-        {!loadingMatches && selectedFilters.length > 0 && noDataMatches.length > 0 && (
-          <div className="id-nodata">
-            <h3 className="id-nodataTitle">No data:</h3>
-            <p className="id-nodataHelp">
-              Species for which at least one selected trait has no recorded state.
-            </p>
+        {!loadingMatches &&
+          selectedFilters.length > 0 &&
+          noDataMatches.length > 0 && (
+            <div className="id-nodata">
+              <h3 className="id-nodataTitle">No data:</h3>
+              <p className="id-nodataHelp">
+                Species for which at least one selected trait has no recorded
+                state.
+              </p>
 
-            {noDataMatches.map((entry) => (
-              <SpeciesRow
-                key={`${entry.species.id_species}__${entry.species.sex}__nodata`}
-                entry={entry}
-                type="nodata"
-                hoverNoteKey={hoverNoteKey}
-                setHoverNoteKey={setHoverNoteKey}
-              />
-            ))}
-          </div>
-        )}
+              {noDataMatches.map((entry) => (
+                <SpeciesRow
+                  key={`${entry.species.id_species}__${entry.species.sex}__nodata`}
+                  entry={entry}
+                  type="nodata"
+                  hoverNoteKey={hoverNoteKey}
+                  setHoverNoteKey={setHoverNoteKey}
+                />
+              ))}
+            </div>
+          )}
       </div>
     </div>
   );

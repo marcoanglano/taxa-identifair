@@ -22,11 +22,7 @@
   flex: 1;
 }
 
-.id-title {
-  margin: 0 0 10px 0;
-}
-
-.page-subtitle{
+.page-subtitle {
   margin-top: 6px;
   opacity: 0.85;
   font-size: 0.95rem;
@@ -144,14 +140,14 @@
 
 /* ===== States grid ===== */
 
-.id-states{
+.id-states {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
 }
 
 /* Tile */
-.id-accIconBtn{
+.id-accIconBtn {
   position: relative;
   display: grid;
   place-items: center;
@@ -167,16 +163,16 @@
   height: auto;
 }
 
-.id-accIconBtn:hover{
+.id-accIconBtn:hover {
   border-color: rgba(255, 255, 255, 0.18);
 }
 
-.id-accIconBtn.is-selected{
+.id-accIconBtn.is-selected {
   outline: 2px solid rgba(255, 255, 255, 0.25);
 }
 
 /* Mask-based monochrome SVG coloring */
-.id-traitIconMask{
+.id-traitIconMask {
   color: var(--text);
   width: 48px;
   height: 48px;
@@ -193,132 +189,8 @@
   mask-size: contain;
 }
 
-/* ======================
-   Filters block
-   ====================== */
-
-.id-filters {
-  font-size: 0.9rem;
-}
-
-.id-filtersTitle {
-  margin-bottom: 6px;
-}
-
-.id-filtersList {
-  margin-top: 0;
-  padding-left: 18px;
-}
-
-/* ======================
-   Results rows
-   ====================== */
-
-.id-results {
-  margin-top: 10px;
-}
-
-.id-row {
-  padding: 4px 0;
-  position: relative;
-}
-
-.id-row--match {
-  border-bottom: 1px solid #eee;
-}
-
-.id-row--nodata {
-  border-bottom: 1px dashed #eee;
-}
-
-.id-rowName {
-  display: inline;
-}
-
-.id-rowTop {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.id-rowSex {
-  font-size: 0.85rem;
-}
-
-.id-rowMeta {
-  font-size: 0.8rem;
-}
-
-.id-rowMeta--match {
-  color: #555;
-}
-
-.id-rowMeta--nodata {
-  color: #777;
-}
-
-/* ===== Note icons + tooltip ===== */
-.id-noteWrap {
-  position: relative;
-  display: inline-block;
-}
-
-.id-noteIcon {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.7rem;
-  cursor: default;
-  background: var(--panel-2);
-  color: var(--text);
-  margin-left: 4px;
-  user-select: none;
-}
-
-.id-noteTooltip {
-  position: absolute;
-  top: 24px;
-  left: 0px;
-  width: var(--id-tooltip-w);
-  background: #ffffff;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 6px 8px;
-  font-size: 0.8rem;
-  color: #000;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-  z-index: 50;
-  pointer-events: none;
-}
-
-/* ======================
-   No data block
-   ====================== */
-
-.id-nodata {
-  margin-top: 20px;
-}
-
-.id-nodataTitle {
-  margin: 0 0 6px 0;
-}
-
-.id-nodataHelp {
-  font-size: 0.8rem;
-  color: #666;
-  margin: 0 0 10px 0;
-}
-
 /* Instant custom tooltip for icon buttons */
-.id-accIconBtn{
-  position: relative;
-}
-
-.id-accIconBtn::after{
+.id-accIconBtn::after {
   content: attr(data-tooltip);
   position: absolute;
   left: 50%;
@@ -340,12 +212,163 @@
   transition: opacity 0.08s ease;
 }
 
-.id-accIconBtn:hover::after{
+.id-accIconBtn:hover::after {
   opacity: 1;
 }
 
+/* ======================
+   Filters block
+   ====================== */
+
+.id-filters {
+  font-size: 0.9rem;
+}
+
+.id-filtersTitle {
+  margin-bottom: 6px;
+}
+
+.id-filtersList {
+  margin-top: 0;
+  padding-left: 18px;
+}
+
+/* ======================
+   Results cards (Identify)
+   ====================== */
+
+.id-results {
+  position: relative;
+  z-index: 0;
+  margin-top: 10px;
+  display: grid;
+  gap: 10px;
+}
+
+.id-resultCard {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+  position: relative;
+  z-index: 0;
+}
+
+/* Let a hovered card paint above the next ones */
+.id-resultCard:hover {
+  z-index: 20;
+}
+
+/* One row: text on left, sex+icons on right */
+.id-resultTop {
+  display: flex;
+  align-items: center;         /* vertical centering */
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.id-resultText {
+  min-width: 0;
+}
+
+.id-resultSci {
+  line-height: 1.2;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.id-resultLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.id-resultLink:hover {
+  text-decoration: underline;
+}
+
+.id-resultMeta {
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-weight: 400; /* not bold */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Right side: badge + icons inline */
+.id-resultRightBits {
+  display: inline-flex;
+  align-items: center;         /* vertical centering */
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+/* Sex badge */
+.id-resultSex {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+
+  font-weight: 700;
+  font-size: 0.85rem;
+
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+/* Icons (can wrap, but now they’re next to sex) */
+.id-resultIconSlot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap; /* if many */
+  max-width: 220px; /* prevents insane stretching; tweak if you want */
+}
+
+/* Sex colors */
+.id-resultCard.is-f .id-resultSci {
+  color: #f2a64a;
+}
+
+.id-resultCard.is-m .id-resultSci {
+  color: #86aaf0;
+}
+
+/* Optional: nodata state */
+.id-resultCard.is-nodata {
+  opacity: 0.85;
+}
+
+/* ===== Note icons + tooltip ===== */
+.id-noteWrap {
+  position: relative;
+  display: inline-block;
+  z-index: 1;
+}
+
+.id-noteIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  cursor: default;
+  background: var(--panel-2);
+  color: var(--text);
+  user-select: none;
+}
+
 /* 36x36 trait icon for note trigger */
-.id-noteTraitIconMask{
+.id-noteTraitIconMask {
   width: 36px;
   height: 36px;
   flex: 0 0 36px;
@@ -361,4 +384,41 @@
   mask-repeat: no-repeat;
   mask-position: center;
   mask-size: contain;
+}
+
+.id-noteTooltip {
+  position: absolute;
+  top: 44px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--id-tooltip-w);
+
+  background: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 0.8rem;
+  color: #000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* ======================
+   No data block
+   ====================== */
+
+.id-nodata {
+  margin-top: 20px;
+}
+
+.id-nodataTitle {
+  margin: 0 0 6px 0;
+}
+
+.id-nodataHelp {
+  font-size: 0.8rem;
+  color: #666;
+  margin: 0 0 10px 0;
 }
