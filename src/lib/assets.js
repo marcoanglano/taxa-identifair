@@ -1,1 +1,0 @@
-export const ICON_VERSION = "0.2.02.01";

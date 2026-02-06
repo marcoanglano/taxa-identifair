@@ -8,52 +8,6 @@ import SpeciesList from "./pages/SpeciesList";
 
 export default function App() {
   return (
-    <div className="app-root">
-      <nav className="app-nav">
-        <div className="app-navInner">
-          {/* Brand (centrato) */}
-          <div className="app-brand">
-            <span className="app-brandTitle">ZP id - ZooPlankton identifier</span>
-            <span className="app-brandSubtitle">Calanoida</span>
-          </div>
-
-          {/* Links (a sinistra) */}
-          <div className="app-navLinks">
-            <Link to="/" className="app-link">Home</Link>
-            <Link to="/species" className="app-link">Species</Link>
-            <Link to="/identify" className="app-link">Identify</Link>
-          </div>
-        </div>
-      </nav>
-
-      <main className="app-main">
-        <div className="app-container">
-          <Routes>
-            <Route path="/" element={<h1>Home</h1>} />
-            <Route path="/identify" element={<Identify />} />
-            <Route path="/species" element={<SpeciesList />} />
-            <Route path="/species/:id_species" element={<SpeciesDetail />} />
-          </Routes>
-        </div>
-      </main>
-      
-      {/* Footer */}
-      <footer className="app-footer">
-        <div className="app-footerInner">
-          {/* Left */}
-          <div className="app-footerLeft"></div>
-
-          {/* Center */}
-          <div className="app-footerCenter">
-            ZP id - ZooPlankton identifier &copy; Marco Anglano 2025
-          </div>
-
-          {/* Right */}
-          <div className="app-footerRight">
-            v0.2.06.00
-          </div>
-        </div>
-      </footer>
-    </div>
+    <p>TO DO</p>
   );
 }
