@@ -1,4 +1,4 @@
-// TO DO: ... soon
+// TO DO: Add content to this page. Needs a good schedule of the work to do.
 
 export default function Identify() {
   return (

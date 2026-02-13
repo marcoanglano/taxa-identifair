@@ -1,1 +1,57 @@
-/* TO DO */
+/* TO DO: ... */
+
+
+/* =_=_=_=_=_=_=_=_=_=<<  HEADER  >>=_=_=_=_=_=_=_=_=_= */
+
+.app-header {
+  background-color: #0f172a;
+  color: white;
+  padding: 1.5rem;
+}
+
+.app-header h1 {
+  margin-bottom: 0.5rem;
+}
+
+.app-brand {
+  text-align: center;
+}
+
+/* <<< NAV BAR >>> */
+
+.app-nav {
+  margin-top: 0.5rem;
+}
+
+.app-nav ul {
+  display: flex;
+  gap: 1rem;
+  list-style: none;
+}
+
+.app-nav a {
+  color: #93c5fd;
+  text-decoration: none;
+}
+
+.app-nav a:hover {
+  text-decoration: underline;
+}
+
+
+/* =_=_=_=_=_=_=_=_=_=<<  MAIN  >>=_=_=_=_=_=_=_=_=_= */
+
+.app-main {
+  padding: 2rem;
+  min-height: 70vh;
+}
+
+
+/* =_=_=_=_=_=_=_=_=_=<<  FOOTER  >>=_=_=_=_=_=_=_=_=_= */
+
+.app-footer {
+  background-color: #0f172a;
+  color: #cbd5e1;
+  padding: 1rem;
+  text-align: center;
+}

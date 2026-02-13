@@ -1,4 +1,4 @@
-// TO DO: ... soon
+// TO DO [SUPABASE]: try importing the species details and display them here.
 
 export default function SpeciesDetail() {
   return (
