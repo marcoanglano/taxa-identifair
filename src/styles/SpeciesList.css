@@ -1,0 +1,10 @@
+/* =_=_=_=_=_=_=_=_=_=<<  SPECIES LIST  >>=_=_=_=_=_=_=_=_=_= */
+
+.species-list {
+  margin-top: 20px;
+  margin-left: 30px;
+}
+
+.species-list a {
+  text-decoration: none;
+}
