@@ -1,9 +1,10 @@
-// TO DO [SUPABASE]: accordions.
-
 // LIBRARIES & SUPABASE
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
+
+// COMPONENTS
+import Accordion from "../components/Accordion";
 
 // STYLES
 import "../styles/SpeciesList.css";
@@ -40,6 +41,36 @@ export default function SpeciesList() {
     fetchSpecies();
   }, []);
 
+
+  // GROUPING: group species by family to be used in the Accordion component
+  const accordionItems = useMemo(() => {
+    const groups = species.reduce((acc, sp) => {
+      const fam = sp.family ?? "Unknown Family";
+      if (!acc[fam]) acc[fam] = [];
+      acc[fam].push(sp);
+      return acc;
+    }, {});
+
+    return Object.entries(groups).map(([family, list]) => ({
+      id: family,
+      title: `${family} (${list.length})`,
+      content: (
+        <ul className="species-list">
+          {list.map((sp) => (
+            <li key={sp.id_species}>
+              <Link to={`/species/${sp.id_species}`}>
+                <span>
+                  <em>{sp.scientific_name}</em>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )
+    }));
+  }, [species]);
+
+
   // RENDERING
   return (
     <section>
@@ -49,20 +80,14 @@ export default function SpeciesList() {
       {loading && <p>Loading species...</p>}
       {!loading && error && <p style={{ color: "crimson" }}>{error}</p>}
 
-      {/* SPECIES LIST */}
+      {/* ACCORDIONS FOR SPECIES LIST */}
       {!loading && !error && (
-        <ul className="species-list">
-          {species.map((sp) => (
-            <li key={sp.id_species}>
-              <Link to={`/species/${sp.id_species}`}>
-                <span>
-                  <b>{sp.family}: </b><em>{sp.scientific_name}</em>
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <Accordion
+          items={accordionItems}
+          defaultAllOpen={false}
+          singleOpen={true}
+        />
       )}
     </section>
-  )
+  );
 }

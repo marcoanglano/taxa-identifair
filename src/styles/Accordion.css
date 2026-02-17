@@ -1,0 +1,46 @@
+/* =_=_=_=_=_=_=_=_=_=<<  ACCORDION  >>=_=_=_=_=_=_=_=_=_= */
+
+.acc-root {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.acc-item {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: white;
+  overflow: hidden;
+}
+
+.acc-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 12px 14px;
+  background: #f1f5f9;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 1rem;
+}
+
+.acc-header:hover {
+  filter: brightness(0.98);
+}
+
+.acc-title {
+  font-weight: 600;
+}
+
+.acc-icon {
+  font-weight: 700;
+  min-width: 18px;
+  text-align: center;
+}
+
+.acc-content-inner {
+  padding: 12px 14px;
+}

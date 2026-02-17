@@ -44,7 +44,7 @@ export default function App() {
 
       {/* FOOTER */}
       <footer className="app-footer">
-        <p>© {new Date().getFullYear()} ZPid - ZooPlankton identifier - v0.03.03.00</p>
+        <p>© {new Date().getFullYear()} ZPid - ZooPlankton identifier - v0.03.04.00</p>
       </footer>
       
     </>
