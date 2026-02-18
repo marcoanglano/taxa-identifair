@@ -2,8 +2,30 @@
 
 .species-list {
   margin-left: 30px;
+  margin-top: 8px;
+}
+
+.species-list li {
+  margin: 4px 0;
 }
 
 .species-list a {
   text-decoration: none;
+  color: inherit;
+}
+
+.species-list a:hover {
+  text-decoration: underline;
+}
+
+.species-hint {
+  margin-top: 8px;
+  font-size: 0.95em;
+  color: rgba(15, 23, 42, 0.55);
+}
+
+.species-error {
+  margin-top: 8px;
+  font-size: 0.95em;
+  color: crimson;
 }

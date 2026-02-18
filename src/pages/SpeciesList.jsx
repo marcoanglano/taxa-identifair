@@ -1,6 +1,6 @@
 // LIBRARIES & SUPABASE
 import { Link } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
 // COMPONENTS
@@ -10,82 +10,188 @@ import Accordion from "../components/Accordion";
 import "../styles/SpeciesList.css";
 
 export default function SpeciesList() {
-  // STATES
-  const [species, setSpecies] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // STATES (families)
+  const [families, setFamilies] = useState([]);
+  const [loadingFamilies, setLoadingFamilies] = useState(true);
+  const [errorFamilies, setErrorFamilies] = useState(null);
 
-  // FETCHING DATA
+  // CACHE IN-SESSION
+  const [familyCache, setFamilyCache] = useState({});
+  const [familyStatus, setFamilyStatus] = useState({});
+
+  // (avoids race conditions in case of rapid clicks)
+  const requestSeq = useRef(0);
+
+  // FETCHING FAMILIES
   useEffect(() => {
-    async function fetchSpecies(){
-      setLoading(true);
-      setError(null);
+    async function fetchFamilies(){
+      setLoadingFamilies(true);
+      setErrorFamilies(null);
 
       const { data, error } = await supabase
-      .from("species")
-      .select("id_species, scientific_name, family, genus")
-      .order("family", { ascending: true })
-      .order("genus", { ascending: true })
-      .order("scientific_name", { ascending: true });
+      .from("species_family_counts")
+      .select("family, n")
+      .order("family", { ascending: true });
       
       if (error) {
-        setError(error.message);
-        setSpecies([]);
+        setErrorFamilies(error.message);
+        setFamilies([]);
       } else {
-        setSpecies(data ?? []);
+        setFamilies(
+          (data ?? []).map((row) => ({
+            family: row.family ?? "Unknown Family",
+            count: row.n ?? 0,
+          }))
+        );
       }
 
-      setLoading(false);
+      setLoadingFamilies(false);
     }
   
-    fetchSpecies();
+    fetchFamilies();
   }, []);
 
+  // ----- HELPERS
+  // Progress bar
+  function startProgress(family) {
+    let p = 0;
 
-  // GROUPING: group species by family to be used in the Accordion component
-  const accordionItems = useMemo(() => {
-    const groups = species.reduce((acc, sp) => {
-      const fam = sp.family ?? "Unknown Family";
-      if (!acc[fam]) acc[fam] = [];
-      acc[fam].push(sp);
-      return acc;
-    }, {});
-
-    return Object.entries(groups).map(([family, list]) => ({
-      id: family,
-      title: `${family} (${list.length})`,
-      content: (
-        <ul className="species-list">
-          {list.map((sp) => (
-            <li key={sp.id_species}>
-              <Link to={`/species/${sp.id_species}`}>
-                <span>
-                  <em>{sp.scientific_name}</em>
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )
+    setFamilyStatus((prev) => ({
+      ...prev,
+      [family]: { loading: true, loaded: false, progress: 0 },
     }));
-  }, [species]);
 
+    const t = setInterval(() => {
+      p = Math.min(90, p + Math.random() * 12);
+      setFamilyStatus((prev) => {
+        const cur = prev[family];
+        if (!cur || !cur.loading) return prev;
+        return { ...prev, [family]: { ...cur, progress: p } };
+      });
+    }, 180);
+
+    return () => clearInterval(t);
+  }
+
+  // FETCHING SPECIES
+  async function fetchFamilySpecies(family) {
+    if (familyCache[family]?.length) return; // already cached? stop
+    if (familyStatus[family]?.loading) return; // already loading? stop
+
+    const seq = ++requestSeq.current;
+    const stop = startProgress(family);
+
+    const { data, error } = await supabase
+      .from("species")
+      .select("id_species, scientific_name, family")
+      .eq("family", family)
+      .order("scientific_name", { ascending: true });
+
+    if (seq !== requestSeq.current) {
+      stop();
+      return;
+    }
+
+    stop();
+
+    if (error) {
+      setFamilyStatus((prev) => ({
+        ...prev,
+        [family]: { loading: false, loaded: false, progress: 0, error: error.message },
+      }));
+      return;
+    }
+
+    setFamilyCache((prev) => ({ ...prev, [family]: data ?? [] }));
+    setFamilyStatus((prev) => ({
+      ...prev,
+      [family]: { loading: false, loaded: true, progress: 100 },
+    }));
+  }
+
+  // ACCORDION ITEMS
+  const accordionItems = useMemo(() => {
+    return families.map((f) => {
+      const family = f.family;
+      const st = familyStatus[family] || { loading: false, loaded: false, progress: 0 };
+      const list = familyCache[family] || [];
+
+      return {
+        id: family,
+        title: `${family} (${f.count})`,
+        meta: {
+          loading: !!st.loading,
+          loaded: !!st.loaded,
+          progress: st.progress ?? 0,
+        },
+        content: (
+          <div>
+            {/* LOADING */}
+            {st.loading && (
+              <p className="species-hint">Loading species...</p>
+            )}
+
+            {/* ERROR */}
+            {!st.loading && st.error && (
+              <p className="species-error">{st.error}</p>
+            )}
+
+            {/* LOADED */}
+            {!st.loading && !st.error && st.loaded && (
+              <ul className="species-list">
+                {list.map((sp) => (
+                  <li key={sp.id_species}>
+                    <Link to={`/species/${sp.id_species}`}>
+                      <span>
+                        <em>{sp.scientific_name}</em>
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {/* EMPTY FAMILY */}
+            {!st.loading && !st.error && st.loaded && list.length === 0 && (
+              <p className="species-hint">No species found for this family.</p>
+            )}
+          </div>
+        ),
+      };
+    });
+  }, [families, familyStatus, familyCache]);
 
   // RENDERING
   return (
     <section>
       <h2>Species List</h2>
-      <p>Select a species to view details.</p>
+      <p>Select a family, then a species to view details.</p>
 
-      {loading && <p>Loading species...</p>}
-      {!loading && error && <p style={{ color: "crimson" }}>{error}</p>}
+      {loadingFamilies && <p>Loading families...</p>}
+      {!loadingFamilies && errorFamilies && (
+        <p style={{ color: "crimson" }}>{errorFamilies}</p>
+      )}
 
-      {/* ACCORDIONS FOR SPECIES LIST */}
-      {!loading && !error && (
+      {!loadingFamilies && !errorFamilies && (
         <Accordion
           items={accordionItems}
           defaultAllOpen={false}
           singleOpen={true}
+          onToggle={(family, nextIsOpen) => {
+            if (nextIsOpen) fetchFamilySpecies(family);
+          }}
+          getHeaderState={(it) => it.meta}
+          renderRight={(it, isOpen) => {
+            const loading = !!it.meta?.loading;
+            return (
+              <>
+                {loading && <span className="acc-loading">Loading...</span>}
+                <span className="acc-icon" aria-hidden="true">
+                  {isOpen ? "▲" : "▼"}
+                </span>
+              </>
+            );
+          }}
         />
       )}
     </section>
