@@ -1,0 +1,29 @@
+.app-nav {
+  display: flex;
+  width: 100%;
+}
+
+.nav-btn {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  padding: 10px 14px;
+
+  background: #0f172a;
+  color: #eeeeee;
+
+  font-weight: 600;
+  justify-content: center;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-decoration: none;
+}
+
+.nav-btn:hover {
+  filter: brightness(1.30);
+}
+
+.nav-btn.active {
+  background: #21335c;
+  color: white;
+}

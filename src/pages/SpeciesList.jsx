@@ -1,3 +1,5 @@
+// TO DO: search bar, maybe with options (by family, by genus, by environment, etc.)
+
 // LIBRARIES & SUPABASE
 import { Link } from "react-router-dom";
 import { useEffect, useMemo, useRef, useState } from "react";

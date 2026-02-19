@@ -1,57 +1,53 @@
-/* TO DO: ... */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
 
 
 /* =_=_=_=_=_=_=_=_=_=<<  HEADER  >>=_=_=_=_=_=_=_=_=_= */
 
 .app-header {
-  background-color: #0f172a;
-  color: white;
-  padding: 1.5rem;
-}
+  flex-shrink: 0;
 
-.app-header h1 {
-  margin-bottom: 0.5rem;
+  background-color: #0f172a;
+  color: #eeeeee;
 }
 
 .app-brand {
+  padding: 10px 8px;
+
   text-align: center;
 }
 
-/* <<< NAV BAR >>> */
-
-.app-nav {
-  margin-top: 0.5rem;
+.app-brand h1 {
+  margin-bottom: 5px;
+  
+  letter-spacing: 0.04em;
 }
 
-.app-nav ul {
-  display: flex;
-  gap: 1rem;
-  list-style: none;
+.app-brand p {
+  font-size: large;
+  font-style: italic;
 }
-
-.app-nav a {
-  color: #93c5fd;
-  text-decoration: none;
-}
-
-.app-nav a:hover {
-  text-decoration: underline;
-}
-
 
 /* =_=_=_=_=_=_=_=_=_=<<  MAIN  >>=_=_=_=_=_=_=_=_=_= */
 
 .app-main {
+  flex: 1 0 auto;
   padding: 2rem;
-  min-height: 70vh;
 }
 
 
 /* =_=_=_=_=_=_=_=_=_=<<  FOOTER  >>=_=_=_=_=_=_=_=_=_= */
 
 .app-footer {
+  flex-shrink: 0;
+  padding: 0.5rem;
+
   background-color: #0f172a;
   color: #cbd5e1;
-  padding: 1rem;
+  
+  font-weight: 200;
   text-align: center;
 }

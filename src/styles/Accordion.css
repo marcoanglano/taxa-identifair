@@ -2,79 +2,86 @@
 
 .acc-root {
   display: grid;
-  gap: 10px;
   margin-top: 16px;
 }
 
 .acc-item {
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  background: white;
+  background: #eeeeee;
   overflow: hidden;
 }
 
 /* <<< RENDER LEFT + Loading >>> */
 
 .acc-title {
-  font-weight: 600;
   position: relative;
   z-index: 1;
+
+  color: #0f172a;
+
+  font-weight: 600;
 }
 
 .acc-header {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-
-  padding: 12px 14px;
-  background: #f1f5f9;
   border: none;
   cursor: pointer;
-  text-align: left;
-  font-size: 1rem;
-
-  position: relative;
+  width: 100%;
+  display: flex;
   overflow: hidden;
+  padding: 12px 14px;
+  position: relative;
+
+  background: #e2e8f0;
+
+  font-size: 1rem;
+  justify-content: space-between;
+  text-align: left;
 }
 
 .acc-header:hover {
-  filter: brightness(0.98);
+  filter: brightness(1.05);
 }
 
 .acc-header::before {
-  content: "";
-  position: absolute;
   inset: 0;
-  width: var(--acc-fill, 0%);
-  background: rgba(147, 197, 253, 0.34);
-  transition: width 220ms linear;
+  position: absolute;
   pointer-events: none;
+  transition: width 220ms linear;
+  width: var(--acc-fill, 0%);
+
+  background: rgba(33, 51, 92, 0.25);
+
+  content: "";
 }
 
 .acc-header.is-loaded::before {
   width: 100%;
-  background: rgba(147, 197, 253, 0.24);
+  
+  background: rgba(33, 51, 92, 0.25);
 }
 
 /* <<< RENDER RIGHT >>> */
 
 .acc-right {
-  display: inline-flex;
   align-items: center;
+  display: inline-flex;
   gap: 10px;
   position: relative;
   z-index: 1;
 }
 
 .acc-loading {
+  color: rgba(15, 23, 42, 0.55);
+
   font-size: 0.85rem;
-  color: rgba(15, 23, 42, 0.45);
 }
 
 .acc-icon {
-  font-weight: 700;
   min-width: 18px;
+
+  color: #21335c;
+
+  font-weight: 700;
   text-align: center;
 }
 
@@ -82,4 +89,6 @@
 
 .acc-content-inner {
   padding: 12px 14px;
+
+  background: #eeeeee;
 }
