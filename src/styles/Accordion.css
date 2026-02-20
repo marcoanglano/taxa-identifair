@@ -6,7 +6,7 @@
 }
 
 .acc-item {
-  background: #eeeeee;
+  background: var(--secondary-color);
   overflow: hidden;
 }
 
@@ -16,7 +16,7 @@
   position: relative;
   z-index: 1;
 
-  color: #0f172a;
+  color: var(--primary-color);
 
   font-weight: 600;
 }
@@ -31,7 +31,7 @@
   padding: 12px 14px;
   position: relative;
 
-  background: #e2e8f0;
+  background: var(--secondary-color-dark);
 
   font-size: 1rem;
   justify-content: space-between;
@@ -47,9 +47,9 @@
   position: absolute;
   pointer-events: none;
   transition: width 220ms linear;
-  width: var(--acc-fill, 0%);
+  width: var(--acc-fill, 0%); /* --acc-fill in Accordion.jsx */
 
-  background: rgba(33, 51, 92, 0.25);
+  background: var(--secondary-color-darker);
 
   content: "";
 }
@@ -57,7 +57,7 @@
 .acc-header.is-loaded::before {
   width: 100%;
   
-  background: rgba(33, 51, 92, 0.25);
+  background: var(--secondary-color-darker);
 }
 
 /* <<< RENDER RIGHT >>> */
@@ -70,16 +70,10 @@
   z-index: 1;
 }
 
-.acc-loading {
-  color: rgba(15, 23, 42, 0.55);
-
-  font-size: 0.85rem;
-}
-
 .acc-icon {
   min-width: 18px;
 
-  color: #21335c;
+  color: var(--primary-color);
 
   font-weight: 700;
   text-align: center;
@@ -90,5 +84,5 @@
 .acc-content-inner {
   padding: 12px 14px;
 
-  background: #eeeeee;
+  background: var(--secondary-color);
 }

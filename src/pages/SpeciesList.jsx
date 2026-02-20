@@ -143,7 +143,11 @@ export default function SpeciesList() {
               <ul className="species-list">
                 {list.map((sp) => (
                   <li key={sp.id_species}>
-                    <Link to={`/species/${sp.id_species}`}>
+                    <Link
+                      to={`/species/${sp.id_species}`}
+                      target='_blank'
+                      rel="noopener noreferrer"
+                    >
                       <span>
                         <em>{sp.scientific_name}</em>
                       </span>
@@ -187,7 +191,6 @@ export default function SpeciesList() {
             const loading = !!it.meta?.loading;
             return (
               <>
-                {loading && <span className="acc-loading">Loading...</span>}
                 <span className="acc-icon" aria-hidden="true">
                   {isOpen ? "▲" : "▼"}
                 </span>

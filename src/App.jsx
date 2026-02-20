@@ -1,6 +1,3 @@
-// TO DO [NAVBAR]: horizontal, fixed to the top.
-// TO DO [FOOTER]: fixed to the bottom, auto-update version?
-
 // LIBRARIES
 import { Route, Routes } from 'react-router-dom';
 
@@ -41,7 +38,7 @@ export default function App() {
 
         {/* FOOTER */}
         <footer className='app-footer'>
-          ZPid - ZooPlankton identifier v0.03.05.01 © copyright 2025-{new Date().getFullYear()}
+          ZPid - ZooPlankton identifier v0.03.05.02 © copyright 2025-{new Date().getFullYear()}
         </footer>
       </div>
     </>

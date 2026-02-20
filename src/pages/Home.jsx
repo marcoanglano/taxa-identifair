@@ -5,8 +5,8 @@ export default function Home() {
     <section className="home-page">
       {/* WELCOME */}
       <h2>Home</h2>
-      <p>Welcome to ZPid!</p>
-      <p>
+      <h3>Welcome to ZPid!</h3>
+      <p style={{ textAlign: "justify" }}>
         This is an interactive tool for identifying adult Calanoida (Copepoda), 
         a key component of the zooplankton. Use the navigation links above to explore the 
         species list or start identifying your specimen.

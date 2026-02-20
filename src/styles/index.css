@@ -8,6 +8,45 @@
 /* BODY */
 body {
   font-family: 'IBM Plex Sans', sans-serif;
-  background-color: #cbd5e1;
-  color: #333;
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+}
+
+/* LINKS */
+
+a {
+  color: var(--primary-color-lighter);
+  text-decoration: none;
+}
+
+a:visited {
+  color: var(--primary-color-light);
+}
+
+a:hover {
+  filter: brightness(1.20);
+  text-decoration: underline;
+}
+
+a:active {
+  filter: brightness(1.40);
+}
+
+a[target="_blank"]::after {
+  content: " ↗";
+  font-size: 0.8em;
+  vertical-align: super;
+}
+
+/* ROOT */
+
+:root {
+  /* <<<<< COLORS >>>>> */
+  --primary-color: #0f172a;
+  --primary-color-light: #21335c;
+  --primary-color-lighter: #37559b;
+  --secondary-color: #e4eaf6;
+  --secondary-color-dark: #d1d9e8;
+  --secondary-color-darker: #abb9d1;
+  --error-color: crimson;
 }

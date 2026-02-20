@@ -9,8 +9,8 @@
   flex: 1;
   padding: 10px 14px;
 
-  background: #0f172a;
-  color: #eeeeee;
+  background: var(--primary-color);
+  color: var(--secondary-color);
 
   font-weight: 600;
   justify-content: center;
@@ -19,11 +19,20 @@
   text-decoration: none;
 }
 
+.nav-btn:visited {
+  color: var(--secondary-color);
+}
+
 .nav-btn:hover {
   filter: brightness(1.30);
+  text-decoration: none;
+}
+
+.nav-btn:active {
+  filter: brightness(1.50);
 }
 
 .nav-btn.active {
-  background: #21335c;
-  color: white;
+  background: var(--primary-color-light);
+  color: var(--secondary-color);
 }

@@ -10,8 +10,8 @@
 .app-header {
   flex-shrink: 0;
 
-  background-color: #0f172a;
-  color: #eeeeee;
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
 }
 
 .app-brand {
@@ -45,8 +45,8 @@
   flex-shrink: 0;
   padding: 0.5rem;
 
-  background-color: #0f172a;
-  color: #cbd5e1;
+  background-color: var(--primary-color);
+  color: var(--secondary-color-darker);
   
   font-weight: 200;
   text-align: center;
