@@ -5,6 +5,7 @@ import { Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar';
 
 // PAGES
+import Error from './pages/Error';
 import Home from './pages/Home';
 import Identify from './pages/Identify';
 import SpeciesDetail from './pages/SpeciesDetail';
@@ -33,12 +34,14 @@ export default function App() {
             <Route path='/species' element={<SpeciesList />} />
             <Route path='/species/:id' element={<SpeciesDetail />} />
             <Route path='/identify' element={<Identify />} />
+            {/* Catch all: */}
+            <Route path="*" element={<Error />} />
           </Routes>
         </main>
 
         {/* FOOTER */}
         <footer className='app-footer'>
-          ZPid - ZooPlankton identifier v0.03.06.02 © copyright 2025-{new Date().getFullYear()}
+          ZPid - ZooPlankton identifier v0.03.07.00 © copyright 2025-{new Date().getFullYear()}
         </footer>
       </div>
     </>

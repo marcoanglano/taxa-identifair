@@ -45,8 +45,8 @@ export default function SpeciesDetail() {
         {/* Error */}
         {error && (
           <>
-            <h3>Error</h3>
-            <p style={{ color: "var(--error-color)" }}>Error fetching species details: {error.message}</p>
+            <h3 style={{ marginTop: "3rem", fontSize: "3rem", textAlign: "center" }}>Error</h3>
+            <p style={{ color: "var(--error-color)", textAlign: "center" }}>Error fetching species details: {error.message}</p>
           </>
         )}
 
