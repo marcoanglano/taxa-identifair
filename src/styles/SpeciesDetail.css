@@ -1,3 +1,48 @@
 /* =_=_=_=_=_=_=_=_=_=<<  SPECIES DETAIL  >>=_=_=_=_=_=_=_=_=_= */
 
-/* TO DO */
+.details-container {
+  display: flex;
+  margin-top: 20px;
+  width: 100%;
+}
+
+/* LEFT COLUMN (SPECIES CARD) */
+.left-column {
+  flex: 2;
+  padding: 10px;
+}
+
+h3.scientific-name {
+  font-style: italic;
+}
+
+h5.gap {
+  margin-top: 1rem;
+}
+
+.left-column ul {
+  padding-left: 1.5rem;
+}
+
+.left-column a:hover {
+  text-decoration: none;
+}
+
+/* RIGHT COLUMN (TRAITS) */
+.right-column {
+  flex: 1;
+  border: 1px solid var(--primary-color-lighter);
+  padding: 10px;
+}
+
+/* =_=_=_=_=_=_=_=_=_=<<  RESPONSIVE DESIGN  >>=_=_=_=_=_=_=_=_=_= */
+@media (max-width: 768px) {
+  .details-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .left-column, .right-column {
+    width: 100%;
+  }
+}

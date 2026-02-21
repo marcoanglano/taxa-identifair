@@ -21,7 +21,7 @@ export default function App() {
         <header className='app-header'>
           <div className='app-brand'>
             <h1>ZPid - ZooPlankton identifier</h1>
-            <p>Interactive identification of adult Calanoida</p>
+            <h2>Interactive identification of adult Calanoida</h2>
           </div>
           <Navbar />
         </header>
@@ -38,7 +38,7 @@ export default function App() {
 
         {/* FOOTER */}
         <footer className='app-footer'>
-          ZPid - ZooPlankton identifier v0.03.06.01 © copyright 2025-{new Date().getFullYear()}
+          ZPid - ZooPlankton identifier v0.03.06.02 © copyright 2025-{new Date().getFullYear()}
         </footer>
       </div>
     </>

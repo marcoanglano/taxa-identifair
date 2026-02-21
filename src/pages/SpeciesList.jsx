@@ -170,7 +170,7 @@ export default function SpeciesList() {
   // RENDERING
   return (
     <section>
-      <h2>Species List</h2>
+      <h3>Species List</h3>
       <p>Select a family, then a species to view details.</p>
 
       {loadingFamilies && <p>Loading families...</p>}

@@ -26,9 +26,10 @@
   letter-spacing: 0.04em;
 }
 
-.app-brand p {
+.app-brand h2 {
   font-size: large;
   font-style: italic;
+  font-weight: 400;
 }
 
 /* =_=_=_=_=_=_=_=_=_=<<  MAIN  >>=_=_=_=_=_=_=_=_=_= */

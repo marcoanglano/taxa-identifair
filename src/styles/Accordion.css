@@ -24,6 +24,7 @@
 .acc-header {
   align-items: center;
   border: none;
+  border-bottom: 1px solid var(--secondary-color);
   cursor: pointer;
   width: 100%;
   display: flex;

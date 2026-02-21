@@ -45,45 +45,59 @@ export default function SpeciesDetail() {
         {/* Error */}
         {error && (
           <>
-            <h2>Error</h2>
+            <h3>Error</h3>
             <p style={{ color: "var(--error-color)" }}>Error fetching species details: {error.message}</p>
           </>
         )}
 
         {/* Loading */}
         {!error && !species && (
-          <h2>Loading species details...</h2>
+          <h3>Loading species details...</h3>
         )}
         
         {/* Species Details */}
         {!error && species && (
           <div>
-            <h2>{species.scientific_name}</h2>
-            <p>Authority: {species.authority}</p>
+            <h3 className="scientific-name">{species.scientific_name}</h3>
+            <h4>{species.authority}</h4>
 
-            <p>Family: {species.family}</p>
-            <p>Genus: {species.genus}</p>
-            <p>Environment: {species.environment}</p>
+            <div className="details-container">
+              {/* Species Card */}
+              <div className="left-column">
+                <h5>Environment:</h5>
+                <p>{species.environment}</p>
 
-            <p>
-              WoRMS: 
-              <a href={species.worms_link} target="_blank"> link</a>
-            </p>
-            <p>
-              Razouls: 
-              <a href={species.razouls_link} target="_blank"> link</a>
-            </p>
-            
-            <p>Female legth:
-              {species.f_min ? (
-                ` ${species.f_min}-${species.f_max} mm`
-              ) : ' No data'}
-            </p>
-            <p>Male legth:
-              {species.m_min ? (
-                ` ${species.m_min}-${species.m_max} mm`
-              ) : ' No data'}
-            </p>
+                <h5 className="gap">Useful links:</h5>
+                <ul>
+                  <li>
+                    WoRMS: 
+                    <a href={species.worms_link} target="_blank"> link</a>
+                  </li>
+                  <li>
+                    Razouls: 
+                    <a href={species.razouls_link} target="_blank"> link</a>
+                  </li>
+                </ul>
+
+                <h5 className="gap">Total legth:</h5>
+                <p>Female:
+                  {species.f_min ? (
+                    ` ${species.f_min.toFixed(3)}-${species.f_max.toFixed(3)} mm`
+                  ) : ' No data'}
+                </p>
+                <p>Male:
+                  {species.m_min ? (
+                    ` ${species.m_min.toFixed(3)}-${species.m_max.toFixed(3)} mm`
+                  ) : ' No data'}
+                </p>
+              </div>
+
+              {/* Species Traits */}
+              <div className="right-column">
+                <h5>Species Traits:</h5>
+                <p>Work in progress</p>
+              </div>
+            </div>
           </div>
         )}
     </section>

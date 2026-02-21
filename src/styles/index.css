@@ -12,6 +12,28 @@ body {
   color: var(--primary-color);
 }
 
+/* HEADINGS & PARAGRAPHS */
+h3 {
+  margin-bottom: 0.3rem;
+  font-size: x-large;
+}
+
+h4 {
+  margin-bottom: 0.3rem;
+  color: var(--primary-color-lighter);
+  font-size: large;
+}
+
+h5 {
+  margin-bottom: 0.2rem;
+  font-size: medium;
+}
+
+p {
+  margin-bottom: 0.2rem;
+  text-align: justify;
+}
+
 /* LINKS */
 
 a {

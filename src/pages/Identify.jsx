@@ -3,7 +3,7 @@
 export default function Identify() {
   return (
     <section>
-        <h2>Identify</h2>
+        <h3>Identify</h3>
         <p>Work in progress</p>
     </section>
   )
