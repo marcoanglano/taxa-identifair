@@ -1,6 +1,7 @@
 .app-nav {
   display: flex;
   width: 100%;
+  border-top: 1px solid var(--primary-color-light);
 }
 
 .nav-btn {
