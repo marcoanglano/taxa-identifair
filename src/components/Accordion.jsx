@@ -12,8 +12,9 @@ import "../styles/Accordion.css";
  * - defaultAllOpen: boolean (default: false)
  * - singleOpen: boolean (default: false)
  * - onToggle: (id, nextIsOpen) => void
- * - renderRight: (item, isOpen) => ReactNode // (arrow + loading label, etc.)
+ * - renderRight: (item, isOpen) => ReactNode // (arrow, etc.)
  * - getHeaderState: (item) => {loading?: bool, loaded?: bool, progress?: number}
+ * - hasProgressbar: boolean (default: false)
 */
 export default function Accordion({
   items = [],
@@ -22,6 +23,7 @@ export default function Accordion({
   onToggle,
   renderRight,
   getHeaderState,
+  hasProgressbar = false,
 }) {
   const baseId = useId();
 
@@ -81,13 +83,13 @@ export default function Accordion({
               type="button"
               className={[
                 "acc-header",
-                loading ? "is-loading" : "",
-                loaded ? "is-loaded" : "",
+                (hasProgressbar && loading) ? "is-loading" : "",
+                (hasProgressbar && loaded) ? "is-loaded" : "",
               ].join(" ")}
-              style={{
+              style={hasProgressbar ? {
                 // CSS variable for fill
                 "--acc-fill": `${progress}%`,
-              }}
+              } : {}}
               id={headerId}
               aria-controls={contentId}
               aria-expanded={isOpen}

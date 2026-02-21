@@ -186,6 +186,7 @@ export default function SpeciesList() {
           onToggle={(family, nextIsOpen) => {
             if (nextIsOpen) fetchFamilySpecies(family);
           }}
+          hasProgressbar={true}
           getHeaderState={(it) => it.meta}
           renderRight={(it, isOpen) => {
             const loading = !!it.meta?.loading;
