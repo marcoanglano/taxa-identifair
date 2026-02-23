@@ -25,12 +25,12 @@
 }
 
 .nav-btn:hover {
-  filter: brightness(1.30);
+  filter: brightness(var(--bright));
   text-decoration: none;
 }
 
 .nav-btn:active {
-  filter: brightness(1.50);
+  filter: brightness(var(--brighter));
 }
 
 .nav-btn.active {

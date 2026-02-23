@@ -9,14 +9,14 @@ import { useParams } from "react-router-dom";
 import "../styles/SpeciesDetail.css";
 
 export default function SpeciesDetail() {
-  {/* Gets species id from URL parameters */}
+  // Gets species id from URL parameters
   const { id } = useParams();
 
-  {/* STATES */}
+  // ---- STATES
   const [species, setSpecies] = useState(null);
   const [error, setError] = useState(null);
 
-  {/* FETCHING */}
+  // ---- FETCHING
   useEffect(() => {
     const fetchSpecies = async () => {
       setError(null);
@@ -39,7 +39,11 @@ export default function SpeciesDetail() {
     fetchSpecies();
   }, [id]);
 
-  {/* RENDERING */}
+  // Calculate mean lengths for bars (if data exists)
+  const fMean = species?.f_min ? (species.f_min + species.f_max) / 2 : null;
+  const mMean = species?.m_min ? (species.m_min + species.m_max) / 2 : null;
+
+  // ---- RENDERING
   return (
     <section>
         {/* Error */}
@@ -79,17 +83,41 @@ export default function SpeciesDetail() {
                   </li>
                 </ul>
 
-                <h5 className="gap">Total legth:</h5>
-                <p>Female:
-                  {species.f_min ? (
-                    ` ${species.f_min.toFixed(3)}-${species.f_max.toFixed(3)} mm`
-                  ) : ' No data'}
-                </p>
-                <p>Male:
-                  {species.m_min ? (
-                    ` ${species.m_min.toFixed(3)}-${species.m_max.toFixed(3)} mm`
-                  ) : ' No data'}
-                </p>
+                {/* Length data */}
+                <h5 className="gap">Total length (mm):</h5>
+                <ul className="length-list">
+                  <li className="f-length">
+                    <span className="f-square"></span>
+                    <span className="f-label">
+                      Female:
+                      {species.f_min ? (
+                        ` ${species.f_min.toFixed(3)}-${species.f_max.toFixed(3)}`
+                      ) : " No data"}
+                    </span>
+                  </li>
+                  <li className="m-length">
+                    <span className="m-square"></span>
+                    <span className="m-label">
+                      Male:
+                      {species.m_min ? (
+                        ` ${species.m_min.toFixed(3)}-${species.m_max.toFixed(3)}`
+                      ) : " No data"}
+                    </span>
+                  </li>
+                </ul>
+                
+                {/* Length bars, only if any data */}
+                {(fMean ?? mMean) !== null && 
+                  <div className="length-bars">
+                    {fMean !== null && <div className="bar f-bar" style={{ width: `${fMean / 15 * 100}%` }}></div>}
+                    {mMean !== null && <div className="bar m-bar" style={{ width: `${mMean / 15 * 100}%` }}></div>}
+                    <div className="scale-bar">
+                      <span className="bar-seg">5</span>
+                      <span className="bar-seg">10</span>
+                      <span className="bar-seg">15</span>
+                    </div>
+                  </div>
+                }
               </div>
 
               {/* Species Traits */}

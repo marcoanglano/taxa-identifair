@@ -40,7 +40,7 @@
 }
 
 .acc-header:hover {
-  filter: brightness(1.05);
+  filter: brightness(var(--low));
 }
 
 .acc-header::before {

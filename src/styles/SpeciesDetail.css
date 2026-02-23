@@ -6,7 +6,7 @@
   width: 100%;
 }
 
-/* LEFT COLUMN (SPECIES CARD) */
+/* =_=_=<< LEFT COLUMN (SPECIES CARD) >>=_=_= */
 .left-column {
   flex: 2;
   padding: 10px;
@@ -28,7 +28,69 @@ h5.gap {
   text-decoration: none;
 }
 
-/* RIGHT COLUMN (TRAITS) */
+/* Length data */
+.f-square, .f-bar { background-color: var(--female-color); }
+.m-square, .m-bar { background-color: var(--male-color); }
+
+ul.length-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.length-list li {
+  display: flex;
+  align-items: center;
+}
+
+.f-square, .m-square, .bar {
+  border: 0.05rem solid var(--primary-color-light);
+  border-radius: 0.2rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+  width: 1rem;
+}
+
+.f-square:hover, .m-square:hover, .f-bar:hover, .m-bar:hover {
+  border-width: 0.1rem; /* hover effect */
+  box-shadow: var(--shadow);
+}
+.left-column:has(.f-bar:hover) .f-square, .left-column:has(.f-square:hover) .f-bar {
+  border-width: 0.1rem;
+  box-shadow: var(--shadow);
+}
+.left-column:has(.m-bar:hover) .m-square, .left-column:has(.m-square:hover) .m-bar {
+  border-width: 0.1rem;
+  box-shadow: var(--shadow);
+}
+
+/* Length bars */
+.length-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-top: 1rem;
+  padding: 0 5%;
+  width: 100%;
+}
+
+/* Length scale */
+.scale-bar {
+  border-left: 0.1rem solid var(--primary-color);
+  display: flex;
+  height: 1rem;
+
+  font-size: small;
+  text-align: right;
+}
+
+.scale-bar span {
+  border-top: 0.1rem solid var(--primary-color);
+  border-right: 0.1rem solid var(--primary-color);
+  flex: 1;
+  padding-right: 0.2rem;
+}
+
+/* =_=_=<< RIGHT COLUMN (TRAITS) >>=_=_= */
 .right-column {
   flex: 1;
   border: 1px solid var(--primary-color-lighter);

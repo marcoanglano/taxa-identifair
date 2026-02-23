@@ -46,12 +46,13 @@ a:visited {
 }
 
 a:hover {
-  filter: brightness(1.20);
+  filter: brightness(var(--bright));
+  filter: drop-shadow(var(--drop));
   text-decoration: underline;
 }
 
 a:active {
-  filter: brightness(1.40);
+  filter: brightness(var(--brighter));
 }
 
 a[target="_blank"]::after {
@@ -71,4 +72,15 @@ a[target="_blank"]::after {
   --secondary-color-dark: #d1d9e8;
   --secondary-color-darker: #abb9d1;
   --error-color: crimson;
+  --female-color: orange;
+  --male-color: blue;
+
+  /* <<<<< BRIGHTNESS >>>>> */
+  --low: 1.05;
+  --bright: 1.20;
+  --brighter: 1.40;
+  
+  /* <<<<< SHADOW >>>>> */
+  --shadow: 0.2rem 0.2rem 0.2rem rgba(0, 0, 0, 0.5);
+  --drop: 0.2rem 0.2rem 0.2rem grey;
 }
