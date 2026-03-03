@@ -1,0 +1,40 @@
+.error-container {
+    align-items: center;
+    display: flex;
+    margin: 3rem auto 0;
+    width: 50%;
+    text-align: center;
+}
+
+.error-left, .error-right {
+    flex: 1;
+}
+
+/* LEFT */
+
+.error-left img {
+  width: 200px;
+}
+
+/* RIGHT */
+
+.error-right h3 {
+  font-size: 3rem;
+}
+
+.error-right p {
+  color: var(--error-color);
+  text-align: center;
+}
+
+/* =_=_=_=_=_=_=_=_=_=<<  RESPONSIVE DESIGN  >>=_=_=_=_=_=_=_=_=_= */
+@media (max-width: 768px) {
+  .error-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .left-column, .right-column {
+    width: 100%;
+  }
+}

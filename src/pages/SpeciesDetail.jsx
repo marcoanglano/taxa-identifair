@@ -1,4 +1,5 @@
-// TO DO [SUPABASE]: try importing the species details and display them here.
+// IMAGES
+import ErrorImage from "../assets/Error.png"
 
 // LIBRARIES
 import { supabase } from "../lib/supabaseClient";
@@ -6,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 // STYLES
+import "../styles/Error.css";
 import "../styles/SpeciesDetail.css";
 
 export default function SpeciesDetail() {
@@ -49,8 +51,17 @@ export default function SpeciesDetail() {
         {/* Error */}
         {error && (
           <>
-            <h3 style={{ marginTop: "3rem", fontSize: "3rem", textAlign: "center" }}>Error</h3>
-            <p style={{ color: "var(--error-color)", textAlign: "center" }}>Error fetching species details: {error.message}</p>
+            {/* <h3 style={{ marginTop: "3rem", fontSize: "3rem", textAlign: "center" }}>Error</h3>
+            <p style={{ color: "var(--error-color)", textAlign: "center" }}>Error fetching species details: {error.message}</p> */}
+            <div className="error-container">
+              <div className="error-left">
+                <img src={ErrorImage}></img>
+              </div>
+              <div className="error-right">
+                <h3>404</h3>
+                <p>Error fetching species details: {error.message}</p>
+              </div>
+            </div>
           </>
         )}
 
