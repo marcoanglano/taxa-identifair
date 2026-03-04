@@ -16,9 +16,10 @@ export default function SpeciesDetail() {
 
   // ---- STATES
   const [species, setSpecies] = useState(null);
+  const [traits, setTraits] = useState([]);
   const [error, setError] = useState(null);
 
-  // ---- FETCHING
+  // ---- FETCHING SPECIES CARD
   useEffect(() => {
     const fetchSpecies = async () => {
       setError(null);
@@ -41,28 +42,61 @@ export default function SpeciesDetail() {
     fetchSpecies();
   }, [id]);
 
+  // ---- FETCHING TRAITS
+  useEffect(() => {
+    const fetchTraits = async () => {
+      const { data, error: supabaseError } = await supabase
+        .from("species_traits")
+        .select(`
+          f_states, 
+          m_states,
+          traits (
+            trait_name,
+            trait_states (
+              id_state,
+              state_label
+            )
+          )
+        `)
+        .eq("id_species", id);
+
+      if (supabaseError) {
+        console.error("Error fetching traits:", supabaseError.message);
+      } else {
+        // Avoids blocking the full page just for an error in traits
+        setTraits(data || []);
+      }
+    };
+
+    if (id) fetchTraits();
+  }, [id]);
+
   // Calculate mean lengths for bars (if data exists)
   const fMean = species?.f_min ? (species.f_min + species.f_max) / 2 : null;
   const mMean = species?.m_min ? (species.m_min + species.m_max) / 2 : null;
+
+  // Helpers to make id_states readable 
+  const resolveLabels = (stateIds, allStates) => {
+    if (!stateIds || !allStates) return "";
+    return stateIds
+      .map(sid => allStates.find(s => s.id_state === sid)?.state_label || sid)
+      .join(", ");
+  };
 
   // ---- RENDERING
   return (
     <section>
         {/* Error */}
         {error && (
-          <>
-            {/* <h3 style={{ marginTop: "3rem", fontSize: "3rem", textAlign: "center" }}>Error</h3>
-            <p style={{ color: "var(--error-color)", textAlign: "center" }}>Error fetching species details: {error.message}</p> */}
-            <div className="error-container">
-              <div className="error-left">
-                <img src={ErrorImage}></img>
-              </div>
-              <div className="error-right">
-                <h3>404</h3>
-                <p>Error fetching species details: {error.message}</p>
-              </div>
+          <div className="error-container">
+            <div className="error-left">
+              <img src={ErrorImage} alt="Sheldon J. Plankton is really sad" />
             </div>
-          </>
+            <div className="error-right">
+              <h3>404</h3>
+              <p>Error fetching species details: {error.message}</p>
+            </div>
+          </div>
         )}
 
         {/* Loading */}
@@ -86,11 +120,11 @@ export default function SpeciesDetail() {
                 <ul>
                   <li>
                     WoRMS: 
-                    <a href={species.worms_link} target="_blank"> link</a>
+                    <a href={species.worms_link} target="_blank" rel="noreferrer"> link</a>
                   </li>
                   <li>
                     Razouls: 
-                    <a href={species.razouls_link} target="_blank"> link</a>
+                    <a href={species.razouls_link} target="_blank" rel="noreferrer"> link</a>
                   </li>
                 </ul>
 
@@ -101,18 +135,14 @@ export default function SpeciesDetail() {
                     <span className="f-square"></span>
                     <span className="f-label">
                       Female:
-                      {species.f_min ? (
-                        ` ${species.f_min.toFixed(3)}-${species.f_max.toFixed(3)}`
-                      ) : " No data"}
+                      {species.f_min ? ` ${species.f_min.toFixed(3)}-${species.f_max.toFixed(3)}` : " No data"}
                     </span>
                   </li>
                   <li className="m-length">
                     <span className="m-square"></span>
                     <span className="m-label">
                       Male:
-                      {species.m_min ? (
-                        ` ${species.m_min.toFixed(3)}-${species.m_max.toFixed(3)}`
-                      ) : " No data"}
+                      {species.m_min ? ` ${species.m_min.toFixed(3)}-${species.m_max.toFixed(3)}` : " No data"}
                     </span>
                   </li>
                 </ul>
@@ -134,7 +164,29 @@ export default function SpeciesDetail() {
               {/* Species Traits */}
               <div className="right-column">
                 <h5>Species Traits:</h5>
-                <p>Work in progress</p>
+                
+                {/* Mapping all traits */}
+                {traits.length > 0 ? (
+                  traits.map((item, index) => (
+                    <div key={index}>
+                      <p>- {item.traits?.trait_name}:</p>
+                      <ul>
+                        {item.f_states?.length > 0 && (
+                          <li className="f">
+                            {resolveLabels(item.f_states, item.traits?.trait_states)}
+                          </li>
+                        )}
+                        {item.m_states?.length > 0 && (
+                          <li className="m">
+                            {resolveLabels(item.m_states, item.traits?.trait_states)}
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+                  ))
+                ) : (
+                  <p>No traits available for this species.</p>
+                )}
               </div>
             </div>
           </div>

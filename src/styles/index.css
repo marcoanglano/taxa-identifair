@@ -83,4 +83,5 @@ a[target="_blank"]::after {
   /* <<<<< SHADOW >>>>> */
   --shadow: 0.2rem 0.2rem 0.2rem rgba(0, 0, 0, 0.5);
   --drop: 0.2rem 0.2rem 0.2rem grey;
+  --contrast: 0.05rem 0.05rem 0.05rem black;
 }

@@ -12,7 +12,7 @@ export default function Error() {
     <section>
       <div className="error-container">
         <div className="error-left">
-          <img src={ErrorImage}></img>
+          <img src={ErrorImage} alt="Sheldon J. Plankton is really sad"></img>
         </div>
         <div className="error-right">
           <h3>404</h3>

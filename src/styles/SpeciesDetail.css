@@ -97,6 +97,13 @@ ul.length-list {
   padding: 10px;
 }
 
+.right-column ul {
+  margin-left: 2rem;
+}
+
+.right-column .f { color: var(--female-color); text-shadow: var(--contrast);}
+.right-column .m { color: var(--male-color); text-shadow: var(--contrast);}
+
 /* =_=_=_=_=_=_=_=_=_=<<  RESPONSIVE DESIGN  >>=_=_=_=_=_=_=_=_=_= */
 @media (max-width: 768px) {
   .details-container {
