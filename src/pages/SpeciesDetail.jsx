@@ -1,10 +1,13 @@
 // IMAGES
 import ErrorImage from "../assets/Error.png"
 
-// LIBRARIES
+// LIBRARIES & SUPABASE
 import { supabase } from "../lib/supabaseClient";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
+
+// COMPONENTS
+import Accordion from "../components/Accordion";
 
 // STYLES
 import "../styles/Error.css";
@@ -51,6 +54,7 @@ export default function SpeciesDetail() {
           f_states, 
           m_states,
           traits (
+            trait_category,
             trait_name,
             trait_states (
               id_state,
@@ -82,6 +86,44 @@ export default function SpeciesDetail() {
       .map(sid => allStates.find(s => s.id_state === sid)?.state_label || sid)
       .join(", ");
   };
+
+  // TRAIT ACCORDIONS
+  const accordionItems = useMemo(() => {
+    // 1. Creates categories
+    const grouped = traits.reduce((acc, item) => {
+      const category = item.traits?.trait_category || "Other";
+      if (!acc[category]) acc[category] = [];
+      acc[category].push(item);
+      return acc;
+    }, {});
+
+    // 2. Adds traits to categories
+    return Object.entries(grouped).map(([categoryName, traits]) => ({
+      id: categoryName,
+      title: categoryName.toUpperCase(),
+      content: (
+        <div className="traits-group">
+          {traits.map((t, idx) => (
+            <div key={idx}>
+              <p>- <strong>{t.traits?.trait_name}</strong>:</p>
+              <ul>
+                {t.f_states?.length > 0 && (
+                  <li className="f">
+                    {resolveLabels(t.f_states, t.traits?.trait_states)}
+                  </li>
+                )}
+                {t.m_states?.length > 0 && (
+                  <li className="m">
+                    {resolveLabels(t.m_states, t.traits?.trait_states)}
+                  </li>
+                )}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )
+    }));
+  }, [traits]);
 
   // ---- RENDERING
   return (
@@ -165,25 +207,12 @@ export default function SpeciesDetail() {
               <div className="right-column">
                 <h5>Species Traits:</h5>
                 
-                {/* Mapping all traits */}
                 {traits.length > 0 ? (
-                  traits.map((item, index) => (
-                    <div key={index}>
-                      <p>- {item.traits?.trait_name}:</p>
-                      <ul>
-                        {item.f_states?.length > 0 && (
-                          <li className="f">
-                            {resolveLabels(item.f_states, item.traits?.trait_states)}
-                          </li>
-                        )}
-                        {item.m_states?.length > 0 && (
-                          <li className="m">
-                            {resolveLabels(item.m_states, item.traits?.trait_states)}
-                          </li>
-                        )}
-                      </ul>
-                    </div>
-                  ))
+                  <Accordion 
+                    items={accordionItems} 
+                    singleOpen={false}
+                    defaultAllOpen={false} 
+                  />
                 ) : (
                   <p>No traits available for this species.</p>
                 )}
