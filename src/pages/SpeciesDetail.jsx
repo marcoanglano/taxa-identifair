@@ -1,17 +1,20 @@
-// IMAGES
+// ASSETS
 import ErrorImage from "../assets/Error.png"
-
-// LIBRARIES & SUPABASE
-import { supabase } from "../lib/supabaseClient";
-import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
 
 // COMPONENTS
 import Accordion from "../components/Accordion";
 
+// LIB
+import { useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
+
+// SERVICES
+import { getSpeciesDetail, getSpeciesTraits } from "../services/dataService";
+
 // STYLES
 import "../styles/Error.css";
 import "../styles/SpeciesDetail.css";
+
 
 export default function SpeciesDetail() {
   // Gets species id from URL parameters
@@ -26,52 +29,28 @@ export default function SpeciesDetail() {
   useEffect(() => {
     const fetchSpecies = async () => {
       setError(null);
-
-      const { data, error: supabaseError } = await supabase
-        .from("species")
-        .select("*")
-        .eq("id_species", id)
-        .single();
-
-      if (supabaseError) {
-        console.error("Error fetching species:", supabaseError.message);
-        setError(supabaseError);
-        setSpecies(null);
-      } else {
+      try {
+        const data = await getSpeciesDetail(id);
         setSpecies(data);
+      } catch (err) {
+        console.error("Error fetching species:", err.message);
+        setError(err); // Blocks entire page
       }
     };
-
-    fetchSpecies();
+    if (id) fetchSpecies();
   }, [id]);
 
   // ---- FETCHING TRAITS
   useEffect(() => {
     const fetchTraits = async () => {
-      const { data, error: supabaseError } = await supabase
-        .from("species_traits")
-        .select(`
-          f_states, 
-          m_states,
-          traits (
-            trait_category,
-            trait_name,
-            trait_states (
-              id_state,
-              state_label
-            )
-          )
-        `)
-        .eq("id_species", id);
-
-      if (supabaseError) {
-        console.error("Error fetching traits:", supabaseError.message);
-      } else {
-        // Avoids blocking the full page just for an error in traits
-        setTraits(data || []);
+      try {
+        const data = await getSpeciesTraits(id);
+        setTraits(data);
+      } catch (err) {
+        console.error("Error fetching species:", err.message);
+        // Doesn't block entire page
       }
     };
-
     if (id) fetchTraits();
   }, [id]);
 

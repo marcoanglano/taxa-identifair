@@ -1,12 +1,12 @@
-// TO DO: search bar, maybe with options (by family, by genus, by environment, etc.)
-
-// LIBRARIES & SUPABASE
-import { Link } from "react-router-dom";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { supabase } from "../lib/supabaseClient";
-
 // COMPONENTS
 import Accordion from "../components/Accordion";
+
+// LIB
+import { Link } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+// SERVICES
+import { getFamilyCounts, getSpeciesByFamily } from "../services/dataService";
 
 // STYLES
 import "../styles/SpeciesList.css";
@@ -30,26 +30,18 @@ export default function SpeciesList() {
       setLoadingFamilies(true);
       setErrorFamilies(null);
 
-      const { data, error } = await supabase
-      .from("species_family_counts")
-      .select("family, n")
-      .order("family", { ascending: true });
-      
-      if (error) {
-        setErrorFamilies(error.message);
+      try {
+        const Families = await getFamilyCounts();
+        setFamilies(Families);
+      } catch (err) {
+        console.error("Error fetching families: ", err.message);
+        setErrorFamilies(err.message);
         setFamilies([]);
-      } else {
-        setFamilies(
-          (data ?? []).map((row) => ({
-            family: row.family ?? "Unknown Family",
-            count: row.n ?? 0,
-          }))
-        );
+      } finally {
+        setLoadingFamilies(false);
       }
-
-      setLoadingFamilies(false);
     }
-  
+
     fetchFamilies();
   }, []);
 
@@ -83,32 +75,27 @@ export default function SpeciesList() {
     const seq = ++requestSeq.current;
     const stop = startProgress(family);
 
-    const { data, error } = await supabase
-      .from("species")
-      .select("id_species, scientific_name, family")
-      .eq("family", family)
-      .order("scientific_name", { ascending: true });
+    try {
+      const data = await getSpeciesByFamily(family);
 
-    if (seq !== requestSeq.current) {
+      if (seq !== requestSeq.current) {
+        stop();
+        return;
+      }
+
       stop();
-      return;
-    }
-
-    stop();
-
-    if (error) {
+      setFamilyCache((prev) => ({ ...prev, [family]: data }));
       setFamilyStatus((prev) => ({
         ...prev,
-        [family]: { loading: false, loaded: false, progress: 0, error: error.message },
+        [family]: { loading: false, loaded: true, progress: 100 },
       }));
-      return;
+    } catch (err) {
+      stop();
+      setFamilyStatus((prev) => ({
+        ...prev,
+        [family]: { loading: false, loaded: false, progress: 0, error: err.message },
+      }));
     }
-
-    setFamilyCache((prev) => ({ ...prev, [family]: data ?? [] }));
-    setFamilyStatus((prev) => ({
-      ...prev,
-      [family]: { loading: false, loaded: true, progress: 100 },
-    }));
   }
 
   // ACCORDION ITEMS

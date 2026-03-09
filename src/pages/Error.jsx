@@ -1,7 +1,7 @@
-// IMAGES
+// ASSETS
 import ErrorImage from "../assets/Error.png"
 
-// LIBRARIES
+// LIB
 import { Link } from "react-router-dom";
 
 // STYLES

@@ -1,5 +1,3 @@
-// TO DO [CHANGELOG]: display latest update. Link to full changelog in footer.
-
 export default function Home() {
   return (
     <section className="home-page">
