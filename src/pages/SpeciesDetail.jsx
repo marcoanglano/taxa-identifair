@@ -15,6 +15,9 @@ import { getSpeciesDetail, getSpeciesTraits } from "../services/dataService";
 import "../styles/Error.css";
 import "../styles/SpeciesDetail.css";
 
+// UTILS
+import { calculateMean, formatLength, resolveLabels } from "../utils/speciesHelpers"
+
 
 export default function SpeciesDetail() {
   // Gets species id from URL parameters
@@ -55,16 +58,8 @@ export default function SpeciesDetail() {
   }, [id]);
 
   // Calculate mean lengths for bars (if data exists)
-  const fMean = species?.f_min ? (species.f_min + species.f_max) / 2 : null;
-  const mMean = species?.m_min ? (species.m_min + species.m_max) / 2 : null;
-
-  // Helpers to make id_states readable 
-  const resolveLabels = (stateIds, allStates) => {
-    if (!stateIds || !allStates) return "";
-    return stateIds
-      .map(sid => allStates.find(s => s.id_state === sid)?.state_label || sid)
-      .join(", ");
-  };
+  const fMean = useMemo(() => calculateMean(species?.f_min, species?.f_max), [species]);
+  const mMean = useMemo(() => calculateMean(species?.m_min, species?.m_max), [species]);
 
   // TRAIT ACCORDIONS
   const accordionItems = useMemo(() => {
@@ -156,14 +151,14 @@ export default function SpeciesDetail() {
                     <span className="f-square"></span>
                     <span className="f-label">
                       Female:
-                      {species.f_min ? ` ${species.f_min.toFixed(3)}-${species.f_max.toFixed(3)}` : " No data"}
+                      {species.f_min ? ` ${formatLength(species.f_min)} - ${formatLength(species.f_max)}` : " No data"}
                     </span>
                   </li>
                   <li className="m-length">
                     <span className="m-square"></span>
                     <span className="m-label">
                       Male:
-                      {species.m_min ? ` ${species.m_min.toFixed(3)}-${species.m_max.toFixed(3)}` : " No data"}
+                      {species.m_min ? ` ${formatLength(species.m_min)} - ${formatLength(species.m_max)}` : " No data"}
                     </span>
                   </li>
                 </ul>
