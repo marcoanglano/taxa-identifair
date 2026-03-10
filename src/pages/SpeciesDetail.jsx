@@ -4,12 +4,12 @@ import ErrorImage from "../assets/Error.png"
 // COMPONENTS
 import Accordion from "../components/Accordion";
 
-// LIB
-import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+// HOOKS
+import { useSpeciesDetail } from "../hooks/useSpeciesDetail";
 
-// SERVICES
-import { getSpeciesDetail, getSpeciesTraits } from "../services/dataService";
+// LIB
+import { useMemo } from "react";
+import { useParams } from "react-router-dom";
 
 // STYLES
 import "../styles/Error.css";
@@ -23,39 +23,8 @@ export default function SpeciesDetail() {
   // Gets species id from URL parameters
   const { id } = useParams();
 
-  // ---- STATES
-  const [species, setSpecies] = useState(null);
-  const [traits, setTraits] = useState([]);
-  const [error, setError] = useState(null);
-
-  // ---- FETCHING SPECIES CARD
-  useEffect(() => {
-    const fetchSpecies = async () => {
-      setError(null);
-      try {
-        const data = await getSpeciesDetail(id);
-        setSpecies(data);
-      } catch (err) {
-        console.error("Error fetching species:", err.message);
-        setError(err); // Blocks entire page
-      }
-    };
-    if (id) fetchSpecies();
-  }, [id]);
-
-  // ---- FETCHING TRAITS
-  useEffect(() => {
-    const fetchTraits = async () => {
-      try {
-        const data = await getSpeciesTraits(id);
-        setTraits(data);
-      } catch (err) {
-        console.error("Error fetching species:", err.message);
-        // Doesn't block entire page
-      }
-    };
-    if (id) fetchTraits();
-  }, [id]);
+  // Fetching-caching species card and traits
+  const {species, traits, loading, error} = useSpeciesDetail(id);
 
   // Calculate mean lengths for bars (if data exists)
   const fMean = useMemo(() => calculateMean(species?.f_min, species?.f_max), [species]);
@@ -99,101 +68,95 @@ export default function SpeciesDetail() {
     }));
   }, [traits]);
 
+  // ---- LOADING
+  if (loading) return <h3>Loading species details...</h3>;
+  // ---- ERROR
+  if (error || !species) return (
+    <div className="error-container">
+      <div className="error-left">
+        <img src={ErrorImage} alt="Sheldon J. Plankton is really sad" />
+      </div>
+      <div className="error-right">
+        <h3>404</h3>
+        <p>Error fetching species details: {error.message}</p>
+      </div>
+    </div>
+  );
+
   // ---- RENDERING
   return (
     <section>
-        {/* Error */}
-        {error && (
-          <div className="error-container">
-            <div className="error-left">
-              <img src={ErrorImage} alt="Sheldon J. Plankton is really sad" />
-            </div>
-            <div className="error-right">
-              <h3>404</h3>
-              <p>Error fetching species details: {error.message}</p>
-            </div>
-          </div>
-        )}
+      <div>
+        <h3 className="scientific-name">{species.scientific_name}</h3>
+        <h4>{species.authority}</h4>
 
-        {/* Loading */}
-        {!error && !species && (
-          <h3>Loading species details...</h3>
-        )}
-        
-        {/* Species Details */}
-        {!error && species && (
-          <div>
-            <h3 className="scientific-name">{species.scientific_name}</h3>
-            <h4>{species.authority}</h4>
+        <div className="details-container">
+          {/* Species Card */}
+          <div className="left-column">
+            <h5>Environment:</h5>
+            <p>{species.environment}</p>
 
-            <div className="details-container">
-              {/* Species Card */}
-              <div className="left-column">
-                <h5>Environment:</h5>
-                <p>{species.environment}</p>
+            <h5 className="gap">Useful links:</h5>
+            <ul>
+              <li>
+                WoRMS: 
+                <a href={species.worms_link} target="_blank" rel="noreferrer"> link</a>
+              </li>
+              <li>
+                Razouls: 
+                <a href={species.razouls_link} target="_blank" rel="noreferrer"> link</a>
+              </li>
+            </ul>
 
-                <h5 className="gap">Useful links:</h5>
-                <ul>
-                  <li>
-                    WoRMS: 
-                    <a href={species.worms_link} target="_blank" rel="noreferrer"> link</a>
-                  </li>
-                  <li>
-                    Razouls: 
-                    <a href={species.razouls_link} target="_blank" rel="noreferrer"> link</a>
-                  </li>
-                </ul>
-
-                {/* Length data */}
-                <h5 className="gap">Total length (mm):</h5>
-                <ul className="length-list">
-                  <li className="f-length">
-                    <span className="f-square"></span>
-                    <span className="f-label">
-                      Female:
-                      {species.f_min ? ` ${formatLength(species.f_min)} - ${formatLength(species.f_max)}` : " No data"}
-                    </span>
-                  </li>
-                  <li className="m-length">
-                    <span className="m-square"></span>
-                    <span className="m-label">
-                      Male:
-                      {species.m_min ? ` ${formatLength(species.m_min)} - ${formatLength(species.m_max)}` : " No data"}
-                    </span>
-                  </li>
-                </ul>
-                
-                {/* Length bars, only if any data */}
-                {(fMean ?? mMean) !== null && 
-                  <div className="length-bars">
-                    {fMean !== null && <div className="bar f-bar" style={{ width: `${fMean / 15 * 100}%` }}></div>}
-                    {mMean !== null && <div className="bar m-bar" style={{ width: `${mMean / 15 * 100}%` }}></div>}
-                    <div className="scale-bar">
-                      <span className="bar-seg">5</span>
-                      <span className="bar-seg">10</span>
-                      <span className="bar-seg">15</span>
-                    </div>
-                  </div>
-                }
+            {/* Length data */}
+            <h5 className="gap">Total length (mm):</h5>
+            <ul className="length-list">
+              <li className="f-length">
+                <span className="f-square"></span>
+                <span className="f-label">
+                  Female:
+                  {species.f_min ? ` ${formatLength(species.f_min)} - ${formatLength(species.f_max)}` : " No data"}
+                </span>
+              </li>
+              <li className="m-length">
+                <span className="m-square"></span>
+                <span className="m-label">
+                  Male:
+                  {species.m_min ? ` ${formatLength(species.m_min)} - ${formatLength(species.m_max)}` : " No data"}
+                </span>
+              </li>
+            </ul>
+            
+            {/* Length bars, only if any data */}
+            {(fMean ?? mMean) !== null && 
+              <div className="length-bars">
+                {fMean !== null && <div className="bar f-bar" style={{ width: `${fMean / 15 * 100}%` }}></div>}
+                {mMean !== null && <div className="bar m-bar" style={{ width: `${mMean / 15 * 100}%` }}></div>}
+                <div className="scale-bar">
+                  <span className="bar-seg">5</span>
+                  <span className="bar-seg">10</span>
+                  <span className="bar-seg">15</span>
+                </div>
               </div>
-
-              {/* Species Traits */}
-              <div className="right-column">
-                <h5>Species Traits:</h5>
-                
-                {traits.length > 0 ? (
-                  <Accordion 
-                    items={accordionItems} 
-                    singleOpen={false}
-                    defaultAllOpen={false} 
-                  />
-                ) : (
-                  <p>No traits available for this species.</p>
-                )}
-              </div>
-            </div>
+            }
           </div>
-        )}
+
+          {/* Species Traits */}
+          <div className="right-column">
+            <h5>Species Traits:</h5>
+            
+            {traits.length > 0 ? (
+              <Accordion 
+                items={accordionItems} 
+                singleOpen={false}
+                defaultAllOpen={false} 
+              />
+            ) : (
+              <p>No traits available for this species.</p>
+            )}
+          </div>
+        </div>
+      </div>
     </section>
   )
 }

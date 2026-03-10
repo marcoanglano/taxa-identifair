@@ -1,102 +1,27 @@
 // COMPONENTS
 import Accordion from "../components/Accordion";
 
+// HOOKS
+import { useFamilies } from "../hooks/useFamilies";
+
 // LIB
 import { Link } from "react-router-dom";
-import { useEffect, useMemo, useRef, useState } from "react";
-
-// SERVICES
-import { getFamilyCounts, getSpeciesByFamily } from "../services/dataService";
+import { useMemo } from "react";
 
 // STYLES
 import "../styles/SpeciesList.css";
 
+
 export default function SpeciesList() {
-  // STATES (families)
-  const [families, setFamilies] = useState([]);
-  const [loadingFamilies, setLoadingFamilies] = useState(true);
-  const [errorFamilies, setErrorFamilies] = useState(null);
-
-  // CACHE IN-SESSION
-  const [familyCache, setFamilyCache] = useState({});
-  const [familyStatus, setFamilyStatus] = useState({});
-
-  // (avoids race conditions in case of rapid clicks)
-  const requestSeq = useRef(0);
-
-  // FETCHING FAMILIES
-  useEffect(() => {
-    async function fetchFamilies(){
-      setLoadingFamilies(true);
-      setErrorFamilies(null);
-
-      try {
-        const Families = await getFamilyCounts();
-        setFamilies(Families);
-      } catch (err) {
-        console.error("Error fetching families: ", err.message);
-        setErrorFamilies(err.message);
-        setFamilies([]);
-      } finally {
-        setLoadingFamilies(false);
-      }
-    }
-
-    fetchFamilies();
-  }, []);
-
-  // ----- HELPERS
-  // Progress bar
-  function startProgress(family) {
-    let p = 0;
-
-    setFamilyStatus((prev) => ({
-      ...prev,
-      [family]: { loading: true, loaded: false, progress: 0 },
-    }));
-
-    const t = setInterval(() => {
-      p = Math.min(90, p + Math.random() * 12);
-      setFamilyStatus((prev) => {
-        const cur = prev[family];
-        if (!cur || !cur.loading) return prev;
-        return { ...prev, [family]: { ...cur, progress: p } };
-      });
-    }, 180);
-
-    return () => clearInterval(t);
-  }
-
-  // FETCHING SPECIES
-  async function fetchFamilySpecies(family) {
-    if (familyCache[family]?.length) return; // already cached? stop
-    if (familyStatus[family]?.loading) return; // already loading? stop
-
-    const seq = ++requestSeq.current;
-    const stop = startProgress(family);
-
-    try {
-      const data = await getSpeciesByFamily(family);
-
-      if (seq !== requestSeq.current) {
-        stop();
-        return;
-      }
-
-      stop();
-      setFamilyCache((prev) => ({ ...prev, [family]: data }));
-      setFamilyStatus((prev) => ({
-        ...prev,
-        [family]: { loading: false, loaded: true, progress: 100 },
-      }));
-    } catch (err) {
-      stop();
-      setFamilyStatus((prev) => ({
-        ...prev,
-        [family]: { loading: false, loaded: false, progress: 0, error: err.message },
-      }));
-    }
-  }
+  // Fetching-caching families and species
+  const { 
+    families, 
+    loadingFamilies, 
+    errorFamilies, 
+    familyCache, 
+    familyStatus, 
+    fetchFamilySpecies 
+  } = useFamilies();
 
   // ACCORDION ITEMS
   const accordionItems = useMemo(() => {
@@ -158,7 +83,6 @@ export default function SpeciesList() {
   return (
     <section>
       <h3>Species List</h3>
-      <p>Select a family, then a species to view details.</p>
 
       {loadingFamilies && <p>Loading families...</p>}
       {!loadingFamilies && errorFamilies && (
@@ -166,26 +90,29 @@ export default function SpeciesList() {
       )}
 
       {!loadingFamilies && !errorFamilies && (
-        <Accordion
-          items={accordionItems}
-          defaultAllOpen={false}
-          singleOpen={true}
-          onToggle={(family, nextIsOpen) => {
-            if (nextIsOpen) fetchFamilySpecies(family);
-          }}
-          hasProgressbar={true}
-          getHeaderState={(it) => it.meta}
-          renderRight={(it, isOpen) => {
-            const loading = !!it.meta?.loading;
-            return (
-              <>
-                <span className="acc-icon" aria-hidden="true">
-                  {isOpen ? "▲" : "▼"}
-                </span>
-              </>
-            );
-          }}
-        />
+        <>
+          <p>Select a family, then a species to view details.</p>
+          <Accordion
+            items={accordionItems}
+            defaultAllOpen={false}
+            singleOpen={true}
+            onToggle={(family, nextIsOpen) => {
+              if (nextIsOpen) fetchFamilySpecies(family);
+            }}
+            hasProgressbar={true}
+            getHeaderState={(it) => it.meta}
+            renderRight={(it, isOpen) => {
+              const loading = !!it.meta?.loading;
+              return (
+                <>
+                  <span className="acc-icon" aria-hidden="true">
+                    {isOpen ? "▲" : "▼"}
+                  </span>
+                </>
+              );
+            }}
+          />
+        </>
       )}
     </section>
   );
