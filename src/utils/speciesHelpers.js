@@ -11,12 +11,13 @@ export const calculateMean = (min, max) => {
 
 /** 
  * <<< FORMAT LENGTH >>>
- * Formats a number with 3 decimals
+ * Formats lengths with 3 decimals
  * (If null, returns a fallback)
  */
-export const formatLength = (val) => {
-  if (val === null || val === undefined) return "No data";
-  return `${val.toFixed(3)} mm`;
+export const formatLength = (min, max) => {
+  if (min === null || min === undefined || max === null || max === undefined) return " No data";
+  if (min === max) return ` ${min.toFixed(3)} mm`;
+  return ` ${min.toFixed(3)} - ${max.toFixed(3)} mm`;
 };
 
 

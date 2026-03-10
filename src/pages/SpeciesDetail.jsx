@@ -114,15 +114,13 @@ export default function SpeciesDetail() {
               <li className="f-length">
                 <span className="f-square"></span>
                 <span className="f-label">
-                  Female:
-                  {species.f_min ? ` ${formatLength(species.f_min)} - ${formatLength(species.f_max)}` : " No data"}
+                  Female:{formatLength(species.f_min, species.f_max)}
                 </span>
               </li>
               <li className="m-length">
                 <span className="m-square"></span>
                 <span className="m-label">
-                  Male:
-                  {species.m_min ? ` ${formatLength(species.m_min)} - ${formatLength(species.m_max)}` : " No data"}
+                  Male:{formatLength(species.m_min, species.m_max)}
                 </span>
               </li>
             </ul>
