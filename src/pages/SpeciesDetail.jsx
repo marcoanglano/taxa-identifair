@@ -87,8 +87,8 @@ export default function SpeciesDetail() {
   return (
     <section>
       <div>
-        <h3 className="scientific-name">{species.scientific_name}</h3>
-        <h4>{species.authority}</h4>
+        <h3 id="scientific-name">{species.scientific_name}</h3>
+        <h4 id="authority">{species.authority}</h4>
 
         <div className="details-container">
           {/* Species Card */}
@@ -130,7 +130,7 @@ export default function SpeciesDetail() {
               <div className="length-bars">
                 {fMean !== null && <div className="bar f-bar" style={{ width: `${fMean / 15 * 100}%` }}></div>}
                 {mMean !== null && <div className="bar m-bar" style={{ width: `${mMean / 15 * 100}%` }}></div>}
-                <div className="scale-bar">
+                <div className="scale-bar scale-bd">
                   <span className="bar-seg">5</span>
                   <span className="bar-seg">10</span>
                   <span className="bar-seg">15</span>
@@ -140,7 +140,7 @@ export default function SpeciesDetail() {
           </div>
 
           {/* Species Traits */}
-          <div className="right-column">
+          <div className="right-column right-bd">
             <h5>Species Traits:</h5>
             
             {traits.length > 0 ? (

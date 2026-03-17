@@ -1,3 +1,8 @@
+/* COLORS */
+.species-hint { color: var(--prim-color); }
+.species-error { color: var(--error-color); }
+
+
 /* =_=_=_=_=_=_=_=_=_=<<  SPECIES LIST  >>=_=_=_=_=_=_=_=_=_= */
 
 .species-list {
@@ -6,12 +11,4 @@
 
 .species-list li {
   margin: 4px 0;
-}
-
-.species-hint {
-  color: var(--prim-color);
-}
-
-.species-error {
-  color: var(--error-color);
 }

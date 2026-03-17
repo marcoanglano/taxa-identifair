@@ -5,14 +5,31 @@
   padding: 0;
 }
 
-/* BODY */
+/* Colors in BODY, LINKS */
+/* Color definitions in ROOT */
+
+
+/* =_=_=_=_=_=_=_=_=_=<<  BODY  >>=_=_=_=_=_=_=_=_=_= */
 body {
   font-family: 'IBM Plex Sans', sans-serif;
   background-color: var(--sec-color);
   color: var(--prim-color);
 }
 
-/* HEADINGS & PARAGRAPHS */
+
+/* =_=_=_=_=_=_=_=_=_=<<  TEXT  >>=_=_=_=_=_=_=_=_=_= */
+h1 {
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.04em;
+}
+
+h2 {
+  margin-bottom: 0.3rem;
+  font-size: large;
+  font-style: italic;
+  font-weight: 400;
+}
+
 h3 {
   margin-bottom: 0.3rem;
   font-size: x-large;
@@ -20,7 +37,6 @@ h3 {
 
 h4 {
   margin-bottom: 0.3rem;
-  color: var(--prim-color-LL);
   font-size: large;
 }
 
@@ -34,7 +50,8 @@ p {
   text-align: justify;
 }
 
-/* LINKS */
+
+/* =_=_=_=_=_=_=_=_=_=<<  LINKS -LVHA-  >>=_=_=_=_=_=_=_=_=_= */
 
 a {
   color: var(--prim-color-LL);
@@ -61,10 +78,11 @@ a[target="_blank"]::after {
   vertical-align: super;
 }
 
-/* ROOT */
+
+/* =_=_=_=_=_=_=_=_=_=<<  ROOT  >>=_=_=_=_=_=_=_=_=_= */
 
 :root {
-  /* <<<<< COLORS >>>>> */
+  /* <<<<< COLOURS >>>>> */
   --prim-color: #0A1128; /* Prussian Blue */
   --prim-color-L: #001F54; /* Deep Navy */
   --prim-color-LL: #034078; /* Yale Blue */
@@ -82,7 +100,7 @@ a[target="_blank"]::after {
   --brighter: 1.40;
   
   /* <<<<< SHADOW >>>>> */
-  --shadow: 0.2rem 0.2rem 0.2rem rgba(0, 0, 0, 0.5);
-  --drop: 0.2rem 0.2rem 0.2rem grey;
-  --contrast: 0.05rem 0.05rem 0.05rem black;
+  --shadow: 0.2rem 0.2rem 0.2rem rgba(0, 0, 0, 0.5); /* Bars */
+  --drop: 0.2rem 0.2rem 0.2rem grey; /* Links */
+  --contrast: 0.05rem 0.05rem 0.05rem black; /* Text */
 }

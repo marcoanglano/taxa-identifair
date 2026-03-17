@@ -78,14 +78,14 @@ export default function Accordion({
 
         // RENDER LEFT CONTENT + FILL
         return (
-          <div className="acc-item" key={it.id}>
+          <div className="acc-item" id="acc-bg" key={it.id}>
             <button
               type="button"
-              className={[
-                "acc-header",
-                (hasProgressbar && loading) ? "is-loading" : "",
-                (hasProgressbar && loaded) ? "is-loaded" : "",
-              ].join(" ")}
+              className={`acc-header header-bd acc-pd ${
+                loading ? "is-loading" : 
+                loaded ? "is-loaded" : 
+                "header-bg"
+              }`}
               style={hasProgressbar ? {
                 // CSS variable for fill
                 "--acc-fill": `${progress}%`,
@@ -95,29 +95,28 @@ export default function Accordion({
               aria-expanded={isOpen}
               onClick={() => toggle(it.id)}
             >
-              <span className="acc-title">{it.title}</span>
+              <h5 className="acc-left">{it.title}</h5>
 
               {/* RENDER RIGHT CONTENT */}
               <span className="acc-right">
                 {renderRight ? (
                   renderRight(it, isOpen)
                 ) : (
-                  <span className="acc-icon" aria-hidden="true">
+                  <h5 aria-hidden="true">
                     {isOpen ? "▲" : "▼"}
-                  </span>
+                  </h5>
                 )}
               </span>
             </button>
             
             {/* RENDER CONTENT */}
             <div
-              className="acc-content"
               id={contentId}
               role="region"
               aria-labelledby={headerId}
               hidden={!isOpen}
             >
-              <div className="acc-content-inner">{it.content}</div>
+              <div className="acc-pd" id="acc-bg">{it.content}</div>
             </div>
           </div>
         );

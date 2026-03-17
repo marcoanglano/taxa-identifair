@@ -1,47 +1,38 @@
-/* =_=_=_=_=_=_=_=_=_=<<  ACCORDION  >>=_=_=_=_=_=_=_=_=_= */
-
 .acc-root {
   display: grid;
   margin-top: 16px;
 }
 
-.acc-item {
-  background: var(--sec-color);
-  overflow: hidden;
-}
+.acc-item { overflow: hidden; }
 
-/* <<< RENDER LEFT + Loading >>> */
+/* COLORS & EFFECTS */
+#acc-bg { background: var(--sec-color); }
+.header-bg { background: var(--sec-color-D); }
+.header-bd { border: none; border-bottom: 2px solid var(--sec-color); }
+.acc-header::before, .acc-header.is-loaded::before { background: var(--sec-color-DD); }
 
-.acc-title {
+.acc-header:hover { filter: brightness(var(--low)); }
+
+.acc-pd { padding: 12px 14px;}
+
+
+/* =_=_=_=_=_=_=_=_=_=<< HEADER + PROGRESS BAR >>=_=_=_=_=_=_=_=_=_= */
+
+.acc-left, .acc-right {
   position: relative;
   z-index: 1;
-
-  color: var(--prim-color);
-
-  font-weight: 600;
 }
 
 .acc-header {
-  align-items: center;
-  border: none;
-  border-bottom: 1px solid var(--sec-color);
-  cursor: pointer;
+  justify-content: space-between;
   width: 100%;
+  cursor: pointer;
   display: flex;
   overflow: hidden;
-  padding: 12px 14px;
   position: relative;
-
-  background: var(--sec-color-D);
-
-  font-size: 1rem;
-  justify-content: space-between;
-  text-align: left;
 }
 
-.acc-header:hover {
-  filter: brightness(var(--low));
-}
+/* Loading effect */
 
 .acc-header::before {
   inset: 0;
@@ -49,41 +40,7 @@
   pointer-events: none;
   transition: width 220ms linear;
   width: var(--acc-fill, 0%); /* --acc-fill in Accordion.jsx */
-
-  background: var(--sec-color-DD);
-
   content: "";
 }
 
-.acc-header.is-loaded::before {
-  width: 100%;
-  
-  background: var(--sec-color-DD);
-}
-
-/* <<< RENDER RIGHT >>> */
-
-.acc-right {
-  align-items: center;
-  display: inline-flex;
-  gap: 10px;
-  position: relative;
-  z-index: 1;
-}
-
-.acc-icon {
-  min-width: 18px;
-
-  color: var(--prim-color);
-
-  font-weight: 700;
-  text-align: center;
-}
-
-/* <<< CONTENT >>> */
-
-.acc-content-inner {
-  padding: 12px 14px;
-
-  background: var(--sec-color);
-}
+.acc-header.is-loaded::before { width: 100%; }

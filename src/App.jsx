@@ -19,10 +19,10 @@ export default function App() {
     <>
       <div className="app-container">
         {/* HEADER */}
-        <header className="app-header">
+        <header id="dark-bg">
           <div className="app-brand">
-            <h1>ZPid - ZooPlankton identifier</h1>
-            <h2>Interactive identification of adult Calanoida</h2>
+            <h1 id="title">ZPid - ZooPlankton identifier</h1>
+            <h2 id="subtitle">Interactive identification of adult Calanoida</h2>
           </div>
           <Navbar />
         </header>
@@ -40,8 +40,8 @@ export default function App() {
         </main>
 
         {/* FOOTER */}
-        <footer className="app-footer">
-          ZPid - ZooPlankton identifier v0.03.11.00 © copyright 2025-{new Date().getFullYear()}
+        <footer className="app-footer dark-text" id="dark-bg">
+          ZPid - ZooPlankton identifier v0.03.11.01 © Anglano, M., 2025-{new Date().getFullYear()}
         </footer>
       </div>
     </>

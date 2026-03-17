@@ -6,26 +6,21 @@
     text-align: center;
 }
 
-.error-left, .error-right {
-    flex: 1;
-}
+.error-left, .error-right { flex: 1; }
 
-/* LEFT */
+/* COLORS */
+#red { color: var(--error-color); }
 
-.error-left img {
-  width: 200px;
-}
 
-/* RIGHT */
+/* =_=_=_=_=_=_=_=_=_=<<  LEFT (IMG)  >>=_=_=_=_=_=_=_=_=_= */
 
-.error-right h3 {
-  font-size: 3rem;
-}
+.error-left img { width: 200px; }
 
-.error-right p {
-  color: var(--error-color);
-  text-align: center;
-}
+/* =_=_=_=_=_=_=_=_=_=<<  LEFT (IMG)  >>=_=_=_=_=_=_=_=_=_= */
+
+#_404 { font-size: 3rem; }
+.error-right p { text-align: center; }
+
 
 /* =_=_=_=_=_=_=_=_=_=<<  RESPONSIVE DESIGN  >>=_=_=_=_=_=_=_=_=_= */
 @media (max-width: 768px) {
@@ -34,7 +29,5 @@
     gap: 1rem;
   }
 
-  .left-column, .right-column {
-    width: 100%;
-  }
+  .left-column, .right-column { width: 100%; }
 }

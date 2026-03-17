@@ -15,8 +15,8 @@ export default function Error() {
           <img src={ErrorImage} alt="Sheldon J. Plankton is really sad"></img>
         </div>
         <div className="error-right">
-          <h3>404</h3>
-          <p>Ouch! It seems you drifted too far away!</p>
+          <h3 id="_404">404</h3>
+          <p id="red">Ouch! It seems you drifted too far away!</p>
           → <Link to="/">Return to homepage</Link> ←
         </div>
       </div>
