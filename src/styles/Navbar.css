@@ -1,7 +1,9 @@
 .app-nav {
+  border-top: 3px solid var(--prim-color-LL);
+  background-color: var(--prim-color-LL);
   display: flex;
+  gap: 3px;
   width: 100%;
-  border-top: 1px solid var(--primary-color-light);
 }
 
 .nav-btn {
@@ -10,8 +12,8 @@
   flex: 1;
   padding: 10px 14px;
 
-  background: var(--primary-color);
-  color: var(--secondary-color);
+  background: var(--prim-color-L);
+  color: var(--sec-color);
 
   font-weight: 600;
   justify-content: center;
@@ -21,7 +23,7 @@
 }
 
 .nav-btn:visited {
-  color: var(--secondary-color);
+  color: var(--sec-color);
 }
 
 .nav-btn:hover {
@@ -34,6 +36,6 @@
 }
 
 .nav-btn.active {
-  background: var(--primary-color-light);
-  color: var(--secondary-color);
+  background: var(--prim-color-LL);
+  color: var(--sec-color);
 }

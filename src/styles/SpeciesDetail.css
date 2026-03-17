@@ -24,10 +24,6 @@ h5.gap {
   padding-left: 1.5rem;
 }
 
-.left-column a:hover {
-  text-decoration: none;
-}
-
 /* Length data */
 .f-square, .f-bar { background-color: var(--female-color); }
 .m-square, .m-bar { background-color: var(--male-color); }
@@ -43,7 +39,7 @@ ul.length-list {
 }
 
 .f-square, .m-square, .bar {
-  border: 0.05rem solid var(--primary-color-light);
+  border: 0.05rem solid var(--prim-color-L);
   border-radius: 0.2rem;
   height: 1rem;
   margin-right: 0.5rem;
@@ -75,7 +71,7 @@ ul.length-list {
 
 /* Length scale */
 .scale-bar {
-  border-left: 0.1rem solid var(--primary-color);
+  border-left: 0.1rem solid var(--prim-color);
   display: flex;
   height: 1rem;
 
@@ -84,8 +80,8 @@ ul.length-list {
 }
 
 .scale-bar span {
-  border-top: 0.1rem solid var(--primary-color);
-  border-right: 0.1rem solid var(--primary-color);
+  border-top: 0.1rem solid var(--prim-color);
+  border-right: 0.1rem solid var(--prim-color);
   flex: 1;
   padding-right: 0.2rem;
 }
@@ -93,7 +89,7 @@ ul.length-list {
 /* =_=_=<< RIGHT COLUMN (TRAITS) >>=_=_= */
 .right-column {
   flex: 1;
-  border: 1px solid var(--primary-color-lighter);
+  border: 1px solid var(--prim-color-LL);
   padding: 10px;
 }
 

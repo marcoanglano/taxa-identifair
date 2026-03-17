@@ -8,8 +8,8 @@
 /* BODY */
 body {
   font-family: 'IBM Plex Sans', sans-serif;
-  background-color: var(--secondary-color);
-  color: var(--primary-color);
+  background-color: var(--sec-color);
+  color: var(--prim-color);
 }
 
 /* HEADINGS & PARAGRAPHS */
@@ -20,7 +20,7 @@ h3 {
 
 h4 {
   margin-bottom: 0.3rem;
-  color: var(--primary-color-lighter);
+  color: var(--prim-color-LL);
   font-size: large;
 }
 
@@ -37,12 +37,12 @@ p {
 /* LINKS */
 
 a {
-  color: var(--primary-color-lighter);
+  color: var(--prim-color-LL);
   text-decoration: none;
 }
 
 a:visited {
-  color: var(--primary-color-light);
+  color: var(--prim-color-L);
 }
 
 a:hover {
@@ -65,15 +65,16 @@ a[target="_blank"]::after {
 
 :root {
   /* <<<<< COLORS >>>>> */
-  --primary-color: #0f172a;
-  --primary-color-light: #21335c;
-  --primary-color-lighter: #37559b;
-  --secondary-color: #e4eaf6;
-  --secondary-color-dark: #d1d9e8;
-  --secondary-color-darker: #abb9d1;
-  --error-color: crimson;
-  --female-color: orange;
-  --male-color: blue;
+  --prim-color: #0A1128; /* Prussian Blue */
+  --prim-color-L: #001F54; /* Deep Navy */
+  --prim-color-LL: #034078; /* Yale Blue */
+  --prim-color-LLL: #1282A2; /* Cerulean */
+  --sec-color-DD: #88BFCF; /* Sky Blue (Light) */
+  --sec-color-D: #C3DEE5; /* Pale Sky */
+  --sec-color: #FEFCFB; /* White */
+  --error-color: #D63230; /* Tomato Jam */
+  --female-color: #F39237; /* Carrot Orange */
+  --male-color: #1C77C3; /* Twitter Blue */
 
   /* <<<<< BRIGHTNESS >>>>> */
   --low: 1.05;

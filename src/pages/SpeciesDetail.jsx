@@ -99,12 +99,12 @@ export default function SpeciesDetail() {
             <h5 className="gap">Useful links:</h5>
             <ul>
               <li>
-                WoRMS: 
-                <a href={species.worms_link} target="_blank" rel="noreferrer"> link</a>
+                WoRMS:&nbsp;
+                <a href={species.worms_link} target="_blank" rel="noreferrer">link</a>
               </li>
               <li>
-                Razouls: 
-                <a href={species.razouls_link} target="_blank" rel="noreferrer"> link</a>
+                Razouls:&nbsp;
+                <a href={species.razouls_link} target="_blank" rel="noreferrer">link</a>
               </li>
             </ul>
 
