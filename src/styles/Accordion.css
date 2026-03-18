@@ -38,7 +38,7 @@
   inset: 0;
   position: absolute;
   pointer-events: none;
-  transition: width 220ms linear;
+  transition: width 220ms ease-in-out;
   width: var(--acc-fill, 0%); /* --acc-fill in Accordion.jsx */
   content: "";
 }

@@ -81,10 +81,10 @@ export default function Accordion({
           <div className="acc-item" id="acc-bg" key={it.id}>
             <button
               type="button"
-              className={`acc-header header-bd acc-pd ${
+              className={`acc-header header-bg header-bd acc-pd ${
                 loading ? "is-loading" : 
                 loaded ? "is-loaded" : 
-                "header-bg"
+                ""
               }`}
               style={hasProgressbar ? {
                 // CSS variable for fill
