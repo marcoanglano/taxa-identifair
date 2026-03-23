@@ -32,3 +32,12 @@ export const resolveLabels = (stateIds, allStates) => {
     .map(sid => allStates.find(s => s.id_state === sid)?.state_label || sid)
     .join(", ");
 };
+
+/**
+ * <<< GBIF LINK >>>
+ * Generates GBIF link with gbif_id
+ */
+export const getGBIFLink = (gbifId) => {
+  if (!gbifId) return null;
+  return `https://www.gbif.org/species/${gbifId}`;
+};

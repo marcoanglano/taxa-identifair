@@ -13,7 +13,7 @@
 
 .acc-header:hover { filter: brightness(var(--low)); }
 
-.acc-pd { padding: 12px 14px;}
+.acc-pd { padding: 0.5rem 14px 10px; }
 
 
 /* =_=_=_=_=_=_=_=_=_=<< HEADER + PROGRESS BAR >>=_=_=_=_=_=_=_=_=_= */

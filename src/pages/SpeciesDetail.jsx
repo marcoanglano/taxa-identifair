@@ -5,6 +5,7 @@ import ErrorImage from "../assets/Error.png"
 import Accordion from "../components/Accordion";
 
 // HOOKS
+import { useGBIF } from "../hooks/useGBIF";
 import { useSpeciesDetail } from "../hooks/useSpeciesDetail";
 
 // LIB
@@ -16,7 +17,7 @@ import "../styles/Error.css";
 import "../styles/SpeciesDetail.css";
 
 // UTILS
-import { calculateMean, formatLength, resolveLabels } from "../utils/speciesHelpers"
+import { calculateMean, formatLength, resolveLabels, getGBIFLink } from "../utils/speciesHelpers"
 
 
 export default function SpeciesDetail() {
@@ -24,11 +25,13 @@ export default function SpeciesDetail() {
   const { id } = useParams();
 
   // Fetching-caching species card and traits
-  const {species, traits, loading, error} = useSpeciesDetail(id);
+  const {species, traits, loading: s_loading, error: s_error} = useSpeciesDetail(id);
+  const {taxonomy, loading: g_loading, error: g_error} = useGBIF(species?.gbif_id);
 
-  // Calculate mean lengths for bars (if data exists)
+  // Mean lenghts, URL to GBIF
   const fMean = useMemo(() => calculateMean(species?.f_min, species?.f_max), [species]);
   const mMean = useMemo(() => calculateMean(species?.m_min, species?.m_max), [species]);
+  const gbifUrl = getGBIFLink(species?.gbif_id);
 
   // TRAIT ACCORDIONS
   const accordionItems = useMemo(() => {
@@ -48,7 +51,7 @@ export default function SpeciesDetail() {
         <div className="traits-group">
           {traits.map((t, idx) => (
             <div key={idx}>
-              <p>- <strong>{t.traits?.trait_name}</strong>:</p>
+              <p id="trait-name">- <strong>{t.traits?.trait_name}</strong>:</p>
               <ul>
                 {t.f_states?.length > 0 && (
                   <li className="f">
@@ -69,16 +72,16 @@ export default function SpeciesDetail() {
   }, [traits]);
 
   // ---- LOADING
-  if (loading) return <h3>Loading species details...</h3>;
+  if (s_loading || g_loading) return <h3>Loading species details...</h3>;
   // ---- ERROR
-  if (error || !species) return (
+  if (s_error || g_error || !species) return (
     <div className="error-container">
       <div className="error-left">
         <img src={ErrorImage} alt="Sheldon J. Plankton is really sad" />
       </div>
       <div className="error-right">
         <h3>404</h3>
-        <p>Error fetching species details: {error.message}</p>
+        <p>Error fetching species details</p> {/* Here I need to display the right error.message*/}
       </div>
     </div>
   );
@@ -93,17 +96,25 @@ export default function SpeciesDetail() {
         <div className="details-container">
           {/* Species Card */}
           <div className="left-column">
+            <h5>Taxonomy:</h5>
+            <p>{taxonomy?.kingdom} &gt; {taxonomy?.phylum} &gt; {taxonomy?.class} &gt;
+              &nbsp;{taxonomy?.order} &gt; {taxonomy?.family} &gt; <em>{taxonomy?.genus}</em></p>
+
             <h5>Environment:</h5>
             <p>{species.environment}</p>
 
             <h5 className="gap">Useful links:</h5>
             <ul>
               <li>
+                GBIF:&nbsp;
+                <a href={gbifUrl} target="_blank" rel="noreferrer">link</a>
+              </li>
+              <li>
                 WoRMS:&nbsp;
                 <a href={species.worms_link} target="_blank" rel="noreferrer">link</a>
               </li>
               <li>
-                Razouls:&nbsp;
+                Marine Planktonic Copepods:&nbsp;
                 <a href={species.razouls_link} target="_blank" rel="noreferrer">link</a>
               </li>
             </ul>

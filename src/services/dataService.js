@@ -1,6 +1,26 @@
-// SUPABASE
-import { supabase } from "../lib/supabaseClient";
+// ================================
+// ============= GBIF =============
+// ================================
 
+// Full taxonomy
+export const getTaxonomyGBIF = async (gbifId) => {
+  const response = await fetch(`https://api.gbif.org/v1/species/${gbifId}`);
+  const data = await response.json();
+  return {
+    kingdom: data.kingdom,
+    phylum: data.phylum,
+    class: data.class,
+    order: data.order,
+    family: data.family,
+    genus: data.genus
+  };
+};
+
+
+// ================================
+// =========== SUPABASE ===========
+// ================================
+import { supabase } from "../lib/supabaseClient";
 
 /**
  * <<< species_family_counts >>>
@@ -19,7 +39,6 @@ export const getFamilyCounts = async () => {
     count: row.n ?? 0,
   }));
 };
-
 
 /**
  * <<< species >>>
@@ -48,7 +67,6 @@ export const getSpeciesDetail = async (id) => {
   if (error) throw error;
   return data;
 };
-
 
 /**
  * <<< species_traits >>>

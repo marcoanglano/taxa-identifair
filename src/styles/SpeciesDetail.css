@@ -91,9 +91,8 @@ ul.length-list {
   padding: 10px;
 }
 
-.right-column ul {
-  margin-left: 2rem;
-}
+.right-column ul { margin-left: 2rem; }
+#trait-name { margin-top: 0.5rem; }
 
 
 /* =_=_=_=_=_=_=_=_=_=<<  RESPONSIVE DESIGN  >>=_=_=_=_=_=_=_=_=_= */
