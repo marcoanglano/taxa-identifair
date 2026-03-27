@@ -34,10 +34,20 @@ export const resolveLabels = (stateIds, allStates) => {
 };
 
 /**
- * <<< GBIF LINK >>>
- * Generates GBIF link with gbif_id
+ * <<< LINKS >>>
  */
+/* GBIF */
 export const getGBIFLink = (gbifId) => {
   if (!gbifId) return null;
   return `https://www.gbif.org/species/${gbifId}`;
+};
+/* WoRMS */
+export const getWormsLink = (wormsId) => {
+  if (!wormsId) return null;
+  return `https://www.marinespecies.org/aphia.php?p=taxdetails&id=${wormsId}`;
+};
+/* Razouls */
+export const getRazoulsLink = (razoulsId) => {
+  if (!razoulsId) return null;
+  return `https://copepodes.obs-banyuls.fr/en/fichesp.php?sp=${razoulsId}`;
 };

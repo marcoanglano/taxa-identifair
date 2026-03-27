@@ -17,7 +17,7 @@ import "../styles/Error.css";
 import "../styles/SpeciesDetail.css";
 
 // UTILS
-import { calculateMean, formatLength, resolveLabels, getGBIFLink } from "../utils/speciesHelpers"
+import { calculateMean, formatLength, resolveLabels, getGBIFLink, getWormsLink, getRazoulsLink } from "../utils/speciesHelpers"
 
 
 export default function SpeciesDetail() {
@@ -29,9 +29,11 @@ export default function SpeciesDetail() {
   const {taxonomy, loading: g_loading, error: g_error} = useGBIF(species?.gbif_id);
 
   // Mean lenghts, URL to GBIF
-  const fMean = useMemo(() => calculateMean(species?.f_min, species?.f_max), [species]);
-  const mMean = useMemo(() => calculateMean(species?.m_min, species?.m_max), [species]);
+  const fMean = useMemo(() => calculateMean(species?.filters?.f_min, species?.filters?.f_max), [species]);
+  const mMean = useMemo(() => calculateMean(species?.filters?.m_min, species?.filters?.m_max), [species]);
   const gbifUrl = getGBIFLink(species?.gbif_id);
+  const wormsUrl = getWormsLink(species?.worms_id);
+  const razoulsUrl = getRazoulsLink(species?.razouls_id);
 
   // TRAIT ACCORDIONS
   const accordionItems = useMemo(() => {
@@ -90,8 +92,8 @@ export default function SpeciesDetail() {
   return (
     <section>
       <div>
-        <h3 id="scientific-name">{species.scientific_name}</h3>
-        <h4 id="authority">{species.authority}</h4>
+        <h3 id="scientific-name">{species?.scientific_name}</h3>
+        <h4 id="authority">{species?.authority}</h4>
 
         <div className="details-container">
           {/* Species Card */}
@@ -101,21 +103,21 @@ export default function SpeciesDetail() {
               &nbsp;{taxonomy?.order} &gt; {taxonomy?.family} &gt; <em>{taxonomy?.genus}</em></p>
 
             <h5>Environment:</h5>
-            <p>{species.environment}</p>
+            <p>{species?.filters?.environment?.join(', ')}</p>
 
             <h5 className="gap">Useful links:</h5>
             <ul>
               <li>
                 GBIF:&nbsp;
-                <a href={gbifUrl} target="_blank" rel="noreferrer">link</a>
+                <a href={gbifUrl} target="_blank" rel="noopener noreferrer">link</a>
               </li>
               <li>
                 WoRMS:&nbsp;
-                <a href={species.worms_link} target="_blank" rel="noreferrer">link</a>
+                <a href={wormsUrl} target="_blank" rel="noopener noreferrer">link</a>
               </li>
               <li>
                 Marine Planktonic Copepods:&nbsp;
-                <a href={species.razouls_link} target="_blank" rel="noreferrer">link</a>
+                <a href={razoulsUrl} target="_blank" rel="noopener noreferrer">link</a>
               </li>
             </ul>
 
@@ -125,13 +127,13 @@ export default function SpeciesDetail() {
               <li className="f-length">
                 <span className="f-square"></span>
                 <span className="f-label">
-                  Female:{formatLength(species.f_min, species.f_max)}
+                  Female:{formatLength(species?.filters?.f_min, species?.filters?.f_max)}
                 </span>
               </li>
               <li className="m-length">
                 <span className="m-square"></span>
                 <span className="m-label">
-                  Male:{formatLength(species.m_min, species.m_max)}
+                  Male:{formatLength(species?.filters?.m_min, species?.filters?.m_max)}
                 </span>
               </li>
             </ul>

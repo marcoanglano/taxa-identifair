@@ -60,7 +60,10 @@ export const getSpeciesByFamily = async (family) => {
 export const getSpeciesDetail = async (id) => {
   const { data, error } = await supabase
     .from("species")
-    .select("*")
+    .select(`
+      *,
+      filters ( * )
+    `)
     .eq("id_species", id)
     .single();
 

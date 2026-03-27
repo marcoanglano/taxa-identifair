@@ -12,7 +12,7 @@ dist
 dist-ssr
 *.local
 gitdiff.txt
-README.md
+UPDATER.md
 
 # Editor directories and files
 .vscode/*
