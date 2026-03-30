@@ -91,7 +91,7 @@ export default function SpeciesList() {
 
       {!loadingFamilies && !errorFamilies && (
         <>
-          <p>Select a family, then a species to view details.</p>
+          <p id="select-p">Select a family, then a species to view details.</p>
           <Accordion
             items={accordionItems}
             defaultAllOpen={false}

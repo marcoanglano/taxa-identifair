@@ -1,7 +1,4 @@
-.acc-root {
-  display: grid;
-  margin-top: 16px;
-}
+.acc-root { display: grid; }
 
 .acc-item { overflow: hidden; }
 

@@ -5,6 +5,8 @@
 
 /* =_=_=_=_=_=_=_=_=_=<<  SPECIES LIST  >>=_=_=_=_=_=_=_=_=_= */
 
+#select-p { margin-bottom: 16px; }
+
 .species-list {
   margin-left: 18px;
 }

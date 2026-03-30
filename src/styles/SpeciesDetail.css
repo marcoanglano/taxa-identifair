@@ -1,50 +1,164 @@
-.details-container {
+#details-container {
   display: flex;
-  margin-top: 20px;
-  width: 100%;
+  gap: 20px;
 }
+#left-column, #right-column { flex: 1; }
 
 /* COLORS & EFFECTS */
-
-/* Left */
 #authority { color: var(--prim-color-LL); }
-.f-square, .f-bar { background-color: var(--female-color); }
-.m-square, .m-bar { background-color: var(--male-color); }
-.f-square, .m-square, .bar /* Borders */ { border: 0.05rem solid var(--prim-color-L); }
-.scale-bd { border-left: 0.1rem solid var(--prim-color); }
-.bar-seg {
+.logo-button {
+  background-color: transparent;
+  border: 2px solid var(--prim-color-LLL);
+  border-radius: 5px;
+}
+.logo-button:hover {
+  background-color: var(--sec-color-D);
+  box-shadow: var(--shadow);
+}
+.logo-button:active {
+  filter: none;
+  box-shadow: none;
+}
+
+#right-column { border: 2px solid var(--prim-color-L); }
+#right-title { text-align: center; }
+#f-square, #f-bar { background-color: var(--female-color); }
+#m-square, #m-bar { background-color: var(--male-color); }
+.bordered { border: 1px solid var(--prim-color-L); }
+.scale-line { border-left: 0.1rem solid var(--prim-color); }
+.scale-seg {
   border-top: 0.1rem solid var(--prim-color);
   border-right: 0.1rem solid var(--prim-color);
 }
+#traits-section .f { color: var(--female-color); text-shadow: var(--contrast);}
+#traits-section .m { color: var(--male-color); text-shadow: var(--contrast);}
 
-/* Right */
-.right-bd { border: 1px solid var(--prim-color-LL); }
-.right-column .f { color: var(--female-color); text-shadow: var(--contrast);}
-.right-column .m { color: var(--male-color); text-shadow: var(--contrast);}
+/* HIGHLIGHT DATA (SUPabase, GBIf) */
+/* .SUP { background-color: green; }
+.GBI { background-color: crimson; } */
 
-/* Hover effect*/
-.f-square:hover, .m-square:hover, .f-bar:hover, .m-bar:hover,
-.left-column:has(.f-bar:hover) .f-square, .left-column:has(.f-square:hover) .f-bar,
-.left-column:has(.m-bar:hover) .m-square, .left-column:has(.m-square:hover) .m-bar {
-  border-width: 0.1rem;
-  box-shadow: var(--shadow);
-}
-
+/* HIGHLIGHT HTML (section, div, etc.) */
+/* #details-container { background-color: aqua; }
+#left-column { background-color: lawngreen; }
+#species-name, #gbif-logo, #worms-logo, #razouls-logo, .card-section { background-color: olivedrab; }
+#right-column { background-color: lightcoral; }
+#anat-header, #length-section, #traits-section { background-color: firebrick; } */
 
 /* =_=_=_=_=_=_=_=_=_=<<  LEFT COLUMN (SPECIES CARD)  >>=_=_=_=_=_=_=_=_=_= */
-.left-column {
-  flex: 2;
+
+/* Header (L) */
+#species-header { display: flex; }
+
+#species-name {
+  padding: 10px;
+  width: 100%;
+}
+#scientific-name { font-style: italic; }
+
+#species-logos {
+  align-items: center;
+  display: flex;
+  gap: 5px;
+}
+#gbif-logo, #worms-logo, #razouls-logo { padding: 10px; }
+.logo-button::after { content: "" !important; }
+.logo { height: 30px; }
+
+/* Card */
+.card-section {
+  margin-top: 5px;
   padding: 10px;
 }
 
-#scientific-name { font-style: italic; }
 
-h5.gap { margin-top: 1rem; }
+/* =_=_=_=_=_=_=_=_=_=<<  RIGHT COLUMN (LENGTH, TRAITS)  >>=_=_=_=_=_=_=_=_=_= */
+#right-column {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 10px;
+}
 
-.left-column ul { padding-left: 1.5rem; }
+/* Header (R) */
+#right-title { padding: 10px 0 5px; }
+
+#legend {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  padding-bottom: 5px;
+}
+#legend p {
+  align-items: center;
+  display: flex;
+}
+
+/* Bars */
+#length-section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px;
+}
+#bar-bg {
+  display: flex;
+  flex-direction: column;
+  gap: inherit;
+}
+#bar-bg p {
+  align-items: center;
+  display: flex;
+  font-size: small;
+}
+#f-square, #m-square, .bar {
+  border-radius: 0.2rem;
+  display: inline-block;
+  height: 1rem;
+  margin-right: 5px;
+  width: 1rem;
+}
+#scale-bar {
+  display: flex;
+  height: 1rem;
+  font-size: small;
+  text-align: right;
+}
+#scale-bar span {
+  flex: 1;
+  padding-right: 0.2rem;
+}
+
+/* Traits */
+#traits-section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px;
+}
+#traits-section ul { margin-left: 30px; }
+#trait-name { margin-top: 5px; }
+
+
+/* =_=_=_=_=_=_=_=_=_=<<  RESPONSIVE DESIGN  >>=_=_=_=_=_=_=_=_=_= */
+@media (max-width: 768px) {
+  #details-container, #species-header { flex-direction: column; }
+  #left-column, #right-column { width: 100%; }
+  #species-logos {
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+}
+
+/* ------------------------------------------------------------------------------------------ */
+
+/* Right */
+/* .right-bd { border: 1px solid var(--prim-color-LL); }
+.right-column .f { color: var(--female-color); text-shadow: var(--contrast);}
+.right-column .m { color: var(--male-color); text-shadow: var(--contrast);} */
+
 
 /* << Length data >> */
-ul.length-list {
+/* ul.length-list {
   list-style: none;
   padding-left: 0;
 }
@@ -54,55 +168,22 @@ ul.length-list {
   align-items: center;
 }
 
-.f-square, .m-square, .bar {
-  border-radius: 0.2rem;
-  height: 1rem;
-  margin-right: 0.5rem;
-  width: 1rem;
-}
-
 /* << Length bars >> */
-.length-bars {
+/* .length-bars {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
   margin-top: 1rem;
   padding: 0 5%;
   width: 100%;
-}
-
-/* Length scale */
-.scale-bar {
-  display: flex;
-  height: 1rem;
-  font-size: small;
-  text-align: right;
-}
-
-.scale-bar span {
-  flex: 1;
-  padding-right: 0.2rem;
-}
+} */
 
 
 /* =_=_=_=_=_=_=_=_=_=<<  RIGHT COLUMN (TRAITS)  >>=_=_=_=_=_=_=_=_=_= */
-.right-column {
+/* .right-column {
   flex: 1;
   padding: 10px;
 }
 
 .right-column ul { margin-left: 2rem; }
-#trait-name { margin-top: 0.5rem; }
-
-
-/* =_=_=_=_=_=_=_=_=_=<<  RESPONSIVE DESIGN  >>=_=_=_=_=_=_=_=_=_= */
-@media (max-width: 768px) {
-  .details-container {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .left-column, .right-column {
-    width: 100%;
-  }
-}
+#trait-name { margin-top: 0.5rem; } */

@@ -16,8 +16,8 @@ export const calculateMean = (min, max) => {
  */
 export const formatLength = (min, max) => {
   if (min === null || min === undefined || max === null || max === undefined) return " No data";
-  if (min === max) return ` ${min.toFixed(3)} mm`;
-  return ` ${min.toFixed(3)} - ${max.toFixed(3)} mm`;
+  if (min === max) return ` ${min.toFixed(3)}`;
+  return ` ${min.toFixed(3)} - ${max.toFixed(3)}`;
 };
 
 

@@ -1,3 +1,9 @@
+// LOGOS SOURCES:
+//    GBIF LOGO: downloaded from https://www.gbif.org/logos
+//    WoRMS LOGO: Downloaded from https://www.marinespecies.org/images/layout/worms_logo.png, edited (color)
+//    Marine Planktonic Copepods LOGO: Downloaded from https://www.obs-banyuls.fr/images/logo-OOB.gif,
+//        edited (Logo from Observatoire Océanologique de Banyuls-sur-Mer, text substituted with "MPC", colors)
+
 // ASSETS
 import ErrorImage from "../assets/Error.png"
 
@@ -28,7 +34,7 @@ export default function SpeciesDetail() {
   const {species, traits, loading: s_loading, error: s_error} = useSpeciesDetail(id);
   const {taxonomy, loading: g_loading, error: g_error} = useGBIF(species?.gbif_id);
 
-  // Mean lenghts, URL to GBIF
+  // Mean lenghts, URLs
   const fMean = useMemo(() => calculateMean(species?.filters?.f_min, species?.filters?.f_max), [species]);
   const mMean = useMemo(() => calculateMean(species?.filters?.m_min, species?.filters?.m_max), [species]);
   const gbifUrl = getGBIFLink(species?.gbif_id);
@@ -90,82 +96,106 @@ export default function SpeciesDetail() {
 
   // ---- RENDERING
   return (
-    <section>
-      <div>
-        <h3 id="scientific-name">{species?.scientific_name}</h3>
-        <h4 id="authority">{species?.authority}</h4>
+    <section id="details-container">
 
-        <div className="details-container">
-          {/* Species Card */}
-          <div className="left-column">
-            <h5>Taxonomy:</h5>
-            <p>{taxonomy?.kingdom} &gt; {taxonomy?.phylum} &gt; {taxonomy?.class} &gt;
-              &nbsp;{taxonomy?.order} &gt; {taxonomy?.family} &gt; <em>{taxonomy?.genus}</em></p>
+      {/* ========== LEFT COLUMN ========== */}
+      <div id="left-column">
 
-            <h5>Environment:</h5>
-            <p>{species?.filters?.environment?.join(', ')}</p>
-
-            <h5 className="gap">Useful links:</h5>
-            <ul>
-              <li>
-                GBIF:&nbsp;
-                <a href={gbifUrl} target="_blank" rel="noopener noreferrer">link</a>
-              </li>
-              <li>
-                WoRMS:&nbsp;
-                <a href={wormsUrl} target="_blank" rel="noopener noreferrer">link</a>
-              </li>
-              <li>
-                Marine Planktonic Copepods:&nbsp;
-                <a href={razoulsUrl} target="_blank" rel="noopener noreferrer">link</a>
-              </li>
-            </ul>
-
-            {/* Length data */}
-            <h5 className="gap">Total length (mm):</h5>
-            <ul className="length-list">
-              <li className="f-length">
-                <span className="f-square"></span>
-                <span className="f-label">
-                  Female:{formatLength(species?.filters?.f_min, species?.filters?.f_max)}
-                </span>
-              </li>
-              <li className="m-length">
-                <span className="m-square"></span>
-                <span className="m-label">
-                  Male:{formatLength(species?.filters?.m_min, species?.filters?.m_max)}
-                </span>
-              </li>
-            </ul>
-            
-            {/* Length bars, only if any data */}
-            {(fMean ?? mMean) !== null && 
-              <div className="length-bars">
-                {fMean !== null && <div className="bar f-bar" style={{ width: `${fMean / 15 * 100}%` }}></div>}
-                {mMean !== null && <div className="bar m-bar" style={{ width: `${mMean / 15 * 100}%` }}></div>}
-                <div className="scale-bar scale-bd">
-                  <span className="bar-seg">5</span>
-                  <span className="bar-seg">10</span>
-                  <span className="bar-seg">15</span>
-                </div>
-              </div>
-            }
+        {/* Header (L) */}
+        <div id="species-header">
+          <div id="species-name">
+            <h3 className="SUP" id="scientific-name">{species?.scientific_name}</h3>
+            <h4 className="SUP" id="authority">{species?.authority}</h4>
           </div>
-
-          {/* Species Traits */}
-          <div className="right-column right-bd">
-            <h5>Species Traits:</h5>
-            
-            {traits.length > 0 ? (
-              <Accordion 
-                items={accordionItems} 
-                singleOpen={false}
-                defaultAllOpen={false} 
-              />
-            ) : (
-              <p>No traits available for this species.</p>
+          <div id="species-logos">
+            { species?.gbif_id && (
+              <a className="logo-button" id="gbif-logo" href={gbifUrl} target="_blank" rel="noopener noreferrer">
+                <img className="logo SUP" src="/gbif_logo.png" alt="GBIF logo" />
+              </a>
+            )}
+            { species?.worms_id && (
+              <a className="logo-button" id="worms-logo" href={wormsUrl} target="_blank" rel="noopener noreferrer">
+                <img className="logo SUP" src="/worms_logo.png" alt="WoRMS logo" />
+              </a>
+            )}
+            { species?.razouls_id && (
+              <a className="logo-button" id="razouls-logo" href={razoulsUrl} target="_blank" rel="noopener noreferrer">
+                <img className="logo SUP" src="/razouls_logo.png" alt="Razouls logo" />
+              </a>
             )}
           </div>
+        </div>
+
+        {/* Card */}
+        <div className="card-section GBI" id="taxonomy-section">
+          <h5>Taxonomy:</h5>
+          <p>{taxonomy?.kingdom} &gt; {taxonomy?.phylum} &gt; {taxonomy?.class} &gt; {taxonomy?.order} &gt; {taxonomy?.family} &gt; <em>{taxonomy?.genus}</em></p>
+        </div>
+        <div className="card-section SUP" id="env-section">
+          <h5>Environment:</h5>
+          <p>{species?.filters?.environment?.join(', ')}</p>
+        </div>
+        <div className="card-section" id="test-section">
+          <h5>Test section 1:</h5>
+          <p>Test</p>
+        </div>
+        <div className="card-section" id="test-section">
+          <h5>Test section 2:</h5>
+          <p>Test</p>
+        </div>
+      </div>
+
+      {/* ========== RIGHT COLUMN ========== */}
+      <div id="right-column">
+
+        {/* Header (R) */}
+        <div id="anat-header">
+          <h4 id="right-title">Anatomy</h4>
+          <div id="legend">
+            <p><span className="bordered" id="f-square"></span> Female</p>
+            <p><span className="bordered" id="m-square"></span> Male</p>
+          </div>
+        </div>
+
+        {/* Length data (only if any data) */}
+        {(fMean ?? mMean) !== null && 
+          <div className="SUP" id="length-section">
+            <h5>Total length (mm):</h5>
+            <div id="bar-bg">
+              {fMean !== null &&
+                <p>
+                  <span className="bar bordered" id="f-bar" style={{ width: `${fMean / 15 * 100}%` }}></span>
+                  {formatLength(species?.filters?.f_min, species?.filters?.f_max)}
+                </p>
+              }
+              {mMean !== null &&
+                <p>
+                  <span className="bar bordered" id="m-bar" style={{ width: `${mMean / 15 * 100}%` }}></span>
+                  {formatLength(species?.filters?.m_min, species?.filters?.m_max)}
+                </p>
+              }
+            </div>
+            <div className="scale-line" id="scale-bar">
+              <span className="scale-seg">5</span>
+              <span className="scale-seg">10</span>
+              <span className="scale-seg">15</span>
+            </div>
+          </div>
+        }
+
+        {/* Traits */}
+        <div className="SUP" id="traits-section">
+          <h5>Species Traits:</h5>
+          {traits.length > 0 ? (
+            <Accordion
+              className="traits-accordion" 
+              items={accordionItems} 
+              singleOpen={false}
+              defaultAllOpen={false} 
+            />
+          ) : (
+            <p>No traits available for this species.</p>
+          )}
         </div>
       </div>
     </section>
