@@ -81,18 +81,20 @@ export default function SpeciesDetail() {
 
   // ---- LOADING
   if (s_loading || g_loading) return <h3>Loading species details...</h3>;
-  // ---- ERROR
-  if (s_error || g_error || !species) return (
+  // ---- ERROR (HARD DEPENDENCY)
+  if (s_error || !species) return (
     <div className="error-container">
       <div className="error-left">
         <img src={ErrorImage} alt="Sheldon J. Plankton is really sad" />
       </div>
       <div className="error-right">
         <h3>404</h3>
-        <p>Error fetching species details</p> {/* Here I need to display the right error.message*/}
+        <p>Error fetching species details</p>
       </div>
     </div>
   );
+
+  const g_error_test = true;
 
   // ---- RENDERING
   return (
@@ -127,22 +129,36 @@ export default function SpeciesDetail() {
         </div>
 
         {/* Card */}
-        <div className="card-section GBI" id="taxonomy-section">
-          <h5>Taxonomy:</h5>
-          <p>{taxonomy?.kingdom} &gt; {taxonomy?.phylum} &gt; {taxonomy?.class} &gt; {taxonomy?.order} &gt; {taxonomy?.family} &gt; <em>{taxonomy?.genus}</em></p>
-        </div>
-        <div className="card-section SUP" id="env-section">
-          <h5>Environment:</h5>
-          <p>{species?.filters?.environment?.join(', ')}</p>
-        </div>
-        <div className="card-section" id="test-section">
-          <h5>Test section 1:</h5>
-          <p>Test</p>
-        </div>
-        <div className="card-section" id="test-section">
-          <h5>Test section 2:</h5>
-          <p>Test</p>
-        </div>
+        {!g_error_test ? (
+          <div id="species-card">
+            <div className="card-section GBI" id="taxonomy-section">
+              <h5>Taxonomy:</h5>
+              <p>{taxonomy?.kingdom} &gt; {taxonomy?.phylum} &gt; {taxonomy?.class} &gt; {taxonomy?.order} &gt; {taxonomy?.family} &gt; <em>{taxonomy?.genus}</em></p>
+            </div>
+            <div className="card-section SUP" id="env-section">
+              <h5>Environment:</h5>
+              <p>{species?.filters?.environment?.join(', ')}</p>
+            </div>
+            <div className="card-section" id="test-section">
+              <h5>Test section 1:</h5>
+              <p>Test</p>
+            </div>
+            <div className="card-section" id="test-section">
+              <h5>Test section 2:</h5>
+              <p>Test</p>
+            </div>
+          </div>
+        ) : (
+          <div className="error-container" id="gbif-error">
+            <div className="error-left">
+              <img src={ErrorImage} alt="Sheldon J. Plankton is really sad" />
+            </div>
+            <div className="error-right">
+              <h3>Error</h3>
+              <p>Error in GBIF data recovery</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ========== RIGHT COLUMN ========== */}
