@@ -41,7 +41,7 @@ export default function App() {
 
         {/* FOOTER */}
         <footer className="app-footer dark-text" id="dark-bg">
-          ZPid - ZooPlankton identifier v0.04a.01.04 © Anglano, M., 2025-{new Date().getFullYear()}
+          ZPid - ZooPlankton identifier v0.04a.01.05 © Anglano, M., 2025-{new Date().getFullYear()}
         </footer>
       </div>
     </>

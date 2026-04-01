@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 gitdiff.txt
+CHANGELOG.md
 UPDATER.md
 
 # Editor directories and files
