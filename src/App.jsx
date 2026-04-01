@@ -5,7 +5,7 @@ import { Route, Routes } from "react-router-dom";
 import Navbar from "./components/Navbar";
 
 // PAGES
-import Error from "./pages/Error";
+import Error from "./components/Error";
 import Home from "./pages/Home";
 import Identify from "./pages/Identify";
 import SpeciesDetail from "./pages/SpeciesDetail";
@@ -35,13 +35,13 @@ export default function App() {
             <Route path="/species/:id" element={<SpeciesDetail />} />
             <Route path="/identify" element={<Identify />} />
             {/* Catch all: */}
-            <Route path="*" element={<Error />} />
+            <Route path="*" element={<Error title="404" message="Page not found" id="404" />} />
           </Routes>
         </main>
 
         {/* FOOTER */}
         <footer className="app-footer dark-text" id="dark-bg">
-          ZPid - ZooPlankton identifier v0.04a.01.02 © Anglano, M., 2025-{new Date().getFullYear()}
+          ZPid - ZooPlankton identifier v0.04a.01.03 © Anglano, M., 2025-{new Date().getFullYear()}
         </footer>
       </div>
     </>

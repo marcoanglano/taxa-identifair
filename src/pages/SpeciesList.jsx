@@ -1,5 +1,6 @@
 // COMPONENTS
 import Accordion from "../components/Accordion";
+import Error from "../components/Error";
 
 // HOOKS
 import { useFamilies } from "../hooks/useFamilies";
@@ -86,7 +87,7 @@ export default function SpeciesList() {
 
       {loadingFamilies && <p>Loading families...</p>}
       {!loadingFamilies && errorFamilies && (
-        <p style={{ color: "crimson" }}>{errorFamilies}</p>
+        <Error title="Error" message={errorFamilies}></Error>
       )}
 
       {!loadingFamilies && !errorFamilies && (

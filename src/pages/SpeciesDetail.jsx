@@ -4,11 +4,9 @@
 //    Marine Planktonic Copepods LOGO: Downloaded from https://www.obs-banyuls.fr/images/logo-OOB.gif,
 //        edited (Logo from Observatoire Océanologique de Banyuls-sur-Mer, text substituted with "MPC", colors)
 
-// ASSETS
-import ErrorImage from "../assets/Error.png"
-
 // COMPONENTS
 import Accordion from "../components/Accordion";
+import Error from "../components/Error";
 
 // HOOKS
 import { useGBIF } from "../hooks/useGBIF";
@@ -19,7 +17,6 @@ import { useMemo } from "react";
 import { useParams } from "react-router-dom";
 
 // STYLES
-import "../styles/Error.css";
 import "../styles/SpeciesDetail.css";
 
 // UTILS
@@ -82,19 +79,8 @@ export default function SpeciesDetail() {
   // ---- LOADING
   if (s_loading || g_loading) return <h3>Loading species details...</h3>;
   // ---- ERROR (HARD DEPENDENCY)
-  if (s_error || !species) return (
-    <div className="error-container">
-      <div className="error-left">
-        <img src={ErrorImage} alt="Sheldon J. Plankton is really sad" />
-      </div>
-      <div className="error-right">
-        <h3>404</h3>
-        <p>Error fetching species details</p>
-      </div>
-    </div>
-  );
-
-  const g_error_test = true;
+  if (!species) return <Error title="404" message="Species not found"></Error>;
+  if (s_error) return <Error title="Oh no!" message="Error fetching species details"></Error>;
 
   // ---- RENDERING
   return (
@@ -129,7 +115,7 @@ export default function SpeciesDetail() {
         </div>
 
         {/* Card */}
-        {!g_error_test ? (
+        {!g_error ? (
           <div id="species-card">
             <div className="card-section GBI" id="taxonomy-section">
               <h5>Taxonomy:</h5>
@@ -149,15 +135,8 @@ export default function SpeciesDetail() {
             </div>
           </div>
         ) : (
-          <div className="error-container" id="gbif-error">
-            <div className="error-left">
-              <img src={ErrorImage} alt="Sheldon J. Plankton is really sad" />
-            </div>
-            <div className="error-right">
-              <h3>Error</h3>
-              <p>Error in GBIF data recovery</p>
-            </div>
-          </div>
+          /* ERROR: soft dependency */
+          <Error title="Oh no!" message="Error in GBIF data recovery" id="gbif-error"></Error>
         )}
       </div>
 

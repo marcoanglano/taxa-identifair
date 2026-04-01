@@ -5,7 +5,6 @@
     width: 50%;
     text-align: center;
 }
-
 .error-left, .error-right { flex: 1; }
 
 /* COLORS */
@@ -16,7 +15,7 @@
 
 .error-left img { width: 200px; }
 
-/* =_=_=_=_=_=_=_=_=_=<<  LEFT (IMG)  >>=_=_=_=_=_=_=_=_=_= */
+/* =_=_=_=_=_=_=_=_=_=<<  RIGHT (TEXT)  >>=_=_=_=_=_=_=_=_=_= */
 
 #_404 { font-size: 3rem; }
 .error-right p { text-align: center; }
