@@ -42,14 +42,10 @@ export default function SpeciesList() {
         content: (
           <div>
             {/* LOADING */}
-            {st.loading && (
-              <p className="species-hint">Loading species...</p>
-            )}
+            {st.loading && <p className="species-hint">Loading species...</p>}
 
             {/* ERROR */}
-            {!st.loading && st.error && (
-              <p className="species-error">{st.error}</p>
-            )}
+            {!st.loading && st.error && <Error title="Oh no!" message={st.error} />}
 
             {/* LOADED */}
             {!st.loading && !st.error && st.loaded && (
@@ -87,7 +83,7 @@ export default function SpeciesList() {
 
       {loadingFamilies && <p>Loading families...</p>}
       {!loadingFamilies && errorFamilies && (
-        <Error title="Error" message={errorFamilies}></Error>
+        <Error title="Error" message={errorFamilies} />
       )}
 
       {!loadingFamilies && !errorFamilies && (

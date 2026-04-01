@@ -38,16 +38,16 @@ export const resolveLabels = (stateIds, allStates) => {
  */
 /* GBIF */
 export const getGBIFLink = (gbifId) => {
-  if (!gbifId) return null;
+  if (!gbifId) return false;
   return `https://www.gbif.org/species/${gbifId}`;
 };
 /* WoRMS */
 export const getWormsLink = (wormsId) => {
-  if (!wormsId) return null;
+  if (!wormsId) return false;
   return `https://www.marinespecies.org/aphia.php?p=taxdetails&id=${wormsId}`;
 };
 /* Razouls */
 export const getRazoulsLink = (razoulsId) => {
-  if (!razoulsId) return null;
+  if (!razoulsId) return false;
   return `https://copepodes.obs-banyuls.fr/en/fichesp.php?sp=${razoulsId}`;
 };
