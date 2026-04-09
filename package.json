@@ -1,7 +1,10 @@
 {
   "name": "zpid",
+  "title": "ZPid - ZooPlankton Identifier",
+  "description": "Interactive identification of adult Calanoida",
+  "authors": "Anglano, M.",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.4a.01.06",
   "type": "module",
   "scripts": {
     "dev": "vite",

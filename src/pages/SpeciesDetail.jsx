@@ -4,6 +4,7 @@ import Error from "../components/Error";
 import SD_cards from "../components/SD_cards";
 import SD_length from "../components/SD_length";
 import SD_links from "../components/SD_links";
+import SD_skeleton from "../components/SD_skeleton";
 import SD_traits from "../components/SD_traits";
 // HOOKS
 import { useGBIF } from "../hooks/useGBIF";
@@ -14,7 +15,7 @@ import { useParams } from "react-router-dom";
 // STYLES
 import "../styles/SpeciesDetail.css";
 // UTILS
-import { calculateMean, formatLength, getGBIFLink, getWormsLink, getRazoulsLink } from "../utils/speciesHelpers"
+import { calculateMean, getGBIFLink, getWormsLink, getRazoulsLink } from "../utils/speciesHelpers"
 
 
 // ========== HOOKS & VARIABLES ==========
@@ -41,12 +42,8 @@ export default function SpeciesDetail() {
 
 
 
-  // ========== LOADING & ERROR STATES ==========
-  // Loading
-  if (s_loading || g_loading) return <h3>Loading species details...</h3>;
-
-  // Error (HARD DEPENDENCY)
-  if (!species) return <Error title="404" message="Species not found" />;
+  // ERROR (HARD DEPENDENCY)
+  if (!s_loading && !species) return <Error title="404" message="Species not found" />;
   if (s_error) return <Error title="Oh no!" message="Error fetching species details" />;
 
   
@@ -58,45 +55,63 @@ export default function SpeciesDetail() {
 
       {/* ===== LEFT COLUMN ===== */}
       <div id="left-column">
-        <div id="species-header">
-          <div id="species-name">
-            <h3 className="SUP" id="scientific-name">{species?.scientific_name}</h3>
-            <h4 className="SUP" id="authority">{species?.authority}</h4>
-          </div>
+        {/* SUPABASE */}{s_loading ? (
+          <>
+            <SD_skeleton type="title" />
+            <SD_skeleton type="logo" count={3} />
+          </>
+        ) : (
+          <div id="species-header">
+            <div id="species-name">
+              <h3 className="SUP" id="scientific-name">{species?.scientific_name}</h3>
+              <h4 className="SUP" id="authority">{species?.authority}</h4>
+            </div>
 
-          {/* Links */}
-          <SD_links gbifUrl={gbifUrl} wormsUrl={wormsUrl} razoulsUrl={razoulsUrl} />
-        </div>
+            {/* Links */}
+            <SD_links gbifUrl={gbifUrl} wormsUrl={wormsUrl} razoulsUrl={razoulsUrl} />
+          </div>
+        )}
 
         {/* Card */}
-        {!g_error ? (
+        {g_error && ( /* Error (SOFT DEPENDENCY) */
+          <Error title="Oh no!" message="Error in GBIF data recovery" id="gbif-error" />
+        )}
+        {/* GBIF */}{g_loading ? ( <SD_skeleton type="card" count={4} /> ) : (
           <div id="species-card">
             <SD_cards title="Taxonomy" classname="card-section GBI" id="taxonomy-section" taxonomy={taxonomy} />
-            <SD_cards title="Environment" classname="card-section SUP" id="env-section" environment={species.filters.environment} />
+            <SD_cards title="Environment" classname="card-section SUP" id="env-section" environment={species?.filters?.environment} />
             <SD_cards title="Test title" classname="card-section" id="test-section" content="Test content" />
             <SD_cards title="Test title" classname="card-section" id="test-section" content="Test content" />
           </div>
-        ) : ( /* Error (SOFT DEPENDENCY) */
-          <Error title="Oh no!" message="Error in GBIF data recovery" id="gbif-error" />
         )}
       </div>
 
 
       {/* ===== RIGHT COLUMN ===== */}
       <div id="right-column">
-        <div id="anat-header">
-          <h4 id="right-title">Anatomy</h4>
-          <div id="legend">
-            <p><span className="bordered" id="f-square"></span> Female</p>
-            <p><span className="bordered" id="m-square"></span> Male</p>
-          </div>
-        </div>
+        {/* SUPABASE */}{s_loading ? (
+          <>
+            <SD_skeleton type="legend" />
+            <SD_skeleton type="bars" />
+            <SD_skeleton type="trait_accordion" count={3} />
+          </>
+        ) : (
+          <>
+            <div id="anat-header">
+              <h4 id="right-title">Anatomy</h4>
+              <div id="legend">
+                <p><span className="bordered" id="f-square"></span> Female</p>
+                <p><span className="bordered" id="m-square"></span> Male</p>
+              </div>
+            </div>
 
-        {/* Length data (only if any data) */}
-        <SD_length data={lengthData} />
+            {/* Length data (only if any data) */}
+            <SD_length data={lengthData} />
 
-        {/* Traits */}
-        <SD_traits traits={traits} />
+            {/* Traits */}
+            <SD_traits traits={traits} />
+          </>
+        )}
       </div>
     </section>
   )

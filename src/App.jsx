@@ -1,18 +1,18 @@
+// ========== IMPORTS ==========
 // LIBRARIES
 import { Route, Routes } from "react-router-dom";
-
 // COMPONENTS
 import Navbar from "./components/Navbar";
-
 // PAGES
 import Error from "./components/Error";
 import Home from "./pages/Home";
 import Identify from "./pages/Identify";
 import SpeciesDetail from "./pages/SpeciesDetail";
 import SpeciesList from "./pages/SpeciesList";
-
 // STYLES
 import "./styles/App.css";
+// VERSION
+import { authors, description, title, version } from "../package.json";
 
 export default function App() {
   return (
@@ -21,8 +21,8 @@ export default function App() {
         {/* HEADER */}
         <header id="dark-bg">
           <div className="app-brand">
-            <h1 id="title">ZPid - ZooPlankton identifier</h1>
-            <h2 id="subtitle">Interactive identification of adult Calanoida</h2>
+            <h1 id="title">{title}</h1>
+            <h2 id="subtitle">{description}</h2>
           </div>
           <Navbar />
         </header>
@@ -41,7 +41,7 @@ export default function App() {
 
         {/* FOOTER */}
         <footer className="app-footer dark-text" id="dark-bg">
-          ZPid - ZooPlankton identifier v0.04a.01.05 © Anglano, M., 2025-{new Date().getFullYear()}
+          {title} v{version} © {authors}, 2025-{new Date().getFullYear()}
         </footer>
       </div>
     </>
