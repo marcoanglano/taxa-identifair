@@ -4,7 +4,7 @@ import Error from "../components/Error";
 import SD_cards from "../components/SD_cards";
 import SD_length from "../components/SD_length";
 import SD_links from "../components/SD_links";
-import SD_skeleton from "../components/SD_skeleton";
+import Skeleton from "../components/Skeleton";
 import SD_traits from "../components/SD_traits";
 // HOOKS
 import { useGBIF } from "../hooks/useGBIF";
@@ -23,8 +23,8 @@ export default function SpeciesDetail() {
   // Species ID from URL
   const { id } = useParams();
   // Hooks (fetch/cache)
-  const {species, traits, loading: s_loading, error: s_error} = useSpeciesDetail(id);
-  const {taxonomy, loading: g_loading, error: g_error} = useGBIF(species?.gbif_id);
+  const {species, traits, loading: s_load, error: s_err} = useSpeciesDetail(id);
+  const {taxonomy, loading: g_load, error: g_err} = useGBIF(species?.gbif_id);
   // Length data
   const lengthData = useMemo(() => {
     const fMin = species?.filters?.f_min ?? null;
@@ -41,10 +41,16 @@ export default function SpeciesDetail() {
   const razoulsUrl = getRazoulsLink(species?.razouls_id);
 
 
+  // TESTS
+  const ts_err = false; // Simulate main DB error
+  const tg_err = false; // Simulate GBIF error
+  const ts_load = false; // Simulate main DB loading
+  const tg_load = false; // Simulate GBIF loading
+
 
   // ERROR (HARD DEPENDENCY)
-  if (!s_loading && !species) return <Error title="404" message="Species not found" />;
-  if (s_error) return <Error title="Oh no!" message="Error fetching species details" />;
+  if (!s_load && !species) return <Error title="404" message="Species not found" />;
+  if (s_err || ts_err) return <Error title="Oh no!" message="Error fetching species details" />;
 
   
 
@@ -55,56 +61,51 @@ export default function SpeciesDetail() {
 
       {/* ===== LEFT COLUMN ===== */}
       <div id="left-column">
-        {/* SUPABASE */}{s_loading ? (
-          <>
-            <SD_skeleton type="title" />
-            <SD_skeleton type="logo" count={3} />
-          </>
-        ) : (
-          <div id="species-header">
-            <div id="species-name">
-              <h3 className="SUP" id="scientific-name">{species?.scientific_name}</h3>
-              <h4 className="SUP" id="authority">{species?.authority}</h4>
-            </div>
+          {/* SUPABASE */}{s_load || ts_load ? ( <Skeleton id="species-header" padding="10px 0 10px 10px" /> ) : (
+            <div id="species-header">
+              <div id="species-name">
+                <h3 className="SUP" id="scientific-name">{species?.scientific_name}</h3>
+                <h4 className="SUP" id="authority">{species?.authority}</h4>
+              </div>
 
-            {/* Links */}
-            <SD_links gbifUrl={gbifUrl} wormsUrl={wormsUrl} razoulsUrl={razoulsUrl} />
-          </div>
-        )}
+              {/* Links */}
+              <SD_links gbifUrl={gbifUrl} wormsUrl={wormsUrl} razoulsUrl={razoulsUrl} />
+            </div>
+          )}
 
         {/* Card */}
-        {g_error && ( /* Error (SOFT DEPENDENCY) */
+        {g_err || tg_err && ( /* Error (SOFT DEPENDENCY) */
           <Error title="Oh no!" message="Error in GBIF data recovery" id="gbif-error" />
         )}
-        {/* GBIF */}{g_loading ? ( <SD_skeleton type="card" count={4} /> ) : (
-          <div id="species-card">
-            <SD_cards title="Taxonomy" classname="card-section GBI" id="taxonomy-section" taxonomy={taxonomy} />
-            <SD_cards title="Environment" classname="card-section SUP" id="env-section" environment={species?.filters?.environment} />
-            <SD_cards title="Test title" classname="card-section" id="test-section" content="Test content" />
-            <SD_cards title="Test title" classname="card-section" id="test-section" content="Test content" />
-          </div>
-        )}
+        <div id="species-card">
+          {/* GBIF */}{s_load || ts_load ||g_load || tg_load ? ( <Skeleton className="card-section" count={4} /> ) : (
+            <>
+              <SD_cards title="Taxonomy" classname="card-section GBI" id="taxonomy-section" taxonomy={taxonomy} />
+              <SD_cards title="Environment" classname="card-section SUP" id="env-section" environment={species?.filters?.environment} />
+              <SD_cards title="Test title" classname="card-section" id="test-section" content="Test content" />
+              <SD_cards title="Test title" classname="card-section" id="test-section" content="Test content" />
+            </>
+          )}
+        </div>
       </div>
 
 
       {/* ===== RIGHT COLUMN ===== */}
       <div id="right-column">
-        {/* SUPABASE */}{s_loading ? (
+        <div id="anat-header">
+          <h4 id="right-title">Anatomy</h4>
+          <div id="legend">
+            <p><span className="bordered" id="f-square"></span> Female</p>
+            <p><span className="bordered" id="m-square"></span> Male</p>
+          </div>
+        </div>
+        {/* SUPABASE */}{s_load || ts_load ? (
           <>
-            <SD_skeleton type="legend" />
-            <SD_skeleton type="bars" />
-            <SD_skeleton type="trait_accordion" count={3} />
+            <Skeleton id="length-section" />
+            <Skeleton id="traits-section" />
           </>
         ) : (
           <>
-            <div id="anat-header">
-              <h4 id="right-title">Anatomy</h4>
-              <div id="legend">
-                <p><span className="bordered" id="f-square"></span> Female</p>
-                <p><span className="bordered" id="m-square"></span> Male</p>
-              </div>
-            </div>
-
             {/* Length data (only if any data) */}
             <SD_length data={lengthData} />
 
