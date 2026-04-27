@@ -46,40 +46,6 @@
 #right-column { background-color: lightcoral; }
 #anat-header, #length-section, #traits-section { background-color: firebrick; } */
 
-/* =_=_=_=_=_=_=_=_=_=<<  SKELETON (LOADING)  >>=_=_=_=_=_=_=_=_=_= */
-.sk-title {
-  height: 2.5rem;
-  margin-bottom: 1rem;
-  width: 80%;
-}
-.sk-logo {
-  display: flex;
-  gap: 10px;
-}
-.sk-logo {
-  border-radius: 50%;
-  height: 30px;
-  width: 30px;
-}
-.sk-card {
-  height: 80px;
-  margin-top: 10px;
-}
-.sk-legend {
-  height: 1.5rem;
-  margin-bottom: 1rem;
-  width: 40%;
-}
-.sk-bars {
-  height: 100%;
-  margin-bottom: 20px;
-  width: 100%;
-}
-.sk-traits {
-  height: 45px;
-  margin-bottom: 8px;
-  width: 100%;
-}
 
 /* =_=_=_=_=_=_=_=_=_=<<  LEFT COLUMN (SPECIES CARD)  >>=_=_=_=_=_=_=_=_=_= */
 
@@ -100,6 +66,7 @@
   align-items: center;
   display: flex;
   gap: 5px;
+  margin-right: 10px;
 }
 #gbif-logo, #worms-logo, #razouls-logo { padding: 10px; }
 .logo-button::after { content: "" !important; }
@@ -110,6 +77,12 @@
   margin-top: 5px;
   min-height: 95px;
   padding: 10px;
+}
+#no-nomenclature { opacity: 0.6; }
+#syn-bas { list-style-type: none; }
+.bas {
+  font-weight: bold;
+  margin-bottom: 4px;
 }
 #gbif-error { margin-bottom: 50px; }
 
@@ -191,6 +164,6 @@
   #left-column, #right-column { width: 100%; }
   #species-logos {
     justify-content: center;
-    margin-bottom: 10px;
+    margin: 0 0 10px 0;
   }
 }

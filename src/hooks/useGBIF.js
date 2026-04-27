@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { getTaxonomyGBIF } from '../services/dataService';
+import { getTaxonomyGBIF, getNomenclatureGBIF } from '../services/dataService';
 
 export const useGBIF = (gbifId) => {
   const [taxonomy, setTaxonomyGBIF] = useState(null);
+  const [synonyms, setSynonyms] = useState([]);
+  const [basionym, setBasionym] = useState(null);
   const [loading, setLoadingGBIF] = useState(false);
   const [error, setErrorGBIF] = useState(null);
 
@@ -10,11 +12,20 @@ export const useGBIF = (gbifId) => {
     // Wait for Supabase
     if (!gbifId) return;
 
-    const fetchTaxonomyGBIF = async () => {
+    const fetchGBIFData = async () => {
       setLoadingGBIF(true);
+      setErrorGBIF(null);
+
       try {
-        const data = await getTaxonomyGBIF(gbifId);
-        setTaxonomyGBIF(data);
+        // Taxonomy
+        const taxData = await getTaxonomyGBIF(gbifId);
+        setTaxonomyGBIF(taxData);
+
+        // Nomenclature
+        const nomData = await getNomenclatureGBIF(gbifId, taxData?.basionymKey);
+        setSynonyms(nomData.synonyms);
+        setBasionym(nomData.basionym);
+
       } catch (err) {
         console.error("Error in recovering data from GBIF:", err);
         setErrorGBIF(err.message);
@@ -23,8 +34,8 @@ export const useGBIF = (gbifId) => {
       }
     };
 
-    fetchTaxonomyGBIF();
+    fetchGBIFData();
   }, [gbifId]);
 
-  return { taxonomy, loading, error };
+  return { taxonomy, synonyms, basionym, loading, error };
 };

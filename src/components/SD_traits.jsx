@@ -4,7 +4,7 @@ import Accordion from "../components/Accordion";
 // LIB
 import { useMemo } from "react";
 // UTILS
-import { resolveLabels } from "../utils/speciesHelpers";
+import { resolveLabels } from "../utils/speciesHelpers.jsx";
 
 
 

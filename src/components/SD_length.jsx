@@ -1,5 +1,5 @@
 // ========== IMPORTS ==========
-import { formatLength } from "../utils/speciesHelpers";
+import { formatLength } from "../utils/speciesHelpers.jsx";
 
 export default function SD_length({ data }) {
 

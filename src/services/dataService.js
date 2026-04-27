@@ -2,6 +2,30 @@
 // ============= GBIF =============
 // ================================
 
+// Synonyms & Basionym
+export const getNomenclatureGBIF = async (gbifId, basionymKey) => {
+  try {
+    const promises = [
+      fetch(`https://api.gbif.org/v1/species/${gbifId}/synonyms`).then(res => res.json())
+    ];
+
+    // Does basionym exist?
+    if (basionymKey && basionymKey !== parseInt(gbifId)) {
+      promises.push(fetch(`https://api.gbif.org/v1/species/${basionymKey}`).then(res => res.json()));
+    }
+
+    const [synData, basData] = await Promise.all(promises);
+
+    return {
+      synonyms: synData.results ? [...new Set(synData.results.map(s => s.scientificName))] : [],
+      basionym: basData ? basData.scientificName : null
+    };
+  } catch (error) {
+    console.error("GBIF Nomenclature Error:", error);
+    return { synonyms: [], basionym: null };
+  }
+};
+
 // Full taxonomy
 export const getTaxonomyGBIF = async (gbifId) => {
   const response = await fetch(`https://api.gbif.org/v1/species/${gbifId}`);
@@ -15,6 +39,7 @@ export const getTaxonomyGBIF = async (gbifId) => {
     genus: data.genus
   };
 };
+
 
 
 // ================================

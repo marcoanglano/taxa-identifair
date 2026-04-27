@@ -1,4 +1,14 @@
 /**
+ * ========== CONTENT ==========
+ *  - Calculate mean
+ *  - Format length
+ *  - Format scientific name
+ *  - Links (GBIF, WoRMS, Razouls)
+ *  - Resolve labels
+ */
+
+
+/**
  * <<< CALCULATE MEAN >>>
  * Calculates mean between a min and a max value
  * (For length bars)
@@ -21,17 +31,22 @@ export const formatLength = (min, max) => {
 };
 
 
-/**
- * <<< RESOLVE LABELS >>>
- * Converts state ids into labels
- * ("PR_som_5" --> "5")
+/** 
+ * <<< FORMAT SCIENTIFIC NAME >>>
+ * Formats scientific names in italics
  */
-export const resolveLabels = (stateIds, allStates) => {
-  if (!stateIds || !allStates) return "";
-  return stateIds
-    .map(sid => allStates.find(s => s.id_state === sid)?.state_label || sid)
-    .join(", ");
+export const formatScientificName = (fullName) => {
+  if (!fullName || typeof fullName !== "string") return "";
+
+  // Separates scientific name from authority
+  const parts = fullName.trim().split(/\s+/);
+  if (parts.length < 2) return <i>{fullName}</i>;
+  const genusAndSpecies = parts.slice(0, 2).join(" ");
+  const authority = parts.slice(2).join(" ");
+
+  return ( <> <i>{genusAndSpecies}</i> {authority} </> );
 };
+
 
 /**
  * <<< LINKS >>>
@@ -50,4 +65,17 @@ export const getWormsLink = (wormsId) => {
 export const getRazoulsLink = (razoulsId) => {
   if (!razoulsId) return false;
   return `https://copepodes.obs-banyuls.fr/en/fichesp.php?sp=${razoulsId}`;
+};
+
+
+/**
+ * <<< RESOLVE LABELS >>>
+ * Converts state ids into labels
+ * ("PR_som_5" --> "5")
+ */
+export const resolveLabels = (stateIds, allStates) => {
+  if (!stateIds || !allStates) return "";
+  return stateIds
+    .map(sid => allStates.find(s => s.id_state === sid)?.state_label || sid)
+    .join(", ");
 };
