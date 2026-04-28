@@ -8,6 +8,7 @@ import Skeleton from "../components/Skeleton";
 import SD_traits from "../components/SD_traits";
 // HOOKS
 import { useGBIF } from "../hooks/useGBIF";
+import { useOccurrencesGBIF } from "../hooks/useOccurrencesGBIF";
 import { useSpeciesDetail } from "../hooks/useSpeciesDetail";
 // LIB
 import { useMemo } from "react";
@@ -18,10 +19,8 @@ import "../styles/SpeciesDetail.css";
 import { calculateMean, getGBIFLink, getWormsLink, getRazoulsLink } from "../utils/speciesHelpers.jsx";
 
 // ========== TESTS ==========
-  const ts_err = false; // Simulate main DB error
-  const tg_err = false; // Simulate GBIF error
-  const ts_load = false; // Simulate main DB loading
-  const tg_load = false; // Simulate GBIF loading
+  const tocc_err = false; // Simulate map error
+  const tocc_load = false; // Simulate map loading
 
 
 // ========== HOOKS & VARIABLES ==========
@@ -30,8 +29,9 @@ export default function SpeciesDetail() {
   const { id } = useParams();
   // Hooks (fetch/cache)
   const {species, traits, loading: s_load, error: s_err} = useSpeciesDetail(id);
-  const {taxonomy, basionym, synonyms, occurrences, loading: g_load, error: g_err} = useGBIF(species?.gbif_id);
-  const isDataReady = !s_load && !g_load && !tg_load && (taxonomy || g_err || tg_err); // Avoids loading problem (GBIF skeleton)
+  const {taxonomy, basionym, synonyms, loading: g_load, error: g_err} = useGBIF(species?.gbif_id);
+  const {occurrences, loading: occ_load, error: occ_err} = useOccurrencesGBIF(species?.gbif_id);
+  const isDataReady = !s_load && !g_load && (taxonomy || g_err); // Avoids loading problem (GBIF skeleton)
   // Length data
   const lengthData = useMemo(() => {
     const fMin = species?.filters?.f_min ?? null;
@@ -50,7 +50,7 @@ export default function SpeciesDetail() {
 
   // ERROR (HARD DEPENDENCY)
   if (!s_load && !species) return <Error title="404" message="Species not found" />;
-  if (s_err || ts_err) return <Error title="Oh no!" message="Error fetching species details" />;
+  if (s_err) return <Error title="Oh no!" message="Error fetching species details" />;
   
 
   
@@ -61,7 +61,7 @@ export default function SpeciesDetail() {
 
       {/* ===== LEFT COLUMN ===== */}
       <div id="left-column">
-          {/* SUPABASE */}{s_load || ts_load ? ( <Skeleton id="species-header" padding="10px 0 10px 10px" /> ) : (
+          {/* SUPABASE */}{s_load ? ( <Skeleton id="species-header" padding="10px 0 10px 10px" /> ) : (
             <div id="species-header">
               <div id="species-name">
                 <h3 className="SUP" id="scientific-name">{species?.scientific_name}</h3>
@@ -74,19 +74,29 @@ export default function SpeciesDetail() {
           )}
 
         {/* Card */}
-        {g_err || tg_err && ( /* Error (SOFT DEPENDENCY) */
+        {g_err ? ( /* Error (SOFT DEPENDENCY, cards) */
           <Error title="Oh no!" message="Error in GBIF data recovery" id="gbif-error" />
-        )}
-        <div id="species-card">
-          {/* GBIF */}{!isDataReady ? ( <Skeleton className="card-section" count={4} /> ) : (
-            <>
+        ) : (
+          <div id="species-card">
+            {/* GBIF */}{!isDataReady ? ( <>
+              <Skeleton className="card-section" count={3} />
+              <Skeleton className="card-section" height={400} />
+            </> ) : ( <>
               <SD_cards title="Synonyms & Basionym" classname="card-section GBI" id="synbas-section" basionym={basionym} synonyms={synonyms} />
               <SD_cards title="Taxonomy" classname="card-section GBI" id="taxonomy-section" taxonomy={taxonomy} />
               <SD_cards title="Environment" classname="card-section SUP" id="env-section" environment={species?.filters?.environment} />
-              <SD_cards title="Occurrences" classname="card-section GBI" id="map-section" occurrences={occurrences} />
-            </>
-          )}
-        </div>
+              {/* Occurrences: loading, error, card */}
+              { occ_load ? (
+                  <Skeleton className="card-section" height={400} />
+                ) : occ_err ? (
+                  <Error title="Oh no!" message="Error in GBIF data recovery" id="gbif-error" />
+                ) : (
+                  <SD_cards title="Occurrences" classname="card-section GBI" id="map-section" occurrences={occurrences} />
+                )
+              }
+            </> )}
+          </div>
+        )}
       </div>
 
 
@@ -99,7 +109,7 @@ export default function SpeciesDetail() {
             <p><span className="bordered" id="m-square"></span> Male</p>
           </div>
         </div>
-        {/* SUPABASE */}{s_load || ts_load ? (
+        {/* SUPABASE */}{s_load ? (
           <>
             <Skeleton id="length-section" />
             <Skeleton id="traits-section" />

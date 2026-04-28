@@ -3,7 +3,9 @@
 // ========== IMPORTS ==========
 // COMPONENTS
 import { MapContainer, TileLayer } from "react-leaflet";
+import Error from "./Error";
 import HeatmapLayer from "./Heatmap";
+import Skeleton from "./Skeleton";
 // STYLES
 import "leaflet/dist/leaflet.css";
 // UTILS
@@ -17,10 +19,10 @@ export default function SD_cards({
     id,
     content,
 
-    basionym,      // from GBIF (string)
+    basionym,       // from GBIF (string)
     synonyms,       // from GBIF (array of strings)
     taxonomy,       // from GBIF {kingdom, phylum, class, order, family, genus}
-    occurrences,    // from GBIF [{latitude, longitude, intensity}]
+    occurrences,    // from GBIF (array of occurrence data)
     environment     // from SUPABASE {marine, brackish, freshwater}
 }) {
 
@@ -69,10 +71,20 @@ export default function SD_cards({
 
             {/* ===== OCCURRENCES ===== */}
             { id === "map-section" && (
-                <div style={{ height: "350px", borderRadius: "12px", overflow: "hidden", border: "1px solid #444" }}>
-                    <MapContainer center={[20, 0]} zoom={1.5} style={{ height: "100%", width: "100%", background: "#1a1a1a" }}>
+                <div className="map-bd" id="map-div">
+                    <MapContainer
+                        className="map-bg"
+                        id="map-container"
+                        center={{ lat: 0, lng: 0 }}
+                        maxBounds={[[-90, -180], [90, 180]]}
+                        maxBoundsViscosity={1.0}
+                        scrollWheelZoom={true}
+                        worldCopyJump={true}
+                        zoom={1}
+                    >
                         <TileLayer
                             url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                            className="custom-map-tiles"
                             attribution='&copy; GBIF'
                         />
                         <HeatmapLayer points={occurrences} />

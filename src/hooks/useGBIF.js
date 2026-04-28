@@ -1,11 +1,13 @@
+// ========== IMPORTS ==========
+// LIB
 import { useState, useEffect } from 'react';
-import { getTaxonomyGBIF, getNomenclatureGBIF, getOccurrencesGBIF } from '../services/dataService';
+// SERVICES
+import { getTaxonomyGBIF, getNomenclatureGBIF } from '../services/dataService';
 
 export const useGBIF = (gbifId) => {
   const [basionym, setBasionym] = useState(null);
   const [synonyms, setSynonyms] = useState([]);
   const [taxonomy, setTaxonomyGBIF] = useState(null);
-  const [occurrences, setOccurrences] = useState([]);
   const [loading, setLoadingGBIF] = useState(false);
   const [error, setErrorGBIF] = useState(null);
 
@@ -22,14 +24,9 @@ export const useGBIF = (gbifId) => {
         const taxData = await getTaxonomyGBIF(gbifId);
         setTaxonomyGBIF(taxData);
 
-        // Nomenclature + Occurrences in parallel
-        const [nomData, occData] = await Promise.all([
-          getNomenclatureGBIF(gbifId, taxData?.basionymKey),
-          getOccurrencesGBIF(gbifId)
-        ]);
-        setSynonyms(nomData.synonyms);
+        // Nomenclature
+        const nomData = await getNomenclatureGBIF(gbifId, taxData?.basionymKey);setSynonyms(nomData.synonyms);
         setBasionym(nomData.basionym);
-        setOccurrences(occData);
 
       } catch (err) {
         console.error("Error in recovering data from GBIF:", err);
@@ -42,5 +39,5 @@ export const useGBIF = (gbifId) => {
     fetchGBIFData();
   }, [gbifId]);
 
-  return { taxonomy, synonyms, basionym, occurrences, loading, error };
+  return { taxonomy, synonyms, basionym, loading, error };
 };

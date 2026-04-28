@@ -43,7 +43,7 @@ export const getTaxonomyGBIF = async (gbifId) => {
 // Occurrences
 export const getOccurrencesGBIF = async (gbifId) => {
   try {
-    const limit = 2000; // Max records to fetch
+    const limit = 5000; // Max records to fetch
     const response = await fetch(
       `https://api.gbif.org/v1/occurrence/search?taxonKey=${gbifId}&hasCoordinate=true&limit=${limit}`
     );

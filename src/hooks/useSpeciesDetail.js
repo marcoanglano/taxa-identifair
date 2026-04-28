@@ -1,6 +1,6 @@
+// ========== IMPORTS ==========
 // LIB
 import { useState, useEffect } from "react";
-
 // SERVICES
 import { getSpeciesDetail, getSpeciesTraits } from "../services/dataService";
 

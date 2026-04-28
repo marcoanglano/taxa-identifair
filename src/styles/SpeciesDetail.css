@@ -19,6 +19,14 @@
   filter: none;
   box-shadow: none;
 }
+.map-bd { border: 1px solid var(--prim-color); }
+.map-bg { background: var(--prim-color-L); }
+.custom-map-tiles {
+    filter:
+      brightness(2.5)
+      contrast(1.5)
+      !important;
+}
 
 #right-column { border: 2px solid var(--prim-color-L); }
 #right-title { text-align: center; }
@@ -77,6 +85,16 @@
   margin-top: 5px;
   min-height: 95px;
   padding: 10px;
+}
+#map-section { min-height: 400px; }
+#map-div {
+  border-radius: 12px;
+  height: 350px;
+  overflow: hidden;
+}
+#map-container {
+  height: 100%;
+  width: 100%;
 }
 #no-nomenclature { opacity: 0.6; }
 #syn-bas { list-style-type: none; }
