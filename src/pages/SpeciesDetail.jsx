@@ -10,7 +10,7 @@ import SD_traits from "../components/SD_traits";
 import { useGBIF } from "../hooks/useGBIF";
 import { useSpeciesDetail } from "../hooks/useSpeciesDetail";
 // LIB
-import { use, useMemo } from "react";
+import { useMemo } from "react";
 import { useParams } from "react-router-dom";
 // STYLES
 import "../styles/SpeciesDetail.css";
@@ -30,7 +30,7 @@ export default function SpeciesDetail() {
   const { id } = useParams();
   // Hooks (fetch/cache)
   const {species, traits, loading: s_load, error: s_err} = useSpeciesDetail(id);
-  const {taxonomy, basionym, synonyms, loading: g_load, error: g_err} = useGBIF(species?.gbif_id);
+  const {taxonomy, basionym, synonyms, occurrences, loading: g_load, error: g_err} = useGBIF(species?.gbif_id);
   const isDataReady = !s_load && !g_load && !tg_load && (taxonomy || g_err || tg_err); // Avoids loading problem (GBIF skeleton)
   // Length data
   const lengthData = useMemo(() => {
@@ -83,7 +83,7 @@ export default function SpeciesDetail() {
               <SD_cards title="Synonyms & Basionym" classname="card-section GBI" id="synbas-section" basionym={basionym} synonyms={synonyms} />
               <SD_cards title="Taxonomy" classname="card-section GBI" id="taxonomy-section" taxonomy={taxonomy} />
               <SD_cards title="Environment" classname="card-section SUP" id="env-section" environment={species?.filters?.environment} />
-              <SD_cards title="Test title" classname="card-section" id="test-section" content="Test content" />
+              <SD_cards title="Occurrences" classname="card-section GBI" id="map-section" occurrences={occurrences} />
             </>
           )}
         </div>

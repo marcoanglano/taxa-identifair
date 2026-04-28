@@ -4,7 +4,7 @@
   "description": "Interactive identification of adult Calanoida",
   "authors": "Anglano, M.",
   "private": true,
-  "version": "0.4a.01.08",
+  "version": "0.4a.01.09",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -14,8 +14,11 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.81.1",
+    "leaflet": "^1.9.4",
+    "leaflet.heat": "^0.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.9.6"
   },
   "devDependencies": {

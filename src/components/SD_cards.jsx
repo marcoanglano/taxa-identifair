@@ -1,8 +1,16 @@
 // SOFT DEPENDENCY: GBIF dependant
 
+// ========== IMPORTS ==========
+// COMPONENTS
+import { MapContainer, TileLayer } from "react-leaflet";
+import HeatmapLayer from "./Heatmap";
+// STYLES
+import "leaflet/dist/leaflet.css";
 // UTILS
 import { formatScientificName } from "../utils/speciesHelpers.jsx";
 
+
+// ========== PROPS ==========
 export default function SD_cards({
     title,
     classname,
@@ -12,6 +20,7 @@ export default function SD_cards({
     basionym,      // from GBIF (string)
     synonyms,       // from GBIF (array of strings)
     taxonomy,       // from GBIF {kingdom, phylum, class, order, family, genus}
+    occurrences,    // from GBIF [{latitude, longitude, intensity}]
     environment     // from SUPABASE {marine, brackish, freshwater}
 }) {
 
@@ -56,6 +65,19 @@ export default function SD_cards({
             {/* ===== ENVIRONMENT ===== */}
             { id === "env-section" && (
                 <p>{environment?.join(', ')}</p>
+            )}
+
+            {/* ===== OCCURRENCES ===== */}
+            { id === "map-section" && (
+                <div style={{ height: "350px", borderRadius: "12px", overflow: "hidden", border: "1px solid #444" }}>
+                    <MapContainer center={[20, 0]} zoom={1.5} style={{ height: "100%", width: "100%", background: "#1a1a1a" }}>
+                        <TileLayer
+                            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                            attribution='&copy; GBIF'
+                        />
+                        <HeatmapLayer points={occurrences} />
+                    </MapContainer>
+                </div>
             )}
 
             {/* ===== TEST ===== */}

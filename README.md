@@ -249,6 +249,7 @@ Additional GBIF info: [GBIF Strategic Framework 2023-2027](https://www.gbif.org/
         - Allows to select preferred traits, and generates a full, old-style identification key with priority to the selected traits.
     - SpeciesDetail:
         - Improve trait section: icons, f/m/common traits, etc.
+        - Gallery (from GBIF? Filter cards and documents).
     - SpeciesList:
         - Search function with filters (family, genus, environment, etc.).
         - Family icons.
