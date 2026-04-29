@@ -4,8 +4,8 @@ import Error from "../components/Error";
 import SD_cards from "../components/SD_cards";
 import SD_length from "../components/SD_length";
 import SD_links from "../components/SD_links";
-import Skeleton from "../components/Skeleton";
 import SD_traits from "../components/SD_traits";
+import Skeleton from "../components/Skeleton";
 // HOOKS
 import { useGBIF } from "../hooks/useGBIF";
 import { useOccurrencesGBIF } from "../hooks/useOccurrencesGBIF";
@@ -18,10 +18,6 @@ import "../styles/SpeciesDetail.css";
 // UTILS
 import { calculateMean, getGBIFLink, getWormsLink, getRazoulsLink } from "../utils/speciesHelpers.jsx";
 
-// ========== TESTS ==========
-  const tocc_err = false; // Simulate map error
-  const tocc_load = false; // Simulate map loading
-
 
 // ========== HOOKS & VARIABLES ==========
 export default function SpeciesDetail() {
@@ -30,7 +26,7 @@ export default function SpeciesDetail() {
   // Hooks (fetch/cache)
   const {species, traits, loading: s_load, error: s_err} = useSpeciesDetail(id);
   const {taxonomy, basionym, synonyms, loading: g_load, error: g_err} = useGBIF(species?.gbif_id);
-  const {occurrences, loading: occ_load, error: occ_err} = useOccurrencesGBIF(species?.gbif_id);
+  const {mapReady, loading: map_load, error: map_err} = useOccurrencesGBIF(species?.gbif_id);
   const isDataReady = !s_load && !g_load && (taxonomy || g_err); // Avoids loading problem (GBIF skeleton)
   // Length data
   const lengthData = useMemo(() => {
@@ -61,7 +57,7 @@ export default function SpeciesDetail() {
 
       {/* ===== LEFT COLUMN ===== */}
       <div id="left-column">
-          {/* SUPABASE */}{s_load ? ( <Skeleton id="species-header" padding="10px 0 10px 10px" /> ) : (
+          {/* SUPABASE */}{s_load ? ( <Skeleton id="species-header" padding="10px" /> ) : (
             <div id="species-header">
               <div id="species-name">
                 <h3 className="SUP" id="scientific-name">{species?.scientific_name}</h3>
@@ -79,21 +75,23 @@ export default function SpeciesDetail() {
         ) : (
           <div id="species-card">
             {/* GBIF */}{!isDataReady ? ( <>
-              <Skeleton className="card-section" count={3} />
-              <Skeleton className="card-section" height={400} />
+              <Skeleton className="card-section" count={3} />     {/* Synonyms & Basionym, Taxonomy, Environment */}
+              <Skeleton className="card-section" height={400} />  {/* Occurrences */}
+              <Skeleton className="card-section" height={140} />  {/* References */}
             </> ) : ( <>
               <SD_cards title="Synonyms & Basionym" classname="card-section GBI" id="synbas-section" basionym={basionym} synonyms={synonyms} />
               <SD_cards title="Taxonomy" classname="card-section GBI" id="taxonomy-section" taxonomy={taxonomy} />
               <SD_cards title="Environment" classname="card-section SUP" id="env-section" environment={species?.filters?.environment} />
               {/* Occurrences: loading, error, card */}
-              { occ_load ? (
+              { map_load ? (
                   <Skeleton className="card-section" height={400} />
-                ) : occ_err ? (
-                  <Error title="Oh no!" message="Error in GBIF data recovery" id="gbif-error" />
+                ) : map_err ? (
+                  <Error title="Oh no!" message="GBIF Map Service is currently unavailable" id="gbif-error" />
                 ) : (
-                  <SD_cards title="Occurrences" classname="card-section GBI" id="map-section" occurrences={occurrences} />
+                  <SD_cards title="Occurrences" classname="card-section GBI" id="map-section" gbifId={species?.gbif_id} />
                 )
               }
+              <SD_cards title="References" classname="card-section GBI" id="ref-section" gbifId={species?.gbif_id} />
             </> )}
           </div>
         )}

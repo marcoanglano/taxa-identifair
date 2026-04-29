@@ -4,7 +4,6 @@
 // COMPONENTS
 import { MapContainer, TileLayer } from "react-leaflet";
 import Error from "./Error";
-import HeatmapLayer from "./Heatmap";
 import Skeleton from "./Skeleton";
 // STYLES
 import "leaflet/dist/leaflet.css";
@@ -19,11 +18,14 @@ export default function SD_cards({
     id,
     content,
 
+    gbifId,         // from GBIF (number)
     basionym,       // from GBIF (string)
     synonyms,       // from GBIF (array of strings)
     taxonomy,       // from GBIF {kingdom, phylum, class, order, family, genus}
-    occurrences,    // from GBIF (array of occurrence data)
-    environment     // from SUPABASE {marine, brackish, freshwater}
+    environment,    // from SUPABASE {marine, brackish, freshwater}
+
+    date = new Date().toLocaleDateString('it-IT'),
+    year = new Date().getFullYear()
 }) {
 
     // Check if nomenclatur data is available
@@ -81,20 +83,31 @@ export default function SD_cards({
                         scrollWheelZoom={true}
                         worldCopyJump={true}
                         zoom={1}
+                        minZoom={1}
                     >
-                        <TileLayer
+                        <TileLayer // 1. MAP
                             url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                             className="custom-map-tiles"
                             attribution='&copy; GBIF'
                         />
-                        <HeatmapLayer points={occurrences} />
+                        <TileLayer // 2. OCCURRENCES
+                            url={`https://api.gbif.org/v2/map/occurrence/density/{z}/{x}/{y}@1x.png?srs=EPSG:3857&taxonKey=${gbifId}&bin=hex&hexPerTile=117&style=blue.marker`}
+                            attribution='&copy; GBIF'
+                        />
                     </MapContainer>
                 </div>
             )}
 
-            {/* ===== TEST ===== */}
-            { id === "test-section" && (
-                <p>{content}</p>
+            {/* ===== REFERENCES ===== */}
+            { id === "ref-section" && (
+                <ul id="ref-list">
+                    <li>GBIF Secretariat ({year}). GBIF Backbone Taxonomy. Taxon key: {gbifId}. 
+                        [via GBIF API, {date}]</li>
+                    <li>GBIF.org ({year}). GBIF Occurrence Density Maps (Tile Service). [{date}]</li>
+                    <li>Razouls C., Desreumaux N., Kouwenberg J. and de Bovée F., 2005-{year}.
+                        Biodiversity of Marine Planktonic Copepods (morphology, geographical distribution and biological data).
+                        Sorbonne University, CNRS. [{date}]</li>
+                </ul>
             )}
         </div>
     );

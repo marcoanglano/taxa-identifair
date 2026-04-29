@@ -27,6 +27,11 @@
       contrast(1.5)
       !important;
 }
+#ref-section { min-height: 140px;}
+#ref-list {
+  font-size: small;
+  padding-left: 20px;
+}
 
 #right-column { border: 2px solid var(--prim-color-L); }
 #right-title { text-align: center; }

@@ -2,34 +2,33 @@
 // LIB
 import { useState, useEffect } from 'react';
 // SERVICES
-import { getOccurrencesGBIF } from '../services/dataService';
+import { checkStatusGBIF } from '../services/dataService';
 
 export const useOccurrencesGBIF = (gbifId) => {
-    const [occurrences, setOccurrences] = useState([]);
-    const [loading, setLoadingOcc] = useState(false);
-    const [error, setErrorOcc] = useState(null);
+    const [mapReady, setMapReady] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
             if (!gbifId) return;
 
-            const fetchOccs = async () => {
-                setLoadingOcc(true);
-                setErrorOcc(null);
+            const checkMapService = async () => {
+                setLoading(true);
+                setError(null);
 
                 try {
-                    const data = await getOccurrencesGBIF(gbifId);
-                    setOccurrences(data);
+                    await checkStatusGBIF(gbifId);
+                    setMapReady(true);
                 
                 } catch (err) {
-                    console.error("Error in recovering data from GBIF:", err);
-                    setErrorOcc(err.message);
+                    setError(err.message);
                 } finally {
-                    setLoadingOcc(false);
+                    setLoading(false);
                 }
             };
 
-            fetchOccs();
+            checkMapService();
         }, [gbifId]);
 
-    return { occurrences, loading, error };
+    return { mapReady, loading, error };
 };

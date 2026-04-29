@@ -40,25 +40,22 @@ export const getTaxonomyGBIF = async (gbifId) => {
   };
 };
 
-// Occurrences
-export const getOccurrencesGBIF = async (gbifId) => {
+// GBIF API status (for occurrences)
+export const checkStatusGBIF = async (gbifId) => {
+  if (!gbifId) return false;
+
   try {
-    const limit = 5000; // Max records to fetch
+    const limit = 1;
     const response = await fetch(
-      `https://api.gbif.org/v1/occurrence/search?taxonKey=${gbifId}&hasCoordinate=true&limit=${limit}`
+      `https://api.gbif.org/v1/occurrence/search?taxonKey=${gbifId}&limit=${limit}`
     );
-    if (!response.ok) throw new Error("Error fetching occurrences");
+    if (!response.ok) throw new Error(`GBIF API error: ${response.status}`);
     const data = await response.json();
 
-    // leaflet.heat format: [lat, lon, intensity]
-    return data.results.map(occ => [
-      occ.decimalLatitude,
-      occ.decimalLongitude,
-      0.6 // Intensity (0 to 1)
-    ]);
+    return true;
   } catch (error) {
-    console.error("GBIF Occurrences Error:", error);
-    return [];
+    console.error("GBIF Service Check Error:", error);
+    throw error;
   }
 };
 
