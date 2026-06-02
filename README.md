@@ -1,5 +1,5 @@
-# ZPID – ZOOPLANKTON IDENTIFIER
-**Interactive key for adult Calanoida**
+# Taxa IdentiFAIR
+**Interactive key for adult Calanoida/Cyclopoida**
 
 Website based on React + Vite, which collects the main information available on each species of Calanoida. The main aim is to provide an identification tool down to the species level, using data archived on GBIF, Supabase and other databases. The search occurs by exclusion using the provided filters (environment, sex, length etc.) and traits (anatomical details).
 
@@ -205,14 +205,27 @@ create table public.traits (
 First versions to test feasibility of the project and experiment functionalities.
 ### v0.3
 Website re-built from zero, with a focus on efficiency, readability, restyling.
-
 ### v0.4a - GBIF version
 Branched version for GBIF 2026 contest. Implement new functionality based on GBIF databases.<br>
 Contest info: [2026 GBIF Graduate Researchers Award call for nominations](https://www.gbif.org/news/2qFpkI7rwBNbMuSjn2rtae/2026-gbif-graduate-researchers-award-call-for-nominations).<br>
 Additional GBIF info: [GBIF Strategic Framework 2023-2027](https://www.gbif.org/document/50lI7Bxn2p1vRgpbs7aXaT/gbif-strategic-framework-2023-2027).
+### v0.5 - UZI version
+Version for UZI 2026 (and presentation to colleagues at Unisalento). Building identify, showing efficacy of the framework by adding Cyclopoida database.
+- #### v0.5.00
+    Page skeleton. Defining areas and structure.
+- #### v0.5.01
+    Trait accordions. Allow selection and trace selection in the right area (but withot matching species for now). Built a language that can be "read" by the matching function in the next version.
+- #### v0.5.02
+    Create matching function, display species and their traits + description.
+- #### v0.5.03
+    Filters. Allow selection of boxes (but withot applying it to matching species). Built a language that can be "read" by the matching function in the next version.
+- #### v0.5.04
+    Edit matching function and apply it.
+- #### v0.5.05
+    Bug correction and page improvement (check also "Future versions" for inspirations).
+- #### v0.5.06
+    Styling.
 
-### v0.4b
-**To be decided:** should we join this new version with 0.4a?
 
 ### Future versions
 - **DATABASE:**

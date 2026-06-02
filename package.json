@@ -1,10 +1,10 @@
 {
-  "name": "zpid",
-  "title": "ZPid - ZooPlankton Identifier",
-  "description": "Interactive identification of adult Calanoida",
+  "name": "T-FAIR",
+  "title": "Taxa IdentiFAIR",
+  "description": "Interactive identification of adult Calanoida", "_comment": "TO DO: change taxon based on selected database",
   "authors": "Anglano, M.",
   "private": true,
-  "version": "0.4a.01.11",
+  "version": "0.5.00.00",
   "type": "module",
   "scripts": {
     "dev": "vite",
