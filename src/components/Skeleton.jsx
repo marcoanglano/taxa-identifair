@@ -1,4 +1,3 @@
-// src/components/Skeleton.jsx
 import "../styles/Skeleton.css";
 
 export default function Skeleton({ 

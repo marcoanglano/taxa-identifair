@@ -212,7 +212,7 @@ Additional GBIF info: [GBIF Strategic Framework 2023-2027](https://www.gbif.org/
 ### v0.5 - UZI version
 Version for UZI 2026 (and presentation to colleagues at Unisalento). Building identify, showing efficacy of the framework by adding Cyclopoida database.
 - #### v0.5.00
-    Page skeleton. Defining areas and structure.
+    Page skeleton. Defining areas and structure. Link to each section for the mobile version.
 - #### v0.5.01
     Trait accordions. Allow selection and trace selection in the right area (but withot matching species for now). Built a language that can be "read" by the matching function in the next version.
 - #### v0.5.02

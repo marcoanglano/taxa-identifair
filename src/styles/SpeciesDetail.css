@@ -2,7 +2,7 @@
   display: flex;
   gap: 20px;
 }
-#left-column, #right-column { flex: 1; }
+#details-container #left-column, #details-container #right-column { flex: 1; }
 
 /* COLORS & EFFECTS */
 #authority { color: var(--prim-color-LL); }
@@ -33,8 +33,7 @@
   padding-left: 20px;
 }
 
-#right-column { border: 2px solid var(--prim-color-L); }
-#right-title { text-align: center; }
+#details-container #right-column { border: 2px solid var(--prim-color-L); }
 #f-square, #f-bar { background-color: var(--female-color); }
 #m-square, #m-bar { background-color: var(--male-color); }
 .bordered { border: 1px solid var(--prim-color-L); }
@@ -111,7 +110,7 @@
 
 
 /* =_=_=_=_=_=_=_=_=_=<<  RIGHT COLUMN (LENGTH, TRAITS)  >>=_=_=_=_=_=_=_=_=_= */
-#right-column {
+#details-container #right-column {
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -119,7 +118,10 @@
 }
 
 /* Header (R) */
-#right-title { padding: 10px 0 5px; }
+#right-title {
+  padding: 10px 0 5px;
+  text-align: center;
+}
 
 #legend {
   display: flex;
@@ -184,7 +186,7 @@
 @media (max-width: 768px) {
   #details-container { flex-direction: column; }
   #species-header { flex-direction: column; min-height: 160px; }
-  #left-column, #right-column { width: 100%; }
+  #details-container #left-column, #details-container #right-column { width: 100%; }
   #species-logos {
     justify-content: center;
     margin: 0 0 10px 0;

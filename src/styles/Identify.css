@@ -1,0 +1,47 @@
+#identify-container {
+  box-sizing: border-box;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 2fr 1fr;
+  width: 100%;
+}
+
+/* COLORS & EFFECTS */
+#identify-container #left-column { padding: 10px; }
+#identify-container #right-column {
+  border-left: 2px solid var(--prim-color-L);
+  padding: 10px;
+}
+
+
+/* =_=_=_=_=_=_=_=_=_=<<  LEFT COLUMN (SPECIES CARD)  >>=_=_=_=_=_=_=_=_=_= */
+
+
+/* =_=_=_=_=_=_=_=_=_=<<  RIGHT COLUMN (LENGTH, TRAITS)  >>=_=_=_=_=_=_=_=_=_= */
+#identify-container #right-column {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 10px;
+}
+
+/* Header (R) */
+#match-title {
+  padding: 10px 0 5px;
+  text-align: center;
+}
+
+
+/* =_=_=_=_=_=_=_=_=_=<<  RESPONSIVE DESIGN  >>=_=_=_=_=_=_=_=_=_= */
+@media (max-width: 768px) {
+  #identify-container {
+    display: flex;
+    flex-direction: column;
+  }
+  #identify-container #left-column { width: 100%; }
+  #identify-container #right-column {
+    border-left: none;
+    border-top: 2px solid var(--prim-color-L);
+    width: 100%;
+  }
+}
