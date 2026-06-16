@@ -12,27 +12,77 @@
   border: 2px solid var(--prim-color-LL);
   background-color: var(--sec-color-DD);
 }
+.filters-input-col select, .filters-input-col input {
+  background-color: var(--prim-color-L);
+  border: 1px solid var(--prim-color-LL);
+  color: var(--sec-color);
+}
+.state-btn {
+  background-color: var(--prim-color-L);
+  border: 1px solid var(--prim-color-LL);
+  color: var(--sec-color);
+}
+.state-btn:hover { filter: brightness(var(--brighter)); }
+.state-btn.active, .active-trait-badge {
+  background-color: var(--prim-color-LLL);
+  border: 1px solid var(--prim-color-LL);
+  color: var(--sec-color);
+}
 
 #identify-container #right-column {
   border-left: 2px solid var(--prim-color-L);
   padding: 10px;
 }
+.clear-badge-btn { color: var(--sec-color); }
+.clear-badge-btn:hover { color: var(--error-color); }
 
 
 /* =_=_=_=_=_=_=_=_=_=<<  LEFT COLUMN (SPECIES CARD)  >>=_=_=_=_=_=_=_=_=_= */
 #identify-title { margin-bottom: 20px; }
 
+/* Filters */
 #filters-traits-container {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
-
 #filters-container {
   min-height: 120px;
   padding: 10px;
 }
+#dynamic-filters-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  margin-top: 15px;
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.filter-label { font-weight: bold; }
+.filter-group select, .filter-group input {
+  border-radius: 4px;
+  font-size: 0.9rem;
+  padding: 8px;
+  width: 100%;
+}
 
+/* Traits */
+.states-buttons-grid {
+  display: flex;
+  gap: 6px;
+  padding: 5px 0;
+}
+.state-btn {
+  padding: 8px 12px;
+  text-align: left;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
 
 /* =_=_=_=_=_=_=_=_=_=<<  RIGHT COLUMN (LENGTH, TRAITS)  >>=_=_=_=_=_=_=_=_=_= */
 #identify-container #right-column {
@@ -41,11 +91,33 @@
   flex: 1;
   gap: 10px;
 }
-
-/* Header (R) */
-#match-title {
+.match-title {
   padding: 10px 0 5px;
   text-align: center;
+}
+
+/* Active traits */
+.badges-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 15px;
+}
+.active-trait-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  gap: 6px;
+}
+.clear-badge-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0;
+  line-height: 1;
 }
 
 
