@@ -15,8 +15,17 @@ export default function Identify() {
 
       {/* ===== LEFT COLUMN ===== */}
       <div id="left-column">
-        <h3>Identify</h3>
-        <p>Here I have to put filters (with check boxes) and traits (with accordions).</p>
+        <h3 id="identify-title">Identify</h3>
+        <div id="filters-traits-container">
+          <div className="filters-color" id="filters-container">
+            <h4>Filters</h4>
+            <p>Here I have to put filters (with check boxes).</p>
+          </div>
+          <div id="traits-container">
+            <h4>Traits</h4>
+            <p>Here I have to put traits (with accordions).</p>
+          </div>
+        </div>
       </div>
 
 

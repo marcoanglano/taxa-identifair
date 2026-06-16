@@ -8,6 +8,11 @@
 
 /* COLORS & EFFECTS */
 #identify-container #left-column { padding: 10px; }
+.filters-color {
+  border: 2px solid var(--prim-color-LL);
+  background-color: var(--sec-color-DD);
+}
+
 #identify-container #right-column {
   border-left: 2px solid var(--prim-color-L);
   padding: 10px;
@@ -15,6 +20,18 @@
 
 
 /* =_=_=_=_=_=_=_=_=_=<<  LEFT COLUMN (SPECIES CARD)  >>=_=_=_=_=_=_=_=_=_= */
+#identify-title { margin-bottom: 20px; }
+
+#filters-traits-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#filters-container {
+  min-height: 120px;
+  padding: 10px;
+}
 
 
 /* =_=_=_=_=_=_=_=_=_=<<  RIGHT COLUMN (LENGTH, TRAITS)  >>=_=_=_=_=_=_=_=_=_= */
