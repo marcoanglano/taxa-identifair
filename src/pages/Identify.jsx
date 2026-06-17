@@ -1,6 +1,10 @@
 // ========== IMPORTS ==========
 // COMPONENTS
 import Accordion from "../components/Accordion";
+import ID_active from "../components/ID_active";
+import ID_filters from "../components/ID_filters";
+import ID_matching from "../components/ID_matching";
+import ID_traits from "../components/ID_traits";
 import Skeleton from "../components/Skeleton";
 // HOOKS
 import useIdentify from "../hooks/useIdentify";
@@ -36,84 +40,13 @@ export default function Identify() {
           {/* FILTERS */}
           <div className="filters-color" id="filters-container">
             <h4>Contextual filters</h4>
-            <div id="dynamic-filters-grid">
-              {MOCK_FILTERS_SCHEMA.map((filter) => {
-                if (filter.type === "select") {
-                  return (
-                    <div key={filter.id} className="filter-group filters-input-col">
-                      <label className="filter-label">{filter.label}</label>
-                      <select
-                        className="filter-select"
-                        value={filters[filter.id] || ""}
-                        onChange={(e) => handleFilterChange(filter.id, e.target.value)}
-                      >
-                        <option value="">All</option>
-                        {filter.options.map((opt) => (
-                          <option key={opt} value={opt}>{opt}</option>
-                        ))}
-                      </select>
-                    </div>
-                  );
-                }
-                if (filter.type === "range") {
-                  return (
-                    <div key={filter.id} className="filter-group filters-input-col">
-                      <label className="filter-label">{filter.label}</label>
-                      <div className="range-inputs-container">
-                        {filter.inputs.map((input) => (
-                          <input
-                            key={input.id}
-                            type="number"
-                            step="0.1"
-                            className="filter-input"
-                            placeholder={input.label}
-                            value={filters[input.id] || ""}
-                            onChange={(e) => handleFilterChange(input.id, e.target.value)}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  );
-                }
-                return null;
-              })}
-            </div>
+            <ID_filters schema={MOCK_FILTERS_SCHEMA} values={filters} onChange={handleFilterChange} />
           </div>
 
           {/* TRAITS */}
           <div id="traits-container">
             <h4>Traits</h4>
-            <div id="dynamic-traits-list">
-              <Accordion
-                items={MOCK_TRAITS.map((trait) => {
-                  const isSelected = selectedTraits.find((t) => t.traitId === trait.id);
-                  const accordionTitle = isSelected
-                    ? `${trait.name} (${isSelected.stateValue})`
-                    : trait.name;
-
-                  return {
-                    id: trait.id,
-                    title: accordionTitle,
-                    content: (
-                      <div className="states-buttons-grid">
-                        {trait.states.map((state) => {
-                          const isCurrentStateActive = isSelected?.stateId === state.id;
-                          return (
-                            <button
-                              key={state.id}
-                              className={`state-btn ${isCurrentStateActive ? "active" : ""}`}
-                              onClick={() => handleTraitSelect(trait.id, trait.name, state.id, state.value)}
-                            >
-                              {state.value}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )
-                  };
-                })}
-              />
-            </div>
+            <ID_traits traits={MOCK_TRAITS} selectedTraits={selectedTraits} onSelect={handleTraitSelect} />
           </div>
         </div>
       </div>
@@ -127,28 +60,13 @@ export default function Identify() {
           <h4 className="match-title">
             Selected Traits{selectedTraits.length ? (` (${selectedTraits.length})`) : ""}
           </h4>
-          {selectedTraits.length ? (
-            <div className="badges-wrapper">
-              {selectedTraits.map((trait) => (
-                <div key={trait.traitId} className="active-trait-badge">
-                  <span>{trait.traitName}: <strong>{trait.stateValue}</strong></span>
-                  <button 
-                    className="clear-badge-btn"
-                    onClick={() => handleRemoveTrait(trait.traitId)}
-                    title="Remove this character"
-                  >
-                    &times;
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : ( <p>None.</p> )}
+          <ID_active selectedTraits={selectedTraits} onRemove={handleRemoveTrait} />
         </div>
 
         
         {/* MATCHING SPECIES */}
         <h4 className="match-title">Matching Species</h4>
-        <p>Here I have to put the matching species (and traits de-selection?).</p>
+        <ID_matching />
       </div>
     </section>
   )
