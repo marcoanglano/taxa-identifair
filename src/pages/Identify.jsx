@@ -2,99 +2,26 @@
 // COMPONENTS
 import Accordion from "../components/Accordion";
 import Skeleton from "../components/Skeleton";
+// HOOKS
+import useIdentify from "../hooks/useIdentify";
 // LIB
 import React, { useState } from "react";
 // STYLES
 import "../styles/Identify.css";
-
-
-// ========== MOCK DATA (substitute with Supabase data in the future) ==========
-const MOCK_FILTERS_SCHEMA = [
-  {
-    id: "sex",
-    label: "Sex",
-    type: "select", // può essere 'select', 'number_range', ecc.
-    options: ["female", "male"]
-  },
-  {
-    id: "environment",
-    label: "Environment",
-    type: "select",
-    options: ["marine", "brackish", "freshwater"]
-  },
-  {
-    id: "length",
-    label: "Body Length (mm)",
-    type: "range", // Tipo speciale per i range numerici
-    inputs: [
-      { id: "minLength", label: "Min" },
-      { id: "maxLength", label: "Max" }
-    ]
-  }
-];
-
-const MOCK_TRAITS = [
-  {
-    id: "t1",
-    name: "Prosomal shape",
-    states: [
-      { id: "s1", value: "rounded" },
-      { id: "s2", value: "pointed" }
-    ]
-  },
-  {
-    id: "t2",
-    name: "Urosome somites count",
-    states: [
-      { id: "s3", value: "3 somites" },
-      { id: "s4", value: "4 somites" },
-      { id: "s5", value: "5 somites" }
-    ]
-  }
-];
+// UTILS
+import { MOCK_FILTERS_SCHEMA, MOCK_TRAITS } from "../utils/mockData.js";
 
 
 export default function Identify() {
-  // ========== FILTERS ==========
-  // States
-  const [filters, setFilters] = useState({
-    sex: "",
-    environment: "",
-    minLength: "",
-    maxLength: ""
-  });
-  // Handlers
-  const handleFilterChange = (key, value) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  };
-  // ========== TRAITS ==========
-  // States
-  const [selectedTraits, setSelectedTraits] = useState([]);
-  // Handlers
-  const handleTraitSelect = (traitId, traitName, stateId, stateValue) => {
-    setSelectedTraits((prev) => {
-      const exists = prev.find((item) => item.traitId === traitId);
-      // Trait already selected, update its state
-      if (exists) {
-        // deselect
-        if (exists.stateId === stateId) {
-          return prev.filter((item) => item.traitId !== traitId);
-        }
-        // select
-        return prev.map((item) =>
-          item.traitId === traitId ? { ...item, stateId, stateValue } : item
-        );
-      // Trait not selected yet, add state
-      } else {
-        return [...prev, { traitId, traitName, stateId, stateValue }];
-      }
-    });
-  };
-  // Deselection
-  const handleRemoveTrait = (traitId) => {
-    setSelectedTraits((prev) => prev.filter((item) => item.traitId !== traitId));
-  };
-
+  // ========== HOOK ==========
+  const {
+    filters,
+    selectedTraits,
+    handleFilterChange,
+    handleTraitSelect,
+    handleRemoveTrait
+  } = useIdentify();
+  
 
   // ========== RENDERING ==========
   return (
