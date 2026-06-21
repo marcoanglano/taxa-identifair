@@ -1,6 +1,8 @@
 // ========== IMPORTS ==========
 // LIB
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+// SERVICES
+import { getTraits } from '../services/dataService';
 
 export default function useIdentify() {
 
@@ -23,10 +25,43 @@ export default function useIdentify() {
 
     // ========== TRAITS ==========
 
-    // States
+    // Load traits
+    const [availableTraits, setAvailableTraits] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Fetching
+    useEffect(() => {
+        const loadTraits = async () => {
+            try {
+                setLoading(true);
+                const data = await getTraits();
+
+                // Normalize labels
+                const normalizedTraits = (data || []).map(t => ({
+                    id: t.id_trait,
+                    name: t.trait_name,
+                    category: t.trait_category,
+                    states: (t.trait_states || []).map(s => ({
+                        id: s.id_state,
+                        value: s.state_label
+                    }))
+                }));
+
+                setAvailableTraits(normalizedTraits);
+            } catch (err) {
+                setError(err.message || "Error in fetching traits.");
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadTraits();
+    }, []);
+
+    // States for selected traits
     const [selectedTraits, setSelectedTraits] = useState([]);
 
-    // Handlers
+    // Handlers (selection and deselection)
     const handleTraitSelect = (traitId, traitName, stateId, stateValue) => {
         setSelectedTraits((prev) => {
             const exists = prev.find((item) => item.traitId === traitId);
@@ -53,6 +88,9 @@ export default function useIdentify() {
 
 
     return {
+        availableTraits,
+        loading,
+        error,
         filters,
         selectedTraits,
         handleFilterChange,

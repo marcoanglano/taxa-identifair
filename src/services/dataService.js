@@ -140,3 +140,26 @@ export const getSpeciesTraits = async (id) => {
   if (error) throw error;
   return data || [];
 };
+
+/**
+ * <<< traits >>>
+ */
+
+// All Traits
+export const getTraits = async () => {
+  const { data, error } = await supabase
+    .from("traits")
+    .select(`
+      id_trait,
+      trait_category,
+      trait_name,
+      trait_states (
+        id_state,
+        state_label
+      )
+    `)
+    .order("trait_category", { ascending: true });
+
+  if (error) throw error;
+  return data || [];
+};

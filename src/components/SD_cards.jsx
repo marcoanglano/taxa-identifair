@@ -3,7 +3,7 @@
 // ========== IMPORTS ==========
 // COMPONENTS
 import { MapContainer, TileLayer } from "react-leaflet";
-import Error from "./Error";
+import ErrorComponent from "./Error";
 import Skeleton from "./Skeleton";
 // STYLES
 import "leaflet/dist/leaflet.css";

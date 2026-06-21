@@ -1,6 +1,6 @@
 // ========== IMPORTS ==========
 // COMPONENTS
-import Error from "../components/Error";
+import ErrorComponent from "../components/Error";
 import SD_cards from "../components/SD_cards";
 import SD_length from "../components/SD_length";
 import SD_links from "../components/SD_links";
@@ -45,8 +45,8 @@ export default function SpeciesDetail() {
 
 
   // ERROR (HARD DEPENDENCY)
-  if (!s_load && !species) return <Error title="404" message="Species not found" />;
-  if (s_err) return <Error title="Oh no!" message="Error fetching species details" />;
+  if (!s_load && !species) return <ErrorComponent title="404" message="Species not found" />;
+  if (s_err) return <ErrorComponent title="Oh no!" message="Error fetching species details" />;
   
 
   
@@ -71,7 +71,7 @@ export default function SpeciesDetail() {
 
         {/* Card */}
         {g_err ? ( /* Error (SOFT DEPENDENCY, cards) */
-          <Error title="Oh no!" message="Error in GBIF data recovery" id="gbif-error" />
+          <ErrorComponent title="Oh no!" message="Error in GBIF data recovery" id="gbif-error" />
         ) : (
           <div id="species-card">
             {/* GBIF */}{!isDataReady ? ( <>
@@ -86,7 +86,7 @@ export default function SpeciesDetail() {
               { map_load ? (
                   <Skeleton className="card-section" height={400} />
                 ) : map_err ? (
-                  <Error title="Oh no!" message="GBIF Map Service is currently unavailable" id="gbif-error" />
+                  <ErrorComponent title="Oh no!" message="GBIF Map Service is currently unavailable" id="gbif-error" />
                 ) : (
                   <SD_cards title="Occurrences" classname="card-section GBI" id="map-section" gbifId={species?.gbif_id} />
                 )

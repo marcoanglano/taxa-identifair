@@ -1,6 +1,6 @@
 // COMPONENTS
 import Accordion from "../components/Accordion";
-import Error from "../components/Error";
+import ErrorComponent from "../components/Error";
 
 // HOOKS
 import { useFamilies } from "../hooks/useFamilies";
@@ -45,7 +45,7 @@ export default function SpeciesList() {
             {st.loading && <p className="species-hint">Loading species...</p>}
 
             {/* ERROR */}
-            {!st.loading && st.error && <Error title="Oh no!" message={st.error} />}
+            {!st.loading && st.error && <ErrorComponent title="Oh no!" message={st.error} />}
 
             {/* LOADED */}
             {!st.loading && !st.error && st.loaded && (
@@ -83,7 +83,7 @@ export default function SpeciesList() {
 
       {loadingFamilies && <p>Loading families...</p>}
       {!loadingFamilies && errorFamilies && (
-        <Error title="Error" message={errorFamilies} />
+        <ErrorComponent title="Error" message={errorFamilies} />
       )}
 
       {!loadingFamilies && !errorFamilies && (

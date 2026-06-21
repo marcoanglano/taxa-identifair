@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import "../styles/Error.css";
 
 
-export default function Error({ title, message, id }) {
+export default function ErrorComponent({ title, message, id }) {
     return (
          <div className="error-container" id={id}>
             <div className="error-left">
