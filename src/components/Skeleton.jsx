@@ -8,7 +8,8 @@ export default function Skeleton({
     className = "", 
     id = "", 
     margin,
-    padding
+    padding,
+    style
 }) {
 
     // ===== Wrapper style =====
@@ -20,13 +21,16 @@ export default function Skeleton({
         display: "flex",
         flexDirection: "column",
         boxSizing: "border-box",
+        ...style
     };
 
     // ===== Inner style =====
     const innerStyle = {
         width: "100%",
         height: height || "20px",
-        borderRadius: circle ? "50%" : "8px",
+        borderRadius: style?.borderRadius !== undefined
+            ? style.borderRadius
+            : (circle ? "50%" : "8px"),
         flexShrink: 0,
         flex: 1,
     };

@@ -13,6 +13,7 @@ import useIdentify from "../hooks/useIdentify";
 import React, { useState } from "react";
 // STYLES
 import "../styles/Identify.css";
+import "../styles/Skeleton.css";
 // UTILS
 import { MOCK_FILTERS_SCHEMA, MOCK_TRAITS } from "../utils/mockData.js";
 
@@ -30,25 +31,32 @@ export default function Identify() {
     handleRemoveTrait
   } = useIdentify();
 
-  // ========= CONDITIONAL RENDERING ==========
+
+  // ========= ERROR ==========
   if (error) return <ErrorComponent title="Error" message={error} />;
-  if (loading) return <ErrorComponent title="Loading" message="Loading traits..." />;
+
+
+  // ========= LOADING ==========
+  if (loading) return (
+    <section className="identify-container">
+      <div id="left-column">
+        <h3 id="identify-title">Identify</h3>
+          <div id="filters-traits-container">
+            <Skeleton className="filters-color" id="filters-container" padding="0" style={{borderRadius: "0"}} />
+            <Skeleton id="traits-container" />
+          </div>
+      </div>
+      <div id="right-column">
+        <Skeleton id="matching-container" />
+      </div>
+    </section>
+  )
   
 
   // ========== RENDERING ==========
   return (
 
-    <section id="identify-container">
-
-      {/* ===== ERROR ===== */}
-      {error && <Error title="Error" message={error} />}
-      {/* ===== LOADING ===== */}
-      {loading && (
-        <Error title="Loading" message="Loading traits..." />
-      )}
-
-
-      {/* ===== TRUE RENDERING ===== */}
+    <section className="identify-container">
       {!error && !loading && ( <>
         {/* ===== LEFT COLUMN ===== */}
         <div id="left-column">
@@ -64,6 +72,7 @@ export default function Identify() {
             {/* TRAITS */}
             <div id="traits-container">
               <h4>Traits</h4>
+              {loading ? (<p>Gne</p>) : (<p>Gnegne</p>)}
               <ID_traits traits={availableTraits} selectedTraits={selectedTraits} onSelect={handleTraitSelect} />
             </div>
           </div>
@@ -72,19 +81,21 @@ export default function Identify() {
 
         {/* ===== RIGHT COLUMN ===== */}
         <div id="right-column">
+          <div id="matching-container">
 
-          {/* ACTIVE TRAITS */}
-          <div id="active-traits-summary">
-            <h4 className="match-title">
-              Selected Traits{selectedTraits.length ? (` (${selectedTraits.length})`) : ""}
-            </h4>
-            <ID_active selectedTraits={selectedTraits} onRemove={handleRemoveTrait} />
+            {/* ACTIVE TRAITS */}
+            <div id="active-traits-summary">
+              <h4 className="match-title">
+                Selected Traits{selectedTraits.length ? (` (${selectedTraits.length})`) : ""}
+              </h4>
+              <ID_active selectedTraits={selectedTraits} onRemove={handleRemoveTrait} />
+            </div>
+
+            
+            {/* MATCHING SPECIES */}
+            <h4 className="match-title">Matching Species</h4>
+            <ID_matching />
           </div>
-
-          
-          {/* MATCHING SPECIES */}
-          <h4 className="match-title">Matching Species</h4>
-          <ID_matching />
         </div>
       </> )}
     </section>

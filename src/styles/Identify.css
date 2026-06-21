@@ -1,4 +1,4 @@
-#identify-container {
+.identify-container {
   box-sizing: border-box;
   display: grid;
   gap: 20px;
@@ -7,7 +7,7 @@
 }
 
 /* COLORS & EFFECTS */
-#identify-container #left-column { padding: 10px; }
+.identify-container #left-column { padding: 10px; }
 .filters-color {
   border: 2px solid var(--prim-color-LL);
   background-color: var(--sec-color-DD);
@@ -29,7 +29,7 @@
   color: var(--sec-color);
 }
 
-#identify-container #right-column {
+.identify-container #right-column {
   border-left: 2px solid var(--prim-color-L);
   padding: 10px;
 }
@@ -47,7 +47,7 @@
   gap: 20px;
 }
 #filters-container {
-  min-height: 120px;
+  min-height: 160px;
   padding: 10px;
 }
 #dynamic-filters-grid {
@@ -70,6 +70,7 @@
 }
 
 /* Traits */
+#traits-container { min-height: 220px; }
 .states-buttons-grid {
   display: flex;
   gap: 6px;
@@ -85,11 +86,12 @@
 }
 
 /* =_=_=_=_=_=_=_=_=_=<<  RIGHT COLUMN (LENGTH, TRAITS)  >>=_=_=_=_=_=_=_=_=_= */
-#identify-container #right-column {
+#matching-container {
   display: flex;
   flex-direction: column;
   flex: 1;
   gap: 10px;
+  min-height: 480px;
 }
 .match-title {
   padding: 10px 0 5px;
@@ -123,12 +125,12 @@
 
 /* =_=_=_=_=_=_=_=_=_=<<  RESPONSIVE DESIGN  >>=_=_=_=_=_=_=_=_=_= */
 @media (max-width: 768px) {
-  #identify-container {
+  .identify-container {
     display: flex;
     flex-direction: column;
   }
-  #identify-container #left-column { width: 100%; }
-  #identify-container #right-column {
+  .identify-container #left-column { width: 100%; }
+  .identify-container #right-column {
     border-left: none;
     border-top: 2px solid var(--prim-color-L);
     width: 100%;
