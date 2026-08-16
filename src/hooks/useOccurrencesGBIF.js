@@ -4,20 +4,20 @@ import { useState, useEffect } from 'react';
 // SERVICES
 import { checkStatusGBIF } from '../services/dataService';
 
-export const useOccurrencesGBIF = (gbifId) => {
+export const useOccurrencesGBIF = (gbifKey) => {
     const [mapReady, setMapReady] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-            if (!gbifId) return;
+            if (!gbifKey) return;
 
             const checkMapService = async () => {
                 setLoading(true);
                 setError(null);
 
                 try {
-                    await checkStatusGBIF(gbifId);
+                    await checkStatusGBIF(gbifKey);
                     setMapReady(true);
                 
                 } catch (err) {
@@ -28,7 +28,7 @@ export const useOccurrencesGBIF = (gbifId) => {
             };
 
             checkMapService();
-        }, [gbifId]);
+        }, [gbifKey]);
 
     return { mapReady, loading, error };
 };

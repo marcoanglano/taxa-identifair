@@ -18,7 +18,7 @@ export default function SD_cards({
     id,
     content,
 
-    gbifId,         // from GBIF (number)
+    gbifKey,         // from GBIF (number)
     basionym,       // from GBIF (string)
     synonyms,       // from GBIF (array of strings)
     taxonomy,       // from GBIF {kingdom, phylum, class, order, family, genus}
@@ -91,7 +91,7 @@ export default function SD_cards({
                             attribution='&copy; GBIF'
                         />
                         <TileLayer // 2. OCCURRENCES
-                            url={`https://api.gbif.org/v2/map/occurrence/density/{z}/{x}/{y}@1x.png?srs=EPSG:3857&taxonKey=${gbifId}&bin=hex&hexPerTile=117&style=blue.marker`}
+                            url={`https://api.gbif.org/v2/map/occurrence/density/{z}/{x}/{y}@1x.png?srs=EPSG:3857&taxonKey=${gbifKey}&bin=hex&hexPerTile=117&style=blue.marker`}
                             attribution='&copy; GBIF'
                         />
                     </MapContainer>
@@ -101,7 +101,7 @@ export default function SD_cards({
             {/* ===== REFERENCES ===== */}
             { id === "ref-section" && (
                 <ul id="ref-list">
-                    <li>GBIF Secretariat ({year}). GBIF Backbone Taxonomy. Taxon key: {gbifId}. 
+                    <li>GBIF Secretariat ({year}). GBIF Backbone Taxonomy. Taxon key: {gbifKey}. 
                         [via GBIF API, {date}]</li>
                     <li>GBIF.org ({year}). GBIF Occurrence Density Maps (Tile Service). [{date}]</li>
                     <li>Razouls C., Desreumaux N., Kouwenberg J. and de Bovée F., 2005-{year}.

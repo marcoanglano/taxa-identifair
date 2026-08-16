@@ -4,7 +4,7 @@
   "description": "Interactive identification of adult Calanoida", "_comment": "TO DO: change taxon based on selected database",
   "authors": "Anglano, M.",
   "private": true,
-  "version": "0.5.01.04",
+  "version": "0.5.02.00",
   "type": "module",
   "scripts": {
     "dev": "vite",

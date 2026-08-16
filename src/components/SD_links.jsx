@@ -4,7 +4,7 @@
 //    - Marine Planktonic Copepods: Downloaded from https://www.obs-banyuls.fr/images/logo-OOB.gif,
 //        edited (Logo from Observatoire Océanologique de Banyuls-sur-Mer, text substituted with "MPC", colors)
 
-export default function SD_links({ gbifUrl, wormsUrl, razoulsUrl }) {
+export default function SD_links({ gbifUrl, wormsUrl, otherUrl }) {
     return (
         <div id="species-logos">
             { gbifUrl && (
@@ -17,8 +17,8 @@ export default function SD_links({ gbifUrl, wormsUrl, razoulsUrl }) {
                 <img className="logo SUP" src="/worms_logo.png" alt="WoRMS logo" />
                 </a>
             )}
-            { razoulsUrl && (
-                <a className="logo-button" id="razouls-logo" href={razoulsUrl} target="_blank" rel="noopener noreferrer">
+            { otherUrl && (
+                <a className="logo-button" id="other-logo" href={otherUrl} target="_blank" rel="noopener noreferrer">
                 <img className="logo SUP" src="/razouls_logo.png" alt="Razouls logo" />
                 </a>
             )}

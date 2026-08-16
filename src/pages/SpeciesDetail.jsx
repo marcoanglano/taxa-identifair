@@ -16,7 +16,7 @@ import { useParams } from "react-router-dom";
 // STYLES
 import "../styles/SpeciesDetail.css";
 // UTILS
-import { calculateMean, getGBIFLink, getWormsLink, getRazoulsLink } from "../utils/speciesHelpers.jsx";
+import { calculateMean, getGBIFLink, getWormsLink, getOtherLink } from "../utils/speciesHelpers.jsx";
 
 
 // ========== HOOKS & VARIABLES ==========
@@ -25,8 +25,8 @@ export default function SpeciesDetail() {
   const { id } = useParams();
   // Hooks (fetch/cache)
   const {species, traits, loading: s_load, error: s_err} = useSpeciesDetail(id);
-  const {taxonomy, basionym, synonyms, loading: g_load, error: g_err} = useGBIF(species?.gbif_id);
-  const {mapReady, loading: map_load, error: map_err} = useOccurrencesGBIF(species?.gbif_id);
+  const {taxonomy, basionym, synonyms, loading: g_load, error: g_err} = useGBIF(species?.gbif_key);
+  const {mapReady, loading: map_load, error: map_err} = useOccurrencesGBIF(species?.gbif_key);
   const isDataReady = !s_load && !g_load && (taxonomy || g_err); // Avoids loading problem (GBIF skeleton)
   // Length data
   const lengthData = useMemo(() => {
@@ -39,9 +39,9 @@ export default function SpeciesDetail() {
     return { fMin: fMin, fMax: fMax, mMin: mMin, mMax: mMax, fMean: fMean, mMean: mMean };
   }, [species]);
   // URLs
-  const gbifUrl = getGBIFLink(species?.gbif_id);
-  const wormsUrl = getWormsLink(species?.worms_id);
-  const razoulsUrl = getRazoulsLink(species?.razouls_id);
+  const gbifUrl = getGBIFLink(species?.gbif_link);
+  const wormsUrl = getWormsLink(species?.aphia_id);
+  const otherUrl = getOtherLink(species?.other_id);
 
 
   // ERROR (HARD DEPENDENCY)
@@ -65,7 +65,7 @@ export default function SpeciesDetail() {
               </div>
 
               {/* Links */}
-              <SD_links gbifUrl={gbifUrl} wormsUrl={wormsUrl} razoulsUrl={razoulsUrl} />
+              <SD_links gbifUrl={gbifUrl} wormsUrl={wormsUrl} otherUrl={otherUrl} />
             </div>
           )}
 
@@ -88,10 +88,10 @@ export default function SpeciesDetail() {
                 ) : map_err ? (
                   <ErrorComponent title="Oh no!" message="GBIF Map Service is currently unavailable" id="gbif-error" />
                 ) : (
-                  <SD_cards title="Occurrences" classname="card-section GBI" id="map-section" gbifId={species?.gbif_id} />
+                  <SD_cards title="Occurrences" classname="card-section GBI" id="map-section" gbifKey={species?.gbif_key} />
                 )
               }
-              <SD_cards title="References" classname="card-section GBI" id="ref-section" gbifId={species?.gbif_id} />
+              <SD_cards title="References" classname="card-section GBI" id="ref-section" gbifKey={species?.gbif_key} />
             </> )}
           </div>
         )}

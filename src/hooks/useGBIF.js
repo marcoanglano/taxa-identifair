@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 // SERVICES
 import { getTaxonomyGBIF, getNomenclatureGBIF } from '../services/dataService';
 
-export const useGBIF = (gbifId) => {
+export const useGBIF = (gbifKey) => {
   const [basionym, setBasionym] = useState(null);
   const [synonyms, setSynonyms] = useState([]);
   const [taxonomy, setTaxonomyGBIF] = useState(null);
@@ -13,7 +13,7 @@ export const useGBIF = (gbifId) => {
 
   useEffect(() => {
     // Wait for Supabase
-    if (!gbifId) return;
+    if (!gbifKey) return;
 
     const fetchGBIFData = async () => {
       setLoadingGBIF(true);
@@ -21,11 +21,11 @@ export const useGBIF = (gbifId) => {
 
       try {
         // Taxonomy
-        const taxData = await getTaxonomyGBIF(gbifId);
+        const taxData = await getTaxonomyGBIF(gbifKey);
         setTaxonomyGBIF(taxData);
 
         // Nomenclature
-        const nomData = await getNomenclatureGBIF(gbifId, taxData?.basionymKey);setSynonyms(nomData.synonyms);
+        const nomData = await getNomenclatureGBIF(gbifKey, taxData?.basionymKey);setSynonyms(nomData.synonyms);
         setBasionym(nomData.basionym);
 
       } catch (err) {
@@ -37,7 +37,7 @@ export const useGBIF = (gbifId) => {
     };
 
     fetchGBIFData();
-  }, [gbifId]);
+  }, [gbifKey]);
 
   return { taxonomy, synonyms, basionym, loading, error };
 };

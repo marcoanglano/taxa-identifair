@@ -3,14 +3,14 @@
 // ================================
 
 // Synonyms & Basionym
-export const getNomenclatureGBIF = async (gbifId, basionymKey) => {
+export const getNomenclatureGBIF = async (gbifKey, basionymKey) => {
   try {
     const promises = [
-      fetch(`https://api.gbif.org/v1/species/${gbifId}/synonyms`).then(res => res.json())
+      fetch(`https://api.gbif.org/v1/species/${gbifKey}/synonyms`).then(res => res.json())
     ];
 
     // Does basionym exist?
-    if (basionymKey && basionymKey !== parseInt(gbifId)) {
+    if (basionymKey && basionymKey !== parseInt(gbifKey)) {
       promises.push(fetch(`https://api.gbif.org/v1/species/${basionymKey}`).then(res => res.json()));
     }
 
@@ -27,8 +27,8 @@ export const getNomenclatureGBIF = async (gbifId, basionymKey) => {
 };
 
 // Full taxonomy
-export const getTaxonomyGBIF = async (gbifId) => {
-  const response = await fetch(`https://api.gbif.org/v1/species/${gbifId}`);
+export const getTaxonomyGBIF = async (gbifKey) => {
+  const response = await fetch(`https://api.gbif.org/v1/species/${gbifKey}`);
   const data = await response.json();
   return {
     kingdom: data.kingdom,
@@ -41,13 +41,13 @@ export const getTaxonomyGBIF = async (gbifId) => {
 };
 
 // GBIF API status (for occurrences)
-export const checkStatusGBIF = async (gbifId) => {
-  if (!gbifId) return false;
+export const checkStatusGBIF = async (gbifKey) => {
+  if (!gbifKey) return false;
 
   try {
     const limit = 1;
     const response = await fetch(
-      `https://api.gbif.org/v1/occurrence/search?taxonKey=${gbifId}&limit=${limit}`
+      `https://api.gbif.org/v1/occurrence/search?taxonKey=${gbifKey}&limit=${limit}`
     );
     if (!response.ok) throw new Error(`GBIF API error: ${response.status}`);
     const data = await response.json();

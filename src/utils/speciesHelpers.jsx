@@ -3,7 +3,7 @@
  *  - Calculate mean
  *  - Format length
  *  - Format scientific name
- *  - Links (GBIF, WoRMS, Razouls)
+ *  - Links (GBIF, WoRMS, other)
  *  - Resolve labels
  */
 
@@ -61,10 +61,10 @@ export const getWormsLink = (wormsId) => {
   if (!wormsId) return false;
   return `https://www.marinespecies.org/aphia.php?p=taxdetails&id=${wormsId}`;
 };
-/* Razouls */
-export const getRazoulsLink = (razoulsId) => {
-  if (!razoulsId) return false;
-  return `https://copepodes.obs-banyuls.fr/en/fichesp.php?sp=${razoulsId}`;
+/* Other (Razouls for Calanoida) */
+export const getOtherLink = (otherId) => {
+  if (!otherId) return false;
+  return `https://copepodes.obs-banyuls.fr/en/fichesp.php?sp=${otherId}`; // TO DO: change website depending on the taxon
 };
 
 
