@@ -9,10 +9,10 @@ ALLOWED_EXTENSIONS = {".js", ".jsx", ".ts", ".tsx", ".css", ".sql"}
 
 # Cartelle o file da ignorare completamente
 IGNORE_DIRS = {"node_modules", ".git", "dist", "build", "coverage"}
-IGNORE_FILES = {"package-lock.json", "yarn.lock", "bundle_code.py", "README.md", "UPDATER.md", "CHANGELOG.md"}
+IGNORE_FILES = {"package-lock.json", "yarn.lock", "full_project_code.py", "README.md", "UPDATER.md", "CHANGELOG.md"}
 
 
-def bundle_project():
+def full_project_code():
     root_dir = os.path.abspath(".")
     src_path = os.path.join(root_dir, SRC_DIR)
 
@@ -58,4 +58,4 @@ def bundle_project():
 
 
 if __name__ == "__main__":
-    bundle_project()
+    full_project_code()

@@ -28,23 +28,28 @@ const SpeciesTraits = ({ traits }) => {
             title: categoryName.toUpperCase(),
             content: (
                 <div className="traits-group">
-                    {traits.map((t, idx) => (
-                    <div key={idx}>
-                        <p id="trait-name">- <strong>{t.traits?.trait_name}</strong>:</p>
-                        <ul>
-                        {t.f_states?.length > 0 && (
-                            <li className="f">
-                            {resolveLabels(t.f_states, t.traits?.trait_states)}
-                            </li>
-                        )}
-                        {t.m_states?.length > 0 && (
-                            <li className="m">
-                            {resolveLabels(t.m_states, t.traits?.trait_states)}
-                            </li>
-                        )}
-                        </ul>
-                    </div>
-                    ))}
+                    {traits.map((t, idx) => {
+                        const fLabel = t.f_states?.length > 0 && resolveLabels(t.f_states, t.traits?.trait_states);
+                        const mLabel = t.m_states?.length > 0 && resolveLabels(t.m_states, t.traits?.trait_states);
+                        const isEqual = fLabel && mLabel && JSON.stringify(fLabel) === JSON.stringify(mLabel);
+
+                        return (
+                            <div key={idx}>
+                                <p id="trait-name">- <strong>{t.traits?.trait_name}</strong>:</p>
+                                <ul>
+                                    {isEqual ? (
+                                        <li className="b">{fLabel}</li>
+                                    ) : (
+                                        <>
+                                            {fLabel && <li className="f">{fLabel}</li>}
+                                            {mLabel && <li className="m">{mLabel}</li>}
+                                            {!fLabel && !mLabel && <li>No data.</li>}
+                                        </>
+                                    )}
+                                </ul>
+                            </div>
+                        );
+                    })}
                 </div>
             )
         }));

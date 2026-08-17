@@ -72,7 +72,6 @@ export default function Identify() {
             {/* TRAITS */}
             <div id="traits-container">
               <h4>Traits</h4>
-              {loading ? (<p>Gne</p>) : (<p>Gnegne</p>)}
               <ID_traits traits={availableTraits} selectedTraits={selectedTraits} onSelect={handleTraitSelect} />
             </div>
           </div>
