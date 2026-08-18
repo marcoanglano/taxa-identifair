@@ -125,13 +125,18 @@ export const getSpeciesTraits = async (id) => {
     .from("species_traits")
     .select(`
       f_states,
+      f_notes,
+      f_notes_url,
       m_states,
+      m_notes,
+      m_notes_url,
       traits (
         trait_category,
         trait_name,
         trait_states (
           id_state,
-          state_label
+          state_label,
+          state_icon_url
         )
       )
     `)
@@ -153,9 +158,14 @@ export const getTraits = async () => {
       id_trait,
       trait_category,
       trait_name,
+      description,
+      description_url,
+      trait_icon_url,
       trait_states (
         id_state,
-        state_label
+        state_label,
+        sort_order,
+        state_icon_url
       )
     `)
     .order("trait_category", { ascending: true });

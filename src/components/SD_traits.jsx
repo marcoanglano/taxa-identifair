@@ -1,6 +1,7 @@
 // ========== IMPORTS ==========
 // COMPONENTS
 import Accordion from "../components/Accordion";
+import Icon from "../components/Icon";
 // LIB
 import { useMemo } from "react";
 // UTILS
@@ -32,17 +33,20 @@ const SpeciesTraits = ({ traits }) => {
                         const fLabel = t.f_states?.length > 0 && resolveLabels(t.f_states, t.traits?.trait_states);
                         const mLabel = t.m_states?.length > 0 && resolveLabels(t.m_states, t.traits?.trait_states);
                         const isEqual = fLabel && mLabel && JSON.stringify(fLabel) === JSON.stringify(mLabel);
+                        
+                        const fNotes = t.f_notes ? ". " + t.f_notes : "";
+                        const mNotes = t.m_notes ? ". " + t.m_notes : "";
 
                         return (
                             <div key={idx}>
                                 <p id="trait-name">- <strong>{t.traits?.trait_name}</strong>:</p>
                                 <ul>
                                     {isEqual ? (
-                                        <li className="b">{fLabel}</li>
+                                        <li className="b">{fLabel}{fNotes}</li>
                                     ) : (
                                         <>
-                                            {fLabel && <li className="f">{fLabel}</li>}
-                                            {mLabel && <li className="m">{mLabel}</li>}
+                                            {fLabel && <li className="f">{fLabel}{fNotes}</li>}
+                                            {mLabel && <li className="m">{mLabel}{mNotes}</li>}
                                             {!fLabel && !mLabel && <li>No data.</li>}
                                         </>
                                     )}
