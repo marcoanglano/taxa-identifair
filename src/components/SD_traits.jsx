@@ -5,7 +5,7 @@ import Icon from "../components/Icon";
 // LIB
 import { useMemo } from "react";
 // UTILS
-import { resolveLabels } from "../utils/speciesHelpers.jsx";
+import { resolveIcons, resolveLabels } from "../utils/speciesHelpers.jsx";
 
 
 
@@ -30,10 +30,18 @@ const SpeciesTraits = ({ traits }) => {
             content: (
                 <div className="traits-group">
                     {traits.map((t, idx) => {
+                        const allStates = t.traits?.trait_states || [];
+                        
+                        // Labels
                         const fLabel = t.f_states?.length > 0 && resolveLabels(t.f_states, t.traits?.trait_states);
                         const mLabel = t.m_states?.length > 0 && resolveLabels(t.m_states, t.traits?.trait_states);
                         const isEqual = fLabel && mLabel && JSON.stringify(fLabel) === JSON.stringify(mLabel);
                         
+                        // Icons
+                        const fIcons = resolveIcons(t.f_states, allStates);
+                        const mIcons = resolveIcons(t.m_states, allStates);
+
+                        // Notes
                         const fNotes = t.f_notes ? ". " + t.f_notes : "";
                         const mNotes = t.m_notes ? ". " + t.m_notes : "";
 
@@ -42,11 +50,32 @@ const SpeciesTraits = ({ traits }) => {
                                 <p id="trait-name">- <strong>{t.traits?.trait_name}</strong>:</p>
                                 <ul>
                                     {isEqual ? (
-                                        <li className="b">{fLabel}{fNotes}</li>
+                                        <li className="b">{fLabel}{fNotes} {fIcons.map((url, i) => (
+                                                <Icon 
+                                                    key={i}
+                                                    iconUrl={url}
+                                                    color="var(--prim-color-L)"
+                                                    className="b-state"
+                                                />
+                                            ))}</li>
                                     ) : (
                                         <>
-                                            {fLabel && <li className="f">{fLabel}{fNotes}</li>}
-                                            {mLabel && <li className="m">{mLabel}{mNotes}</li>}
+                                            {fLabel && <li className="f">{fLabel}{fNotes} {fIcons.map((url, i) => (
+                                                <Icon 
+                                                    key={i}
+                                                    iconUrl={url}
+                                                    color="var(--female-color)"
+                                                    className="f-state"
+                                                />
+                                            ))}</li>}
+                                            {mLabel && <li className="m">{mLabel}{mNotes} {mIcons.map((url, i) => (
+                                                <Icon 
+                                                    key={i}
+                                                    iconUrl={url}
+                                                    color="var(--male-color)"
+                                                    className="m-state"
+                                                />
+                                            ))}</li>}
                                             {!fLabel && !mLabel && <li>No data.</li>}
                                         </>
                                     )}

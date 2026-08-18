@@ -4,6 +4,7 @@
  *  - Format length
  *  - Format scientific name
  *  - Links (GBIF, WoRMS, other)
+ *  - Resolve icons
  *  - Resolve labels
  */
 
@@ -65,6 +66,18 @@ export const getWormsLink = (wormsId) => {
 export const getOtherLink = (otherId) => {
   if (!otherId) return false;
   return `https://copepodes.obs-banyuls.fr/en/fichesp.php?sp=${otherId}`; // TO DO: change website depending on the taxon
+};
+
+
+/**
+ * <<< RESOLVE ICONS >>>
+ * Converts state ids into icon urls
+ */
+export const resolveIcons = (stateIds, allStates) => {
+  if (!stateIds || !allStates) return [];
+  return stateIds
+    .map(sid => allStates.find((s) => s.id_state === sid)?.state_icon_url || sid)
+    .filter(Boolean); // Filters states with no icon
 };
 
 

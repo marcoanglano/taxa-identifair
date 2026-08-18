@@ -1,6 +1,6 @@
 export default function Icon({
     iconUrl = null,
-    size = 24,
+    size = 48,
     color="currentColor",
     className = ""
 }) {
