@@ -173,3 +173,16 @@ export const getTraits = async () => {
   if (error) throw error;
   return data || [];
 };
+
+/**
+ * Looks for species matching the selected traits through RPC Supabase
+ * @param {string[]} stateIds - Array of selected state IDs
+ */
+export const getMatchingSpecies = async (stateIds = []) => {
+  const { data, error } = await supabase.rpc("match_species", {
+    selected_states: stateIds
+  });
+
+  if (error) throw error;
+  return data || [];
+};

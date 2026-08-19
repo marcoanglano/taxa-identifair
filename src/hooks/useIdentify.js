@@ -2,7 +2,7 @@
 // LIB
 import { useState, useEffect } from 'react';
 // SERVICES
-import { getTraits } from '../services/dataService';
+import { getTraits, getMatchingSpecies } from '../services/dataService';
 
 export default function useIdentify() {
 
@@ -25,16 +25,20 @@ export default function useIdentify() {
 
     // ========== TRAITS ==========
 
-    // Load traits
+    // States
     const [availableTraits, setAvailableTraits] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [selectedTraits, setSelectedTraits] = useState([]);
+    const [matchingSpecies, setMatchingSpecies] = useState([]);
+
+    const [loadingTraits, setLoadingTraits] = useState(true);
+    const [loadingMatching, setLoadingMatching] = useState(false);
     const [error, setError] = useState(null);
 
     // Fetching
     useEffect(() => {
         const loadTraits = async () => {
             try {
-                setLoading(true);
+                setLoadingTraits(true);
                 const data = await getTraits();
 
                 // Normalize labels
@@ -50,16 +54,37 @@ export default function useIdentify() {
 
                 setAvailableTraits(normalizedTraits);
             } catch (err) {
-                setError(err.message || "Error in fetching traits.");
+                setError(err.message || "Error fetching traits.");
             } finally {
-                setLoading(false);
+                setLoadingTraits(false);
             }
         };
         loadTraits();
     }, []);
 
-    // States for selected traits
-    const [selectedTraits, setSelectedTraits] = useState([]);
+    // RPC query only if any trait is selected
+    useEffect(() => {
+        const fetchMatches = async () => {
+            if (selectedTraits.length === 0) {
+                setMatchingSpecies([])
+                setLoadingMatching(false);
+                return;
+            }
+
+            try {
+                setLoadingMatching(true);
+                const stateIds = selectedTraits.map(t => t.stateId);
+                const results = await getMatchingSpecies(stateIds);
+                setMatchingSpecies(results);
+            } catch (err) {
+                setError(err.message || "Error matching species.");
+            } finally {
+                setLoadingMatching(false);
+            }
+        };
+
+        fetchMatches();
+    }, [selectedTraits]);
 
     // Handlers (selection and deselection)
     const handleTraitSelect = (traitId, traitName, stateId, stateValue) => {
@@ -89,10 +114,12 @@ export default function useIdentify() {
 
     return {
         availableTraits,
-        loading,
+        selectedTraits,
+        matchingSpecies,
+        loadingTraits,
+        loadingMatching,
         error,
         filters,
-        selectedTraits,
         handleFilterChange,
         handleTraitSelect,
         handleRemoveTrait

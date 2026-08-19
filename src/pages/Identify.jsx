@@ -9,23 +9,23 @@ import ID_traits from "../components/ID_traits";
 import Skeleton from "../components/Skeleton";
 // HOOKS
 import useIdentify from "../hooks/useIdentify";
-// LIB
-import React, { useState } from "react";
 // STYLES
 import "../styles/Identify.css";
 import "../styles/Skeleton.css";
 // UTILS
-import { MOCK_FILTERS_SCHEMA, MOCK_TRAITS } from "../utils/mockData.js";
+import { MOCK_FILTERS_SCHEMA } from "../utils/mockData.js";
 
 
 export default function Identify() {
   // ========== HOOK ==========
   const {
     availableTraits,
-    loading,
+    selectedTraits,
+    matchingSpecies,
+    loadingTraits,
+    loadingMatching,
     error,
     filters,
-    selectedTraits,
     handleFilterChange,
     handleTraitSelect,
     handleRemoveTrait
@@ -37,7 +37,7 @@ export default function Identify() {
 
 
   // ========= LOADING ==========
-  if (loading) return (
+  if (loadingTraits) return (
     <section className="identify-container">
       <div id="left-column">
         <h3 id="identify-title">Identify</h3>
@@ -57,7 +57,7 @@ export default function Identify() {
   return (
 
     <section className="identify-container">
-      {!error && !loading && ( <>
+      {!error && !loadingTraits && ( <>
         {/* ===== LEFT COLUMN ===== */}
         <div id="left-column">
           <h3 id="identify-title">Identify</h3>
@@ -92,8 +92,14 @@ export default function Identify() {
 
             
             {/* MATCHING SPECIES */}
-            <h4 className="match-title">Matching Species</h4>
-            <ID_matching />
+            <h4 className="match-title">
+              Matching Species {selectedTraits.length > 0 ? `: (${matchingSpecies.length})` : ""}
+            </h4>
+            <ID_matching
+              species={matchingSpecies}
+              loading={loadingMatching}
+              selectedCount={selectedTraits.length}
+            />
           </div>
         </div>
       </> )}
