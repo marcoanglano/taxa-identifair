@@ -37,14 +37,14 @@ export default function ID_matching({
                 id: sp.id_species,
                 title: (
                     <div className="matching-accordion-title">
-                        <em>{sp.scientific_name}</em> {sp.authority}
+                        {sp.family} - <em>{sp.scientific_name}</em>
                         <span className="match-sex-tags" style={{ marginLeft: "8px" }}>
                             {isBoth ? (
-                                <span className="b" title="Matches female & male">(♀ ♂)</span>
+                                <span className="b" title="Matches female & male">♀ ♂</span>
                             ) : (
                                 <>
-                                    {sp.match_f && <span className="f" title="Matches female">(♀)</span>}
-                                    {sp.match_m && <span className="m" title="Matches male">(♂)</span>}
+                                    {sp.match_f && <span className="f" title="Matches female">♀</span>}
+                                    {sp.match_m && <span className="m" title="Matches male">♂</span>}
                                 </>
                             )}
                         </span>
@@ -54,7 +54,7 @@ export default function ID_matching({
                     <div className="matching-species-detail">
                         <p style={{ marginBottom: "10px" }}>
                             <Link to={`/species/${sp.id_species}`} target="_blank" rel="noopener noreferrer">
-                                View full species sheet ↗
+                                Details of the species
                             </Link>
                         </p>
 
@@ -62,8 +62,8 @@ export default function ID_matching({
                             {/* FEMALE */}
                             {sp.match_f && (
                                 <div className="sex-traits-block female-block">
-                                    <h5 className="f" style={{ color: "var(--female-color)" }}>Female (♀)</h5>
-                                    <ul className="traits-notes-list">
+                                    <h5 className="f" style={{ color: "var(--female-color)" }}>♀ Female</h5>
+                                    <ul className="traits-notes-list" style={{ marginLeft: "20px" }}>
                                         {sp.traits_info?.map((t) => {
                                             const labels = resolveLabels(t.f_states, t.trait_states);
                                             const icons = resolveIcons(t.f_states, t.trait_states);
@@ -96,8 +96,8 @@ export default function ID_matching({
                             {/* MALE */}
                             {sp.match_m && (
                                 <div className="sex-traits-block male-block" style={{ marginTop: sp.match_f ? "12px" : "0" }}>
-                                    <h5 className="m" style={{ color: "var(--male-color)" }}>Male (♂)</h5>
-                                    <ul className="traits-notes-list">
+                                    <h5 className="m" style={{ color: "var(--male-color)" }}>♂ Male</h5>
+                                    <ul className="traits-notes-list" style={{ marginLeft: "20px" }}>
                                         {sp.traits_info?.map((t) => {
                                             const labels = resolveLabels(t.m_states, t.trait_states);
                                             const icons = resolveIcons(t.m_states, t.trait_states);
@@ -139,7 +139,6 @@ export default function ID_matching({
         <div id="matching-accordion-container">
             <Accordion
                 items={accordionItems}
-                singleOpen={false}
                 defaultAllOpen={false}
             />
         </div>

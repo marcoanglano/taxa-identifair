@@ -109,37 +109,82 @@ create index IF not exists species_traits_trait_idx on public.species_traits usi
 ------------------------------
 
 --       MATCH SPECIES      --
+-- v2.2
+
+-- Drop old function
+drop function if exists match_species(text[]);
+
 create or replace function match_species(selected_states text[])
 returns table (
   id_species text,
   scientific_name text,
-  authority text,
+  family text,
   match_f boolean,
-  match_m boolean
+  match_m boolean,
+  traits_info jsonb
 ) 
 language plpgsql
 as $$
 begin
-  -- If no trait selected, return zero results
   if selected_states is null or array_length(selected_states, 1) is null then
     return;
   end if;
 
-  -- Filter species that satisfy EVERY selected trait
   return query
+  with matched_species as (
+    select 
+      s.id_species,
+      s.scientific_name,
+      s.family,
+      bool_and(st.f_states && array[s_state]) as match_f,
+      bool_and(st.m_states && array[s_state]) as match_m
+    from species s
+    join species_traits st on s.id_species = st.id_species
+    cross join unnest(selected_states) as s_state
+    where st.f_states && array[s_state] or st.m_states && array[s_state]
+    group by s.id_species, s.scientific_name, s.family
+    having count(distinct s_state) = array_length(selected_states, 1)
+  )
   select 
-    s.id_species,
-    s.scientific_name,
-    s.authority,
-    bool_and(st.f_states && array[s_state]) as match_f,
-    bool_and(st.m_states && array[s_state]) as match_m
-  from species s
-  join species_traits st on s.id_species = st.id_species
-  cross join unnest(selected_states) as s_state
-  where st.f_states && array[s_state] or st.m_states && array[s_state]
-  group by s.id_species, s.scientific_name, s.authority
-  having count(distinct s_state) = array_length(selected_states, 1)
-  order by s.scientific_name;
+    ms.id_species,
+    ms.scientific_name,
+    ms.family,
+    ms.match_f,
+    ms.match_m,
+    coalesce(
+      (
+        select jsonb_agg(
+          jsonb_build_object(
+            'id_trait', t.id_trait,
+            'trait_name', t.trait_name,
+            'f_notes', st.f_notes,
+            'm_notes', st.m_notes,
+            'f_states', st.f_states,
+            'm_states', st.m_states,
+            'trait_states', (
+              select jsonb_agg(jsonb_build_object(
+                'id_state', ts.id_state,
+                'state_label', ts.state_label,
+                'state_icon_url', ts.state_icon_url
+              ))
+              from trait_states ts
+              where ts.id_trait = t.id_trait
+            )
+          )
+        )
+        from species_traits st
+        join traits t on st.id_trait = t.id_trait
+        where st.id_species = ms.id_species
+          and (
+            st.f_states && selected_states 
+            or st.m_states && selected_states
+          )
+      ),
+      '[]'::jsonb
+    ) as traits_info
+  from matched_species ms
+  order BY ms.family asc, ms.scientific_name asc;
 end;
 $$;
+
 */}

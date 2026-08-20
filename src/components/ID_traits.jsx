@@ -1,6 +1,7 @@
 // ========== IMPORTS ==========
 // COMPONENTS
 import Accordion from "./Accordion";
+import Icon from "./Icon";
 
 
 export default function ID_traits({ traits = [], selectedTraits = [], onSelect }) {
@@ -15,7 +16,17 @@ export default function ID_traits({ traits = [], selectedTraits = [], onSelect }
 
                     return {
                         id: trait.id,
-                        title: accordionTitle,
+                        title: (
+                            <span className="title-wrapper">
+                                <Icon
+                                    iconUrl={trait.traitIcon}
+                                    size={36}
+                                />
+                                <span style={{ marginLeft: "10px" }}>
+                                    {accordionTitle}
+                                </span>
+                            </span>
+                        ),
                         content: (
                             <div className="states-buttons-grid">
                                 {trait.states.map((state) => {
@@ -26,7 +37,12 @@ export default function ID_traits({ traits = [], selectedTraits = [], onSelect }
                                             className={`state-btn ${isCurrentStateActive ? "active" : ""}`}
                                             onClick={() => onSelect(trait.id, trait.name, state.id, state.value)}
                                         >
-                                            {state.value}
+                                            <Icon
+                                                iconUrl={state.stateIcon}
+                                            />
+                                            <span style={{ marginLeft: "10px" }}>
+                                                {state.value}
+                                            </span>
                                         </button>
                                     );
                                 })}
