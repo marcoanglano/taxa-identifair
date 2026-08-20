@@ -1,8 +1,13 @@
 // ========== IMPORTS ==========
 // COMPONENTS
+import Accordion from "./Accordion";
+import Icon from "./Icon";
 import Skeleton from "./Skeleton";
 // LIB
 import { Link } from "react-router-dom";
+import { useMemo } from "react";
+// UTILS
+import { resolveLabels, resolveIcons } from "../utils/speciesHelpers";
 
 
 export default function ID_matching({
@@ -23,17 +28,16 @@ export default function ID_matching({
     }
 
     
-    return (
-        <ul className="matching-species-list">
-            {species.map((sp) => {
-                const isBoth = sp.match_f && sp.match_m;
+    // Building accordions
+    const accordionItems = useMemo(() => {
+        return species.map((sp) => {
+            const isBoth = sp.match_f && sp.match_m;
 
-                return (
-                    <li key={sp.id_species} className="matching-species-item">
-                        <Link to={`/species/${sp.id_species}`} target="_blank" rel="noopener noreferrer">
-                            <em>{sp.scientific_name}</em> {sp.authority}
-                        </Link>
-                        
+            return {
+                id: sp.id_species,
+                title: (
+                    <div className="matching-accordion-title">
+                        <em>{sp.scientific_name}</em> {sp.authority}
                         <span className="match-sex-tags" style={{ marginLeft: "8px" }}>
                             {isBoth ? (
                                 <span className="b" title="Matches female & male">(♀ ♂)</span>
@@ -44,9 +48,100 @@ export default function ID_matching({
                                 </>
                             )}
                         </span>
-                    </li>
-                );
-            })}
-        </ul>
+                    </div>
+                ),
+                content: (
+                    <div className="matching-species-detail">
+                        <p style={{ marginBottom: "10px" }}>
+                            <Link to={`/species/${sp.id_species}`} target="_blank" rel="noopener noreferrer">
+                                View full species sheet ↗
+                            </Link>
+                        </p>
+
+                        <div className="sex-lists-wrapper">
+                            {/* FEMALE */}
+                            {sp.match_f && (
+                                <div className="sex-traits-block female-block">
+                                    <h5 className="f" style={{ color: "var(--female-color)" }}>Female (♀)</h5>
+                                    <ul className="traits-notes-list">
+                                        {sp.traits_info?.map((t) => {
+                                            const labels = resolveLabels(t.f_states, t.trait_states);
+                                            const icons = resolveIcons(t.f_states, t.trait_states);
+
+                                            return (
+                                                <li key={t.id_trait} className="trait-note-item">
+                                                    <strong>{t.trait_name}:</strong> {labels}
+                                                    {t.f_notes && <span className="trait-note-text"> — {t.f_notes}</span>}
+                                                    
+                                                    {icons.length > 0 && (
+                                                        <span className="trait-icons-wrapper" style={{ marginLeft: "6px" }}>
+                                                            {icons.map((url, i) => (
+                                                                <Icon
+                                                                    key={i}
+                                                                    iconUrl={url}
+                                                                    size={36}
+                                                                    color="var(--female-color)"
+                                                                    className="f-state"
+                                                                />
+                                                            ))}
+                                                        </span>
+                                                    )}
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {/* MALE */}
+                            {sp.match_m && (
+                                <div className="sex-traits-block male-block" style={{ marginTop: sp.match_f ? "12px" : "0" }}>
+                                    <h5 className="m" style={{ color: "var(--male-color)" }}>Male (♂)</h5>
+                                    <ul className="traits-notes-list">
+                                        {sp.traits_info?.map((t) => {
+                                            const labels = resolveLabels(t.m_states, t.trait_states);
+                                            const icons = resolveIcons(t.m_states, t.trait_states);
+
+                                            return (
+                                                <li key={t.id_trait} className="trait-note-item">
+                                                    <strong>{t.trait_name}:</strong> {labels}
+                                                    {t.m_notes && <span className="trait-note-text"> — {t.m_notes}</span>}
+
+                                                    {icons.length > 0 && (
+                                                        <span className="trait-icons-wrapper" style={{ marginLeft: "6px" }}>
+                                                            {icons.map((url, i) => (
+                                                                <Icon
+                                                                    key={i}
+                                                                    iconUrl={url}
+                                                                    size={36}
+                                                                    color="var(--male-color)"
+                                                                    className="m-state"
+                                                                />
+                                                            ))}
+                                                        </span>
+                                                    )}
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )
+            };
+        });
+    }, [species]);
+
+
+    // RENDERING
+    return (
+        <div id="matching-accordion-container">
+            <Accordion
+                items={accordionItems}
+                singleOpen={false}
+                defaultAllOpen={false}
+            />
+        </div>
     );
 }

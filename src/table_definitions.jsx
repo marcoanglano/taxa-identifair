@@ -102,4 +102,44 @@ create index IF not exists species_traits_m_states_gin on public.species_traits 
 
 create index IF not exists species_traits_trait_idx on public.species_traits using btree (id_trait) TABLESPACE pg_default;
 
+
+
+------------------------------
+--       FUNCTIONS          --
+------------------------------
+
+--       MATCH SPECIES      --
+create or replace function match_species(selected_states text[])
+returns table (
+  id_species text,
+  scientific_name text,
+  authority text,
+  match_f boolean,
+  match_m boolean
+) 
+language plpgsql
+as $$
+begin
+  -- If no trait selected, return zero results
+  if selected_states is null or array_length(selected_states, 1) is null then
+    return;
+  end if;
+
+  -- Filter species that satisfy EVERY selected trait
+  return query
+  select 
+    s.id_species,
+    s.scientific_name,
+    s.authority,
+    bool_and(st.f_states && array[s_state]) as match_f,
+    bool_and(st.m_states && array[s_state]) as match_m
+  from species s
+  join species_traits st on s.id_species = st.id_species
+  cross join unnest(selected_states) as s_state
+  where st.f_states && array[s_state] or st.m_states && array[s_state]
+  group by s.id_species, s.scientific_name, s.authority
+  having count(distinct s_state) = array_length(selected_states, 1)
+  order by s.scientific_name;
+end;
+$$;
 */}

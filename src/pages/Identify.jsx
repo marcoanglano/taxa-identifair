@@ -93,7 +93,7 @@ export default function Identify() {
             
             {/* MATCHING SPECIES */}
             <h4 className="match-title">
-              Matching Species {selectedTraits.length > 0 ? `: (${matchingSpecies.length})` : ""}
+              Matching Species {selectedTraits.length > 0 ? ` (${matchingSpecies.length})` : ""}
             </h4>
             <ID_matching
               species={matchingSpecies}
