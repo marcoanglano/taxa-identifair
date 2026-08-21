@@ -1,6 +1,6 @@
 // ========== IMPORTS ==========
 // LIB
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 // SERVICES
 import { getFilters, getMatchingSpecies, getTraits } from '../services/dataService';
 
@@ -153,6 +153,63 @@ export default function useIdentify() {
     };
 
 
+    // FILTERS LOGIC
+    const filteredMatchingSpecies = useMemo(() => {
+        if (!matchingSpecies || matchingSpecies.length === 0) return [];
+
+        const { sex, environment, minLength, maxLength } = appliedFilters;
+        const reqMin = minLength !== "" && minLength !== null ? parseFloat(minLength) : null;
+        const reqMax = maxLength !== "" && maxLength !== null ? parseFloat(maxLength) : null;
+
+        return matchingSpecies.filter((sp) => {
+            // 1. Sex
+            if (sex === "female" && !sp.match_f) return false;
+            if (sex === "male" && !sp.match_m) return false;
+
+            // 2. Environment
+            if (environment && environment !== "") {
+                const spEnv = sp.filters?.environment || [];
+                if (spEnv.length > 0 &&!spEnv.includes(environment)) return false;
+            }
+
+            // 3. Body Length (mm)
+            if (reqMin !== null || reqMax !== null) {
+                const fMin = sp.filters?.f_min ?? null;
+                const fMax = sp.filters?.f_max ?? null;
+                const mMin = sp.filters?.m_min ?? null;
+                const mMax = sp.filters?.m_max ?? null;
+                const isWithinRange = (spMin, spMax) => {
+                    if (spMin === null && spMax === null) return true;
+                    const effectiveMin = spMin ?? spMax;
+                    const effectiveMax = spMax ?? spMin;
+                    if (reqMin !== null && effectiveMax < reqMin) return false;
+                    if (reqMax !== null && effectiveMin > reqMax) return false;
+                    return true;
+                };
+
+                if (sex === "female") {
+                    if (!isWithinRange(fMin, fMax)) return false;
+                } else if (sex === "male") {
+                    if (!isWithinRange(mMin, mMax)) return false;
+                } else {
+                    // Sex = "All" -> Deve sovrapporsi con range femminile O maschile
+                    const matchFemaleRange = isWithinRange(fMin, fMax);
+                    const matchMaleRange = isWithinRange(mMin, mMax);
+                    if (!matchFemaleRange && !matchMaleRange) return false;
+                }
+            }
+
+            return true;
+        })
+
+        .map((sp) => ({
+            ...sp,
+            match_f: sex === "male" ? false : sp.match_f,
+            match_m: sex === "female" ? false : sp.match_m
+        }));
+    }, [matchingSpecies, appliedFilters]);
+
+
     return {
         filtersSchema,
         loadingFilters,
@@ -161,7 +218,7 @@ export default function useIdentify() {
         hasDraftValues,
         availableTraits,
         selectedTraits,
-        matchingSpecies,
+        matchingSpecies: filteredMatchingSpecies,
         loadingTraits,
         loadingMatching,
         error,

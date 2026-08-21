@@ -259,10 +259,26 @@ export const getTraits = async () => {
  * @param {string[]} stateIds - Array of selected state IDs
  */
 export const getMatchingSpecies = async (stateIds = []) => {
-  const { data, error } = await supabase.rpc("match_species", {
+  // 1. Traits
+  const { data: matchedData, error: rpcError } = await supabase.rpc("match_species", {
     selected_states: stateIds
   });
+  if (rpcError) throw rpcError;
+  if (!matchedData || matchedData.length === 0) return [];
 
-  if (error) throw error;
-  return data || [];
+  // 2. IDs of matching species
+  const speciesIds = matchedData.map((sp) => sp.id_species);
+
+  // 3. Filters
+  const { data: filtersData, error: filtersError } = await supabase
+    .from("filters")
+    .select("id_species, environment, f_min, f_max, m_min, m_max")
+    .in("id_species", speciesIds);
+  if (filtersError) throw filtersError;
+  const filtersMap = new Map((filtersData || []).map((f) => [f.id_species, f]));
+
+  return matchedData.map((sp) => ({
+    ...sp,
+    filters: filtersMap.get(sp.id_species) || null
+  }));
 };
