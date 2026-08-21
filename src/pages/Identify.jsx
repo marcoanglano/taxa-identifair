@@ -12,21 +12,24 @@ import useIdentify from "../hooks/useIdentify";
 // STYLES
 import "../styles/Identify.css";
 import "../styles/Skeleton.css";
-// UTILS
-import { MOCK_FILTERS_SCHEMA } from "../utils/mockData.js";
 
 
 export default function Identify() {
   // ========== HOOK ==========
   const {
+    filtersSchema,
+    loadingFilters,
+    filters,
+    hasDraftValues,
     availableTraits,
     selectedTraits,
     matchingSpecies,
     loadingTraits,
     loadingMatching,
     error,
-    filters,
     handleFilterChange,
+    handleApplyFilters,
+    handleClearFilters,
     handleTraitSelect,
     handleRemoveTrait
   } = useIdentify();
@@ -37,7 +40,7 @@ export default function Identify() {
 
 
   // ========= LOADING ==========
-  if (loadingTraits) return (
+  if (loadingTraits || loadingFilters) return (
     <section className="identify-container">
       <div id="left-column">
         <h3 id="identify-title">Identify</h3>
@@ -65,8 +68,31 @@ export default function Identify() {
 
             {/* FILTERS */}
             <div className="filters-color" id="filters-container">
-              <h4>Contextual filters</h4>
-              <ID_filters schema={MOCK_FILTERS_SCHEMA} values={filters} onChange={handleFilterChange} />
+              <div className="filters-header">
+                <h4>Contextual filters</h4>
+                <div className="filters-actions">
+                  <button 
+                    type="button"
+                    className="btn-filter-apply"
+                    onClick={handleApplyFilters}
+                    disabled={!hasDraftValues}
+                    title="Apply filters"
+                  >
+                    Apply
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn-filter-clear" 
+                    onClick={handleClearFilters}
+                    disabled={!hasDraftValues}
+                    title="Clear all filters"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+
+              <ID_filters schema={filtersSchema} values={filters} onChange={handleFilterChange} />
             </div>
 
             {/* TRAITS */}

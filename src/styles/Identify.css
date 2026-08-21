@@ -28,6 +28,15 @@
   border: 1px solid var(--prim-color-LL);
   color: var(--sec-color);
 }
+.btn-filter-apply, .btn-filter-clear {
+  background-color: var(--prim-color-LLL);
+  color: var(--sec-color);
+  border: 1px solid var(--prim-color-LL);
+}
+.btn-filter-apply:not(:disabled):hover, 
+.btn-filter-clear:not(:disabled):hover {
+  filter: brightness(var(--bright));
+}
 
 .identify-container #right-column {
   border-left: 2px solid var(--prim-color-L);
@@ -49,6 +58,32 @@
 #filters-container {
   min-height: 160px;
   padding: 10px;
+}
+.filters-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+.filters-header h4 { margin-bottom: 0; }
+.filters-actions {
+  display: flex;
+  gap: 8px;
+}
+.btn-filter-apply, 
+.btn-filter-clear {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-filter-apply:disabled, 
+.btn-filter-clear:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: none;
 }
 #dynamic-filters-grid {
   display: grid;

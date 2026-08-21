@@ -2,25 +2,63 @@
 // LIB
 import { useState, useEffect } from 'react';
 // SERVICES
-import { getTraits, getMatchingSpecies } from '../services/dataService';
+import { getFilters, getMatchingSpecies, getTraits } from '../services/dataService';
 
 export default function useIdentify() {
 
 
     // ========== FILTERS ==========
+    const [filtersSchema, setFiltersSchema] = useState([]);
+    const [loadingFilters, setLoadingFilters] = useState(true);
 
-    // States
-    const [filters, setFilters] = useState({
+    // == States ==
+    // Input values
+    const [draftFilters, setDraftFilters] = useState({
+        sex: "",
+        environment: "",
+        minLength: "",
+        maxLength: ""
+    });
+    // Applied values
+    const [appliedFilters, setAppliedFilters] = useState({
         sex: "",
         environment: "",
         minLength: "",
         maxLength: ""
     });
 
+    // Fetching
+    useEffect(() => {
+        const loadFiltersSchema = async () => {
+            try {
+                setLoadingFilters(true);
+                const filters_schema = await getFilters();
+                setFiltersSchema(filters_schema);
+            } catch (err) {
+                console.error("Error fetching filters schema:", err);
+            } finally {
+                setLoadingFilters(false);
+            }
+        };
+        loadFiltersSchema();
+    }, []);
+
     // Handlers
     const handleFilterChange = (key, value) => {
-        setFilters((prev) => ({ ...prev, [key]: value }));
+        setDraftFilters((prev) => ({ ...prev, [key]: value }));
     };
+    const handleApplyFilters = () => {
+        setAppliedFilters({ ...draftFilters });
+    };
+    const handleClearFilters = () => {
+        const emptyState = { sex: "", environment: "", minLength: "", maxLength: "" };
+        setDraftFilters(emptyState);
+        setAppliedFilters(emptyState);
+    };
+    // Any input?
+    const hasDraftValues = Object.values(draftFilters).some(
+        (val) => val !== "" && val !== null && val !== undefined
+    );
 
 
     // ========== TRAITS ==========
@@ -116,14 +154,20 @@ export default function useIdentify() {
 
 
     return {
+        filtersSchema,
+        loadingFilters,
+        filters: draftFilters,
+        appliedFilters,
+        hasDraftValues,
         availableTraits,
         selectedTraits,
         matchingSpecies,
         loadingTraits,
         loadingMatching,
         error,
-        filters,
         handleFilterChange,
+        handleApplyFilters,
+        handleClearFilters,
         handleTraitSelect,
         handleRemoveTrait
     }

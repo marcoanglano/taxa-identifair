@@ -116,6 +116,86 @@ export const getSpeciesDetail = async (id) => {
 };
 
 /**
+ * <<< filters >>>
+ */
+
+export const getFilters = async () => {
+  const { data, error } = await supabase
+    .from("filters")
+    .select("environment, f_min, f_max, m_min, m_max");
+  if (error) throw error;
+  const envSet = new Set();
+  let absMin = Infinity;
+  let absMax = -Infinity;
+
+  (data || []).forEach((row) => {
+    // Environment
+    if (Array.isArray(row.environment)) {
+      row.environment.forEach((env) => envSet.add(env));
+    }
+    // Body length
+    const mins = [row.f_min, row.m_min].filter((v) => v !== null && v !== undefined);
+    const maxs = [row.f_max, row.m_max].filter((v) => v !== null && v !== undefined);
+    mins.forEach((v) => { if (v < absMin) absMin = v; });
+    maxs.forEach((v) => { if (v > absMax) absMax = v; });
+  });
+
+  const environmentOptions = Array.from(envSet).sort();
+  const globalMin = absMin !== Infinity ? absMin : 0;
+  const globalMax = absMax !== -Infinity ? absMax : 15;
+
+  // Builds data
+  const filters_schema = [
+    // Sex (fixed)
+    {
+      id: "sex",
+      label: "Sex",
+      type: "select",
+      placeholder: "All",
+      options: [
+        { value: "", label: "All" },
+        { value: "female", label: "Female" },
+        { value: "male", label: "Male" }
+      ]
+    },
+    // Environment (from DB)
+    {
+      id: "environment",
+      label: "Environment",
+      type: "select",
+      placeholder: "All",
+      options: [
+        { value: "", label: "All" },
+        ...environmentOptions.map((env) => ({
+          value: env,
+          label: env.charAt(0).toUpperCase() + env.slice(1)
+        }))
+      ]
+    },
+    // Body Length (from DB)
+    {
+      id: "length",
+      label: "Body Length (mm)",
+      type: "range",
+      inputs: [
+        { 
+          id: "minLength", 
+          label: "Min", 
+          placeholder: `Min (es. ${globalMin})` 
+        },
+        { 
+          id: "maxLength", 
+          label: "Max", 
+          placeholder: `Max (es. ${globalMax})` 
+        }
+      ]
+    }
+  ];
+
+  return filters_schema;
+};
+
+/**
  * <<< species_traits >>>
  */
 
