@@ -15,18 +15,26 @@
 
 /* =_=_=_=_=_=_=_=_=_=<< HEADER + PROGRESS BAR >>=_=_=_=_=_=_=_=_=_= */
 
-.acc-left, .acc-right {
-  position: relative;
-  z-index: 1;
+.acc-left {
+  display: flex;
+  align-items: center;
+  margin: 0;
 }
+.acc-right {
+  display: flex;
+  align-items: center;
+}
+div.acc-pd { padding: 0.5rem 14px 10px; }
 
 .acc-header {
   justify-content: space-between;
+  align-items: center;
   width: 100%;
   cursor: pointer;
   display: flex;
   overflow: hidden;
   position: relative;
+  padding: 8px 14px;
 }
 
 /* Loading effect */

@@ -106,6 +106,13 @@
 
 /* Traits */
 #traits-container { min-height: 220px; }
+#traits-container .title-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+#traits-container .title-text { line-height: 1; }
+
 .states-buttons-grid {
   display: flex;
   gap: 6px;

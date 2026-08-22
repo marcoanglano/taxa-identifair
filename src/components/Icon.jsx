@@ -1,6 +1,6 @@
 // ========== IMPORTS ==========
 // LIB
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 
@@ -19,10 +19,12 @@ export default function Icon({
     const [isHovered, setIsHovered] = useState(false);
     const [coords, setCoords] = useState({ top: 0, left: 0 });
     const iconRef = useRef(null);
+
     if (!iconUrl) return null;
     const hasTooltip = Boolean(tooltipText || tooltipImage);
+
     const updatePosition = () => {
-    if (iconRef.current) {
+        if (iconRef.current) {
             const rect = iconRef.current.getBoundingClientRect();
             const iconCenter = rect.left + rect.width / 2;
             setCoords({
@@ -96,45 +98,71 @@ export default function Icon({
 // Tooltip function & rendering
     function TooltipBox({ coords, tooltipImage, tooltipText }) {
         const tooltipRef = useRef(null);
-        const [adjustedLeft, setAdjustedLeft] = useState(coords.left);
+        const [stylePos, setStylePos] = useState({
+            top: 0,
+            left: 0,
+            visibility: "hidden",
+        });
 
-        useEffect(() => {
+        const recalculatePosition = useCallback(() => {
             if (tooltipRef.current) {
             const tooltipRect = tooltipRef.current.getBoundingClientRect();
-            const halfWidth = tooltipRect.width / 2;
+            const tooltipWidth = tooltipRect.width;
+            const tooltipHeight = tooltipRect.height;
+
             const padding = 12;
+            const gap = 8;
+
             const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            const idealLeft = coords.left - tooltipWidth / 2;
+            const idealTop = coords.top - tooltipHeight - gap;
 
-            let newLeft = coords.left;
+            // Horizontal
+            const clampedLeft = Math.max(
+                padding,
+                Math.min(idealLeft, viewportWidth - tooltipWidth - padding)
+            );
+            // Vertical
+            const clampedTop = Math.max(
+                padding,
+                Math.min(idealTop, viewportHeight - tooltipHeight - padding)
+            );
 
-            // Checks left and right boundaries
-            if (coords.left - halfWidth < padding) { newLeft = halfWidth + padding; }
-            else if (coords.left + halfWidth > viewportWidth - padding) { newLeft = viewportWidth - halfWidth - padding; }
-
-            setAdjustedLeft(newLeft);
+            setStylePos({
+                top: `${clampedTop}px`,
+                left: `${clampedLeft}px`,
+                visibility: "visible",
+            });
             }
-        }, [coords.left]);
+        }, [coords]);
+
+        useLayoutEffect(() => {
+            recalculatePosition();
+        }, [recalculatePosition]);
 
         return (
             <div
-            ref={tooltipRef}
-            className="fixed-tooltip-box"
-            role="tooltip"
-            style={{
-                top: `${coords.top - 8}px`,
-                left: `${adjustedLeft}px`,
-            }}
+                ref={tooltipRef}
+                className="fixed-tooltip-box"
+                role="tooltip"
+                style={{
+                    top: stylePos.top,
+                    left: `${stylePos.left}px`,
+                    visibility: stylePos.visibility,
+                }}
             >
-            {tooltipImage && (
-                <img
-                src={tooltipImage}
-                alt={tooltipText || "Preview"}
-                className="fixed-tooltip-img"
-                />
-            )}
-            {tooltipText && (
-                <span className="fixed-tooltip-text">{tooltipText}</span>
-            )}
+                {tooltipImage && (
+                    <img
+                    src={tooltipImage}
+                    alt={tooltipText || "Preview"}
+                    className="fixed-tooltip-img"
+                    onLoad={recalculatePosition}
+                    />
+                )}
+                {tooltipText && (
+                    <span className="fixed-tooltip-text">{tooltipText}</span>
+                )}
             </div>
         );
     }
