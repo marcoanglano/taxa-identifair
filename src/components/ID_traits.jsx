@@ -21,6 +21,8 @@ export default function ID_traits({ traits = [], selectedTraits = [], onSelect }
                                 <Icon
                                     iconUrl={trait.traitIcon}
                                     size={36}
+                                    tooltipText={trait.description}
+                                    tooltipImage={trait.descriptionUrl}
                                 />
                                 <span style={{ marginLeft: "10px" }}>
                                     {accordionTitle}

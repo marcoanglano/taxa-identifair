@@ -84,7 +84,8 @@ export default function useIdentify() {
                     id: t.id_trait,
                     name: t.trait_name,
                     category: t.trait_category,
-                    description: t.trait_description,
+                    description: t.description,
+                    descriptionUrl: t.description_url,
                     traitIcon: t.trait_icon_url,
                     states: (t.trait_states || []).map(s => ({
                         id: s.id_state,

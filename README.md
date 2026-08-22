@@ -17,8 +17,6 @@ Contest info: [2026 GBIF Graduate Researchers Award call for nominations](https:
 Additional GBIF info: [GBIF Strategic Framework 2023-2027](https://www.gbif.org/document/50lI7Bxn2p1vRgpbs7aXaT/gbif-strategic-framework-2023-2027).
 ### v0.5 - UZI version
 Version for UZI 2026 (and presentation to colleagues at Unisalento). Building identify, adding tooltips to assist the identification process.
-- #### v0.5.04
-    Implementation of filters.
 - #### v0.5.05
     Tooltips [NEW COMPONENT]:
     - Function building.
