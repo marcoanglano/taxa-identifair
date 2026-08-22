@@ -1,6 +1,6 @@
 // ========== IMPORTS ==========
 // LIB
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 
@@ -44,6 +44,27 @@ export default function Icon({
         if (hasTooltip) setIsHovered(false);
     };
 
+    // ========== MOBILE ==========
+    const handleTouchStart = (e) => {
+        if (!hasTooltip) return;
+        e.stopPropagation();
+        updatePosition();
+        setIsHovered((prev) => !prev);
+    };
+    const handleClick = (e) => {
+        e.stopPropagation();
+    };
+    useEffect(() => {
+        if (!isHovered) return;
+        const handleOutsideTouch = (e) => {
+            if (iconRef.current && !iconRef.current.contains(e.target)) {
+                setIsHovered(false);
+            }
+        };
+        window.addEventListener("touchstart", handleOutsideTouch);
+        return () => window.removeEventListener("touchstart", handleOutsideTouch);
+    }, [isHovered]);
+
     // Icon style
     const style = {
         width: `${size}px`,
@@ -73,6 +94,8 @@ export default function Icon({
                 className="icon-wrapper"
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
+                onTouchStart={handleTouchStart}
+                onClick={handleClick}
             >
                 <span
                     className={`${className}-icon`.trim()}

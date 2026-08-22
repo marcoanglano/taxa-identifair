@@ -153,8 +153,12 @@ a[target="_blank"]::after {
 
 /* =_=_=_=_=_=_=_=_=_=<<  RESPONSIVE DESIGN  >>=_=_=_=_=_=_=_=_=_= */
 @media (max-width: 768px) {
+  .fixed-tooltip-box {
+    width: calc(100vw - 12px);
+    left: 6px !important;
+    white-space: normal;
+  }
   .fixed-tooltip-img {
-    max-width: 200px;
-    max-height: 200px;
+    max-width: 100%;
   }
 }
