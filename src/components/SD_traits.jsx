@@ -4,16 +4,12 @@ import Accordion from "../components/Accordion";
 import Icon from "../components/Icon";
 // LIB
 import { useMemo } from "react";
-// UTILS
-import { resolveIcons, resolveLabels } from "../utils/speciesHelpers.jsx";
-
 
 
 // ========== CREATES ACCORDIONS ==========
 const SpeciesTraits = ({ traits }) => {
     const accordionItems = useMemo(() => {
-        // ===== 0. Handles no traits
-        if (!traits || traits.length === 0) return <p>No traits available for this species.</p>;
+        if (!traits || traits.length === 0) return [];
 
         // ===== 1. Creates categories
         const grouped = traits.reduce((acc, item) => {
@@ -24,62 +20,79 @@ const SpeciesTraits = ({ traits }) => {
         }, {});
 
         // ===== 2. Adds traits to categories
-        return Object.entries(grouped).map(([categoryName, traits]) => ({
+        return Object.entries(grouped).map(([categoryName, traitsList]) => ({
             id: categoryName,
             title: categoryName.toUpperCase(),
             content: (
-                <div className="traits-group">
-                    {traits.map((t, idx) => {
+                <div className="sd-traits-grid" style={{ display: "flex", flexWrap: "wrap", gap: "8px", padding: "5px 0" }}>
+                    {traitsList.map((t, idx) => {
+                        // Loads data
                         const allStates = t.traits?.trait_states || [];
-                        
-                        // Labels
-                        const fLabel = t.f_states?.length > 0 && resolveLabels(t.f_states, t.traits?.trait_states);
-                        const mLabel = t.m_states?.length > 0 && resolveLabels(t.m_states, t.traits?.trait_states);
-                        const isEqual = fLabel && mLabel && JSON.stringify(fLabel) === JSON.stringify(mLabel);
-                        
-                        // Icons
-                        const fIcons = resolveIcons(t.f_states, allStates);
-                        const mIcons = resolveIcons(t.m_states, allStates);
+                        const traitName = t.traits?.trait_name || "";
+                        const fStates = t.f_states || [];
+                        const mStates = t.m_states || [];
+                        const barText = " (Bar = 100 µm)";
 
-                        // Notes
-                        const fNotes = t.f_notes ? ". " + t.f_notes : "";
-                        const mNotes = t.m_notes ? ". " + t.m_notes : "";
 
+                        // ===== FEMALE STATES =====
+                        
                         return (
-                            <div key={idx}>
-                                <p id="trait-name">- <strong>{t.traits?.trait_name}</strong>:</p>
-                                <ul>
-                                    {isEqual ? (
-                                        <li className="b">{fLabel}{fNotes} {fIcons.map((url, i) => (
-                                                <Icon 
-                                                    key={i}
-                                                    iconUrl={url}
-                                                    color="var(--prim-color-L)"
-                                                    className="b-state"
-                                                />
-                                            ))}</li>
-                                    ) : (
-                                        <>
-                                            {fLabel && <li className="f">{fLabel}{fNotes} {fIcons.map((url, i) => (
-                                                <Icon 
-                                                    key={i}
-                                                    iconUrl={url}
-                                                    color="var(--female-color)"
-                                                    className="f-state"
-                                                />
-                                            ))}</li>}
-                                            {mLabel && <li className="m">{mLabel}{mNotes} {mIcons.map((url, i) => (
-                                                <Icon 
-                                                    key={i}
-                                                    iconUrl={url}
-                                                    color="var(--male-color)"
-                                                    className="m-state"
-                                                />
-                                            ))}</li>}
-                                            {!fLabel && !mLabel && <li>No data.</li>}
-                                        </>
-                                    )}
-                                </ul>
+                            <div key={idx} className="sd-trait-group" style={{ display: "contents" }}>
+                                {/* ===== FEMALE STATES ===== */}
+                                {fStates.map((stateId, i) => {
+                                    const stateObj = allStates.find((s) => s.id_state === stateId);
+                                    const stateLabel = stateObj?.state_label || stateId;
+                                    const iconUrl = stateObj?.state_icon_url;
+
+                                    const notesText = t.f_notes ? `. ${t.f_notes}` : ".";
+                                    const notesTextBar = iconUrl ? `${notesText}${barText}` : notesText;
+                                    const tooltipContent = (
+                                        <span>
+                                            {traitName.toUpperCase()}: {stateLabel.toUpperCase()}
+                                            {notesTextBar}
+                                        </span>
+                                    );
+
+                                    return (
+                                        <Icon
+                                            key={`f-${i}`}
+                                            iconUrl={iconUrl}
+                                            size={36}
+                                            color="var(--female-color)"
+                                            className="f-state"
+                                            tooltipText={tooltipContent}
+                                            tooltipImage={t.f_notes_url}
+                                        />
+                                    );
+                                })}
+
+                                {/* ===== MALE STATES ===== */}
+                                {mStates.map((stateId, i) => {
+                                    const stateObj = allStates.find((s) => s.id_state === stateId);
+                                    const stateLabel = stateObj?.state_label || stateId;
+                                    const iconUrl = stateObj?.state_icon_url;
+
+                                    const notesText = t.m_notes ? `. ${t.m_notes}` : ".";
+                                    const notesTextBar = iconUrl ? `${notesText}${barText}` : notesText;
+                                    const tooltipContent = (
+                                        <span>
+                                            {traitName.toUpperCase()}: {stateLabel.toUpperCase()}
+                                            {notesTextBar}
+                                        </span>
+                                    );
+
+                                    return (
+                                        <Icon
+                                            key={`m-${i}`}
+                                            iconUrl={iconUrl}
+                                            size={36}
+                                            color="var(--male-color)"
+                                            className="m-state"
+                                            tooltipText={tooltipContent}
+                                            tooltipImage={t.m_notes_url}
+                                        />
+                                    );
+                                })}
                             </div>
                         );
                     })}
@@ -94,12 +107,16 @@ const SpeciesTraits = ({ traits }) => {
     return (
         <div className="SUP" id="traits-section">
             <h5>Species Traits:</h5>
-            <Accordion
-                className="traits-accordion" 
-                items={accordionItems} 
-                singleOpen={false}
-                defaultAllOpen={false} 
-            />
+            {traits && traits.length > 0 ? (
+                <Accordion
+                    className="traits-accordion" 
+                    items={accordionItems} 
+                    singleOpen={false}
+                    defaultAllOpen={false} 
+                />
+            ) : (
+                <p>No traits available for this species.</p>
+            )}
         </div>
     );
 };

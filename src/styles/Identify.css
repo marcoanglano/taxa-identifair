@@ -164,6 +164,25 @@
   line-height: 1;
 }
 
+/* Matching species */
+.traits-notes-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin-left: 0 !important;
+  padding: 0;
+}
+.trait-note-item {
+  display: flex;
+  align-items: center;
+}
+.trait-icons-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
 
 /* =_=_=_=_=_=_=_=_=_=<<  RESPONSIVE DESIGN  >>=_=_=_=_=_=_=_=_=_= */
 @media (max-width: 768px) {

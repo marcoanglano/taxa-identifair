@@ -36,7 +36,6 @@
 #details-container #right-column { border: 2px solid var(--prim-color-L); }
 #f-square, #f-bar { background-color: var(--female-color); }
 #m-square, #m-bar { background-color: var(--male-color); }
-#b-square { background-color: var(--prim-color-L); }
 .bordered { border: 1px solid var(--prim-color-L); }
 .scale-line { border-left: 0.1rem solid var(--prim-color); }
 .scale-seg {
@@ -45,7 +44,6 @@
 }
 #traits-section .f { color: var(--female-color); text-shadow: var(--contrast);}
 #traits-section .m { color: var(--male-color); text-shadow: var(--contrast);}
-#traits-section .b { color: var(--prim-color-L); text-shadow: var(--contrast);}
 
 .skeleton { background-color: var(--sec-color-D); }
 
@@ -154,7 +152,7 @@
   display: flex;
   font-size: small;
 }
-#f-square, #m-square, #b-square, .bar {
+#f-square, #m-square, .bar {
   border-radius: 0.2rem;
   display: inline-block;
   height: 1rem;

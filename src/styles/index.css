@@ -103,7 +103,7 @@ a[target="_blank"]::after {
 
   white-space: nowrap;
   z-index: 9999;
-  pointer-events: none; 
+  pointer-events: none;
 }
 
 .fixed-tooltip-img {

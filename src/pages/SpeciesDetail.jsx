@@ -105,7 +105,6 @@ export default function SpeciesDetail() {
           <div id="legend">
             <p><span className="bordered" id="f-square"></span> Female</p>
             <p><span className="bordered" id="m-square"></span> Male</p>
-            <p><span className="bordered" id="b-square"></span> Both</p>
           </div>
         </div>
         {/* SUPABASE */}{s_load ? (

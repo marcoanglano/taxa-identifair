@@ -129,7 +129,7 @@ export default function useIdentify() {
     }, [selectedTraits]);
 
     // Handlers (selection and deselection)
-    const handleTraitSelect = (traitId, traitName, stateId, stateValue) => {
+    const handleTraitSelect = (traitId, traitName, stateId, stateValue, iconUrl) => {
         setSelectedTraits((prev) => {
             const exists = prev.find((item) => item.traitId === traitId);
             // Trait already selected, update its state
@@ -140,11 +140,11 @@ export default function useIdentify() {
                 }
                 // select
                 return prev.map((item) =>
-                    item.traitId === traitId ? { ...item, stateId, stateValue } : item
+                    item.traitId === traitId ? { ...item, stateId, stateValue, iconUrl } : item
                 );
                 // Trait not selected yet, add state
             } else {
-                return [...prev, { traitId, traitName, stateId, stateValue }];
+                return [...prev, { traitId, traitName, stateId, stateValue, iconUrl }];
             }
         });
     };

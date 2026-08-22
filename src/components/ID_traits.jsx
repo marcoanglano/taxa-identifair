@@ -37,7 +37,7 @@ export default function ID_traits({ traits = [], selectedTraits = [], onSelect }
                                         <button
                                             key={state.id}
                                             className={`state-btn ${isCurrentStateActive ? "active" : ""}`}
-                                            onClick={() => onSelect(trait.id, trait.name, state.id, state.value)}
+                                            onClick={() => onSelect(trait.id, trait.name, state.id, state.value, state.stateIcon)}
                                         >
                                             <Icon
                                                 iconUrl={state.stateIcon}

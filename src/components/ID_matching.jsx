@@ -2,7 +2,6 @@
 // COMPONENTS
 import Accordion from "./Accordion";
 import Icon from "./Icon";
-import Skeleton from "./Skeleton";
 // LIB
 import { Link } from "react-router-dom";
 import { useMemo } from "react";
@@ -67,14 +66,18 @@ export default function ID_matching({
                                         {sp.traits_info?.map((t) => {
                                             const labels = resolveLabels(t.f_states, t.trait_states);
                                             const icons = resolveIcons(t.f_states, t.trait_states);
+                                            const tooltipContent = (
+                                                <span>
+                                                    {t.trait_name.toUpperCase()}: {labels.toUpperCase()}
+                                                    {t.f_notes ? `. ${t.f_notes}.` : "."}
+                                                    {t.f_notes_url ? " (Bar = 100 µm)" : ""}
+                                                </span>
+                                            );
 
                                             return (
                                                 <li key={t.id_trait} className="trait-note-item">
-                                                    <strong>{t.trait_name}:</strong> {labels}
-                                                    {t.f_notes && <span className="trait-note-text"> — {t.f_notes}</span>}
-                                                    
                                                     {icons.length > 0 && (
-                                                        <span className="trait-icons-wrapper" style={{ marginLeft: "6px" }}>
+                                                        <span className="trait-icons-wrapper">
                                                             {icons.map((url, i) => (
                                                                 <Icon
                                                                     key={i}
@@ -82,6 +85,9 @@ export default function ID_matching({
                                                                     size={36}
                                                                     color="var(--female-color)"
                                                                     className="f-state"
+
+                                                                    tooltipImage={t.f_notes_url}
+                                                                    tooltipText={tooltipContent}
                                                                 />
                                                             ))}
                                                         </span>
@@ -101,14 +107,18 @@ export default function ID_matching({
                                         {sp.traits_info?.map((t) => {
                                             const labels = resolveLabels(t.m_states, t.trait_states);
                                             const icons = resolveIcons(t.m_states, t.trait_states);
+                                            const tooltipContent = (
+                                                <span>
+                                                    {t.trait_name.toUpperCase()}: {labels.toUpperCase()}
+                                                    {t.m_notes ? `. ${t.m_notes}.` : "."}
+                                                    {t.m_notes_url ? " (Bar = 100 µm)" : ""}
+                                                </span>
+                                            );
 
                                             return (
                                                 <li key={t.id_trait} className="trait-note-item">
-                                                    <strong>{t.trait_name}:</strong> {labels}
-                                                    {t.m_notes && <span className="trait-note-text"> — {t.m_notes}</span>}
-
                                                     {icons.length > 0 && (
-                                                        <span className="trait-icons-wrapper" style={{ marginLeft: "6px" }}>
+                                                        <span className="trait-icons-wrapper">
                                                             {icons.map((url, i) => (
                                                                 <Icon
                                                                     key={i}
@@ -116,6 +126,9 @@ export default function ID_matching({
                                                                     size={36}
                                                                     color="var(--male-color)"
                                                                     className="m-state"
+
+                                                                    tooltipImage={t.m_notes_url}
+                                                                    tooltipText={tooltipContent}
                                                                 />
                                                             ))}
                                                         </span>

@@ -34,7 +34,7 @@ export default function Icon({
         }
     };
 
-    // Handlers
+    // Handlers (Desktop)
     const handleMouseEnter = () => {
         if (!hasTooltip) return;
         updatePosition();
@@ -44,7 +44,7 @@ export default function Icon({
         if (hasTooltip) setIsHovered(false);
     };
 
-    // ========== MOBILE ==========
+    // Handlers (Mobile)
     const handleTouchStart = (e) => {
         if (!hasTooltip) return;
         e.stopPropagation();
@@ -52,8 +52,11 @@ export default function Icon({
         setIsHovered((prev) => !prev);
     };
     const handleClick = (e) => {
-        e.stopPropagation();
+        if (hasTooltip && window.matchMedia("(max-width: 768px)").matches) {
+            e.stopPropagation();
+        }
     };
+
     useEffect(() => {
         if (!isHovered) return;
         const handleOutsideTouch = (e) => {
@@ -128,40 +131,53 @@ export default function Icon({
         });
 
         const recalculatePosition = useCallback(() => {
-            if (tooltipRef.current) {
+            if (!tooltipRef.current) return;
+
             const tooltipRect = tooltipRef.current.getBoundingClientRect();
             const tooltipWidth = tooltipRect.width;
             const tooltipHeight = tooltipRect.height;
 
             const padding = 12;
             const gap = 8;
-
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
-            const idealLeft = coords.left - tooltipWidth / 2;
-            const idealTop = coords.top - tooltipHeight - gap;
 
             // Horizontal
-            const clampedLeft = Math.max(
-                padding,
-                Math.min(idealLeft, viewportWidth - tooltipWidth - padding)
-            );
+            let leftPos = coords.left - tooltipWidth / 2;
+            if (viewportWidth > 768) {
+                if (leftPos < padding) {
+                    leftPos = padding;
+                } else if (leftPos + tooltipWidth > viewportWidth - padding) {
+                    leftPos = viewportWidth - padding - tooltipWidth;
+                }
+            }
+            
             // Vertical
-            const clampedTop = Math.max(
-                padding,
-                Math.min(idealTop, viewportHeight - tooltipHeight - padding)
-            );
+            let topPos = coords.top - tooltipHeight - gap;
+            if (topPos < padding) {
+                topPos = padding;
+            } else if (topPos + tooltipHeight > viewportHeight - padding) {
+                topPos = viewportHeight - padding - tooltipHeight;
+            }
 
             setStylePos({
-                top: `${clampedTop}px`,
-                left: `${clampedLeft}px`,
+                top: `${topPos}px`,
+                left: `${leftPos}px`,
                 visibility: "visible",
             });
-            }
         }, [coords]);
 
         useLayoutEffect(() => {
             recalculatePosition();
+        }, [recalculatePosition]);
+
+        useEffect(() => {
+            if (!tooltipRef.current) return;
+            const resizeObserver = new ResizeObserver(() => {
+                recalculatePosition();
+            });
+            resizeObserver.observe(tooltipRef.current);
+            return () => resizeObserver.disconnect();
         }, [recalculatePosition]);
 
         return (
@@ -171,7 +187,7 @@ export default function Icon({
                 role="tooltip"
                 style={{
                     top: stylePos.top,
-                    left: `${stylePos.left}px`,
+                    left: stylePos.left,
                     visibility: stylePos.visibility,
                 }}
             >
