@@ -19,10 +19,12 @@
   display: flex;
   align-items: center;
   margin: 0;
+  z-index: 2;
 }
 .acc-right {
   display: flex;
   align-items: center;
+  z-index: 2;
 }
 div.acc-pd { padding: 0.5rem 14px 10px; }
 
@@ -45,6 +47,7 @@ div.acc-pd { padding: 0.5rem 14px 10px; }
   pointer-events: none;
   transition: width 220ms ease-in-out;
   width: var(--acc-fill, 0%); /* --acc-fill in Accordion.jsx */
+  z-index: 1;
   content: "";
 }
 
