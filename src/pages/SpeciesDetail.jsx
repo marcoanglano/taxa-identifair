@@ -39,7 +39,7 @@ export default function SpeciesDetail() {
     return { fMin: fMin, fMax: fMax, mMin: mMin, mMax: mMax, fMean: fMean, mMean: mMean };
   }, [species]);
   // URLs
-  const gbifUrl = getGBIFLink(species?.gbif_link);
+  const gbifUrl = getGBIFLink(species?.gbif_key);
   const wormsUrl = getWormsLink(species?.aphia_id);
   const otherUrl = getOtherLink(species?.other_id);
 
