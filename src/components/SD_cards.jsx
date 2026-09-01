@@ -86,9 +86,9 @@ export default function SD_cards({
                         minZoom={1}
                     >
                         <TileLayer // 1. MAP
-                            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                            url="https://a.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png"
                             className="custom-map-tiles"
-                            attribution='&copy; GBIF'
+                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
                         />
                         <TileLayer // 2. OCCURRENCES
                             url={`https://api.gbif.org/v2/map/occurrence/density/{z}/{x}/{y}@1x.png?srs=EPSG:3857&taxonKey=${gbifKey}&bin=hex&hexPerTile=117&style=blue.marker`}
