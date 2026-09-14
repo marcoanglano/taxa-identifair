@@ -1,32 +1,31 @@
+/* ##### CONTAINER ##### */
 .error-container {
-    align-items: center;
-    display: flex;
     margin: 3rem auto 0;
+    display: flex;
     width: 50%;
+    align-items: center;
     text-align: center;
 }
-.error-left, .error-right { flex: 1; }
-
-/* COLORS */
-#red { color: var(--error-color); }
 
 
-/* =_=_=_=_=_=_=_=_=_=<<  LEFT (IMG)  >>=_=_=_=_=_=_=_=_=_= */
-
+/* ##### LEFT: ERROR IMAGE ##### */
+.error-left { flex: 1; }
 .error-left img { width: 200px; }
 
-/* =_=_=_=_=_=_=_=_=_=<<  RIGHT (TEXT)  >>=_=_=_=_=_=_=_=_=_= */
 
-#_404 { font-size: 3rem; }
-.error-right p { text-align: center; }
+/* ##### RIGHT: ERROR TEXT ##### */
+.error-right { flex: 1; }
+.error-right h1, .error-right p {
+  color: var(--error-color);
+  text-align: center;
+}
 
 
-/* =_=_=_=_=_=_=_=_=_=<<  RESPONSIVE DESIGN  >>=_=_=_=_=_=_=_=_=_= */
+/* ##### RESPONSIVE DESIGN ##### */
 @media (max-width: 768px) {
   .error-container {
     flex-direction: column;
     gap: 1rem;
   }
-
-  .left-column, .right-column { width: 100%; }
+  .error-left, .error-right { width: 100%; }
 }

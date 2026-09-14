@@ -1,6 +1,9 @@
 export default function Home() {
+
+  
+  // ##### RENDERING #####
   return (
-    <section className="home-page">
+    <section>
       {/* WELCOME */}
       <h3>Home</h3>
       <h4>Welcome to Taxa IdentiFAIR!</h4>

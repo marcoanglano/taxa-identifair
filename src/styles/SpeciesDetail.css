@@ -1,15 +1,51 @@
+/* ##### CONTAINERS ##### */
 #details-container {
   display: flex;
   gap: 20px;
 }
-#details-container #left-column, #details-container #right-column { flex: 1; }
+#details-left { flex: 1; }
+#details-right {
+  border: 2px solid var(--prim-color-L);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
-/* COLORS & EFFECTS */
-#authority { color: var(--prim-color-LL); }
+
+/* ##### LEFT COLUMN (NAME, CARDS) ##### */
+.card-section {
+  margin-top: 5px;
+  min-height: 95px;
+  padding: 10px;
+}
+#gbif-error { margin-bottom: 50px; }
+
+/* # HEADER (L) # */
+/* Name */
+#species-header {
+  display: flex;
+  min-height: 85px;
+}
+#species-name-container {
+  margin-right: 5px;
+  padding: 10px;
+  width: 100%;
+}
+#species-name { font-style: italic; }
+#species-authority { color: var(--prim-color-LL); }
+/* External links */
+#species-logos {
+  align-items: center;
+  display: flex;
+  gap: 5px;
+  margin-right: 10px;
+}
 .logo-button {
   background-color: transparent;
   border: 2px solid var(--prim-color-LLL);
   border-radius: 5px;
+  padding: 10px;
 }
 .logo-button:hover {
   background-color: var(--sec-color-D);
@@ -19,122 +55,66 @@
   filter: none;
   box-shadow: none;
 }
-.map-bd { border: 1px solid var(--prim-color); }
-.map-bg { background: var(--prim-color-L); }
-.custom-map-tiles {
-    filter:
-      brightness(2.5)
-      contrast(1.5)
-      !important;
-}
-#ref-section { min-height: 140px;}
-#ref-list {
-  font-size: small;
-  padding-left: 20px;
-}
-
-#details-container #right-column { border: 2px solid var(--prim-color-L); }
-#f-square, #f-bar { background-color: var(--female-color); }
-#m-square, #m-bar { background-color: var(--male-color); }
-.bordered { border: 1px solid var(--prim-color-L); }
-.scale-line { border-left: 0.1rem solid var(--prim-color); }
-.scale-seg {
-  border-top: 0.1rem solid var(--prim-color);
-  border-right: 0.1rem solid var(--prim-color);
-}
-#traits-section .f { color: var(--female-color); text-shadow: var(--contrast);}
-#traits-section .m { color: var(--male-color); text-shadow: var(--contrast);}
-
-.skeleton { background-color: var(--sec-color-D); }
-
-/* HIGHLIGHT DATA (SUPabase, GBIf) */
-/* .SUP { background-color: green; }
-.GBI { background-color: crimson; } */
-
-/* HIGHLIGHT HTML (section, div, etc.) */
-/* #details-container { background-color: aqua; }
-#left-column { background-color: lawngreen; }
-#species-name, #gbif-logo, #worms-logo, #other-logo, .card-section { background-color: olivedrab; }
-#right-column { background-color: lightcoral; }
-#anat-header, #length-section, #traits-section { background-color: firebrick; } */
-
-
-/* =_=_=_=_=_=_=_=_=_=<<  LEFT COLUMN (SPECIES CARD)  >>=_=_=_=_=_=_=_=_=_= */
-
-/* Header (L) */
-#species-header {
-  display: flex;
-  min-height: 85px;
-}
-
-#species-name {
-  margin-right: 5px;
-  padding: 10px;
-  width: 100%;
-}
-#scientific-name { font-style: italic; }
-
-#species-logos {
-  align-items: center;
-  display: flex;
-  gap: 5px;
-  margin-right: 10px;
-}
-#gbif-logo, #worms-logo, #other-logo { padding: 10px; }
-.logo-button::after { content: "" !important; }
 .logo { height: 30px; }
 
-/* Card */
-.card-section {
-  margin-top: 5px;
-  min-height: 95px;
-  padding: 10px;
-}
-#map-section { min-height: 400px; }
-#map-div {
-  border-radius: 12px;
-  height: 350px;
-  overflow: hidden;
-}
-#map-container {
-  height: 100%;
-  width: 100%;
-}
+/* # CARD: SYNONYMS & BASIONYM # */
 #no-nomenclature { opacity: 0.6; }
 #syn-bas { list-style-type: none; }
 .bas {
   font-weight: bold;
   margin-bottom: 4px;
 }
-#gbif-error { margin-bottom: 50px; }
 
-
-/* =_=_=_=_=_=_=_=_=_=<<  RIGHT COLUMN (LENGTH, TRAITS)  >>=_=_=_=_=_=_=_=_=_= */
-#details-container #right-column {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  gap: 10px;
+/* # CARD: OCCURRENCES # */
+#map-section { min-height: 400px; }
+#map-div {
+  border: 1px solid var(--prim-color);
+  border-radius: 12px;
+  height: 350px;
+  overflow: hidden;
+}
+#map-container {
+  background: var(--prim-color-L);
+  height: 100%;
+  width: 100%;
+}
+.tile-map {
+    filter:
+      brightness(2.5)
+      contrast(1.5)
+      !important;
 }
 
-/* Header (R) */
-#right-title {
+/* # CARD: REFERENCES # */
+#ref-section { min-height: 140px;}
+#ref-list {
+  font-size: small;
+  padding-left: 20px;
+  text-align: justify;
+}
+
+
+/* ##### RIGHT COLUMN (LENGTH, TRAITS) ##### */
+
+/* # HEADER (R) # */
+#anat-title {
   padding: 10px 0 5px;
   text-align: center;
 }
-
-#legend {
+#anat-legend {
   display: flex;
   justify-content: center;
   gap: 40px;
   padding-bottom: 5px;
 }
-#legend p {
+#anat-legend p {
   align-items: center;
   display: flex;
 }
+.f { background-color: var(--female-color); }
+.m { background-color: var(--male-color); }
 
-/* Bars */
+/* # LENGTH BARS # */
 #length-section {
   display: flex;
   flex-direction: column;
@@ -142,23 +122,28 @@
   min-height: 120px;
   padding: 10px;
 }
-#bar-bg {
+/* Bars */
+#bar-container {
   display: flex;
   flex-direction: column;
   gap: inherit;
 }
-#bar-bg p {
+#bar-container p {
   align-items: center;
   display: flex;
   font-size: small;
 }
-#f-square, #m-square, .bar {
+.bar /* Also legend squares */ {
+  border: 1px solid var(--prim-color-L);
+  filter: drop-shadow(var(--contrast));
+
   border-radius: 0.2rem;
   display: inline-block;
   height: 1rem;
   margin-right: 5px;
   width: 1rem;
 }
+/* Scale */
 #scale-bar {
   display: flex;
   height: 1rem;
@@ -169,8 +154,21 @@
   flex: 1;
   padding-right: 0.2rem;
 }
+.scale-line { border-left: 0.1rem solid var(--prim-color); }
+.scale-seg {
+  border-top: 0.1rem solid var(--prim-color);
+  border-right: 0.1rem solid var(--prim-color);
+}
+.first-seg {
+  display: flex;
+  justify-content: space-between;
+}
+.scale-mm {
+  padding-left: 0.5rem;
+  text-align: left;
+}
 
-/* Traits */
+/* # TRAITS # */
 #traits-section {
   display: flex;
   flex-direction: column;
@@ -178,15 +176,20 @@
   min-height: 200px;
   padding: 10px;
 }
-#traits-section ul { margin-left: 30px; }
-#trait-name { margin-top: 5px; }
+.sd-traits-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 5px 0;
+}
 
 
-/* =_=_=_=_=_=_=_=_=_=<<  RESPONSIVE DESIGN  >>=_=_=_=_=_=_=_=_=_= */
+/* ##### RESPONSIVE DESIGN ##### */
 @media (max-width: 768px) {
   #details-container { flex-direction: column; }
+  #details-left, #details-right { width: 100%; }
+
   #species-header { flex-direction: column; min-height: 160px; }
-  #details-container #left-column, #details-container #right-column { width: 100%; }
   #species-logos {
     justify-content: center;
     margin: 0 0 10px 0;

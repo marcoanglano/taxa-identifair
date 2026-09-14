@@ -1,133 +1,82 @@
-/* GLOBAL RESET */
+/* ##### IMPORTS ##### */
+/* Components */
+@import "Accordion.css";
+@import "Error.css";
+@import "Icon.css";
+@import "Skeleton.css";
+/* Layout & Pages */
+@import "App.css";
+@import "Identify.css";
+@import "SpeciesDetail.css";
+@import "SpeciesList.css";
+@import "Test.css";
+
+
+/* ##### GLOBAL RESET ##### */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-/* Colors in BODY, LINKS */
-/* Color definitions in ROOT */
 
-
-/* =_=_=_=_=_=_=_=_=_=<<  BODY  >>=_=_=_=_=_=_=_=_=_= */
+/* ##### BODY ##### */
 body {
-  font-family: 'IBM Plex Sans', sans-serif;
   background-color: var(--sec-color);
   color: var(--prim-color);
+  font-family: 'IBM Plex Sans', sans-serif;
 }
 
 
-/* =_=_=_=_=_=_=_=_=_=<<  TEXT  >>=_=_=_=_=_=_=_=_=_= */
-h1 {
+/* ##### TEXT ##### */
+h1 /* Main Title, Error */ {
   margin-bottom: 0.5rem;
   letter-spacing: 0.04em;
 }
-
-h2 {
+h2 /* Subtitle, Navbar */ {
   margin-bottom: 0.3rem;
-  font-size: large;
-  font-style: italic;
+  font-size: medium;
   font-weight: 400;
 }
-
-h3 {
+h3 /* Page title */ {
   margin-bottom: 0.3rem;
   font-size: x-large;
 }
-
-h4 {
+h4 /* Section title, Authority */ {
   margin-bottom: 0.3rem;
   font-size: large;
 }
-
-h5 {
+h5 /* Subsection title */ {
   margin-bottom: 0.2rem;
   font-size: medium;
 }
-
-p {
+p /* Paragraph */ {
   margin-bottom: 0.2rem;
   text-align: justify;
 }
 
 
-/* =_=_=_=_=_=_=_=_=_=<<  LINKS -LVHA-  >>=_=_=_=_=_=_=_=_=_= */
-
+/* ##### LINKS -LVHA- ##### */
 a {
   color: var(--prim-color-LL);
   text-decoration: none;
 }
-
-a:visited {
-  color: var(--prim-color-L);
-}
-
+a:visited { color: var(--prim-color-L); }
 a:hover {
-  filter: brightness(var(--bright));
-  filter: drop-shadow(var(--drop));
+  filter: brightness(var(--bright)) drop-shadow(var(--shadow));
   text-decoration: underline;
 }
-
-a:active {
-  filter: brightness(var(--brighter));
-}
-
-a[target="_blank"]::after {
+a:active { filter: brightness(var(--brighter)); }
+a[target="_blank"]:not(.logo-button)::after /* When new tab */ {
   content: " ↗";
   font-size: 0.8em;
   vertical-align: super;
 }
 
 
-/* =_=_=_=_=_=_=_=_=_=<<  ICONS  >>=_=_=_=_=_=_=_=_=_= */
-.icon-wrapper {
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer;
-}
-.icon-wrapper.icon-hovered { cursor: crosshair; /* Option B: none */ }
-
-.fixed-tooltip-box {
-  position: fixed;
-  background-color: var(--prim-color);
-  color: var(--sec-color);
-  border: 1px solid var(--prim-color-LL);
-  border-radius: 6px;
-  padding: 8px 12px;
-  box-shadow: var(--shadow);
-  
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-
-  white-space: nowrap;
-  z-index: 9999;
-  pointer-events: none;
-}
-
-.fixed-tooltip-img {
-  min-width: 50px;
-  min-height: 50px;
-  max-width: 400px;
-  max-height: 400px;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  border-radius: 4px;
-  filter: brightness(0) invert(1);
-}
-
-.fixed-tooltip-text {
-  font-size: 0.85rem;
-  font-weight: 500;
-  text-align: center;
-}
-
-/* =_=_=_=_=_=_=_=_=_=<<  ROOT  >>=_=_=_=_=_=_=_=_=_= */
-
+/* ##### ROOT ##### */
 :root {
-  /* <<<<< COLOURS >>>>> */
+  /* ### COLOURS ### */
   --prim-color: #0A1128; /* Prussian Blue */
   --prim-color-L: #001F54; /* Deep Navy */
   --prim-color-LL: #034078; /* Yale Blue */
@@ -135,30 +84,17 @@ a[target="_blank"]::after {
   --sec-color-DD: #88BFCF; /* Sky Blue (Light) */
   --sec-color-D: #C3DEE5; /* Pale Sky */
   --sec-color: #FEFCFB; /* White */
+
   --error-color: #D63230; /* Tomato Jam */
   --female-color: #F39237; /* Carrot Orange */
   --male-color: #1C77C3; /* Twitter Blue */
 
-  /* <<<<< BRIGHTNESS >>>>> */
+  /* ### BRIGHTNESS ### */
   --low: 1.05;
   --bright: 1.20;
   --brighter: 1.40;
   
-  /* <<<<< SHADOW >>>>> */
-  --shadow: 0.2rem 0.2rem 0.2rem rgba(0, 0, 0, 0.5); /* Bars */
-  --drop: 0.2rem 0.2rem 0.2rem grey; /* Links */
+  /* ### SHADOW ### */
+  --shadow: 0.2rem 0.2rem 0.2rem grey; /* Bars, Links */
   --contrast: 0.05rem 0.05rem 0.05rem black; /* Text */
-}
-
-
-/* =_=_=_=_=_=_=_=_=_=<<  RESPONSIVE DESIGN  >>=_=_=_=_=_=_=_=_=_= */
-@media (max-width: 768px) {
-  .fixed-tooltip-box {
-    width: calc(100vw - 12px);
-    left: 6px !important;
-    white-space: normal;
-  }
-  .fixed-tooltip-img {
-    max-width: 100%;
-  }
 }

@@ -1,0 +1,72 @@
+/* ##### CONTAINERS ##### */
+#test-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.test-subcontainer { 
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+
+/* ##### TEXT ##### */
+.test-no-margin { margin: 0; }
+
+
+/* ##### ICONS & TOOLTIPS ##### */
+#test-icons-tooltips {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+
+/* ##### ERROR & SKELETON ##### */
+#test-error-skeleton {
+    display: flex;
+    flex-direction: row;
+}
+#test-error {
+    border-right: 1px solid var(--prim-color);
+    width: 100%;
+    min-height: 290px;
+    justify-content: center;
+}
+#test-error .error-container { 
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+#test-skeleton {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+}
+
+
+/* ##### ROOT ##### */
+#test-root {
+    display: flex;
+    flex-direction: row;
+}
+.test-square {
+    border: 1px solid var(--prim-color);
+    height: 30px;
+    width: 30px;
+}
+.test-bright, .test-shadow { background-color: var(--prim-color-L); }
+
+
+/* ##### BUTTONS ##### */
+#test-buttons {
+    display: flex;
+    flex-direction: row;
+}
+#test-buttons button {
+    height: 40px;
+    width: 120px;
+    justify-content: center;
+}

@@ -1,35 +1,34 @@
-// LIBRARIES
+// ##### IMPORTS #####
+// LIB
 import { NavLink } from "react-router-dom";
 
-// STYLES
-import "../styles/Navbar.css";
 
+// ##### LIST OF LINKS #####
+const linkList = [
+    {icon: "⌂", name: "Home", path: "/"},                  // Homepage
+    {icon: "≡", name: "Species List", path: "/species"},   // Species list by family
+    {icon: "👁", name: "Identify", path: "/identify"},     // Interactive identification
+]
+
+
+// ##### RENDERING #####
 export default function Navbar() {
     return (
-        <nav className="app-nav nav-bg nav-bd">
-            <NavLink
-                to="/"
-                end
-                className={({ isActive }) => isActive ? "nav-btn nav-style active" : "nav-btn nav-style"}
-            >
-                Home
-            </NavLink>
+        <nav className="app-nav nav-bg nav-bd" id="nav-container">
+            {linkList.map(page => {
+                return (
+                    
+                    // Generates buttons for each link
+                    <NavLink
+                        to={page.path}
+                        end
+                        className={({ isActive }) => isActive ? "nav-btn nav-active" : "nav-btn"}
+                    >
+                        <h2><span id="nav-icon">{page.icon}</span> {page.name}</h2>
+                    </NavLink>
 
-            <NavLink
-                to="/species"
-                end
-                className={({ isActive }) => isActive ? "nav-btn nav-style active" : "nav-btn nav-style"}
-            >
-                Species List
-            </NavLink>
-            
-            <NavLink
-                to="/identify"
-                end
-                className={({ isActive }) => isActive ? "nav-btn nav-style active" : "nav-btn nav-style"}
-            >
-                Identify
-            </NavLink>
+                )
+            })}
         </nav>
     );
 }

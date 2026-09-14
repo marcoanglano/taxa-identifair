@@ -92,7 +92,7 @@ export const getFamilyCounts = async () => {
 export const getSpeciesByFamily = async (family) => {
   const { data, error } = await supabase
     .from("species")
-    .select("id_species, scientific_name, family")
+    .select("id_species, scientific_name, authority, family")
     .eq("family", family)
     .order("scientific_name", { ascending: true });
 

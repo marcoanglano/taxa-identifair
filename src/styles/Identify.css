@@ -1,61 +1,36 @@
-.identify-container {
+/* ##### CONTAINERS ##### */
+#identify-container {
   box-sizing: border-box;
   display: grid;
   gap: 20px;
   grid-template-columns: 2fr 1fr;
   width: 100%;
 }
-
-/* COLORS & EFFECTS */
-.identify-container #left-column { padding: 10px; }
-.filters-color {
-  border: 2px solid var(--prim-color-LL);
-  background-color: var(--sec-color-DD);
-}
-.filters-input-col select, .filters-input-col input {
-  background-color: var(--prim-color-L);
-  border: 1px solid var(--prim-color-LL);
-  color: var(--sec-color);
-}
-.state-btn {
-  background-color: var(--prim-color-L);
-  border: 1px solid var(--prim-color-LL);
-  color: var(--sec-color);
-}
-.state-btn:hover { filter: brightness(var(--brighter)); }
-.state-btn.active, .active-trait-badge {
-  background-color: var(--prim-color-LLL);
-  border: 1px solid var(--prim-color-LL);
-  color: var(--sec-color);
-}
-.btn-filter-apply, .btn-filter-clear {
-  background-color: var(--prim-color-LLL);
-  color: var(--sec-color);
-  border: 1px solid var(--prim-color-LL);
-}
-.btn-filter-apply:not(:disabled):hover, 
-.btn-filter-clear:not(:disabled):hover {
-  filter: brightness(var(--bright));
-}
-
-.identify-container #right-column {
+#identify-left { padding: 10px; }
+#identify-right {
   border-left: 2px solid var(--prim-color-L);
   padding: 10px;
+  
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 20px;
+  min-height: 480px;
 }
-.clear-badge-btn { color: var(--sec-color); }
-.clear-badge-btn:hover { color: var(--error-color); }
 
 
-/* =_=_=_=_=_=_=_=_=_=<<  LEFT COLUMN (SPECIES CARD)  >>=_=_=_=_=_=_=_=_=_= */
+/* ##### LEFT COLUMN: FILTERS, TRAITS ##### */
 #identify-title { margin-bottom: 20px; }
-
-/* Filters */
 #filters-traits-container {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
+
+/* # Filters # */
 #filters-container {
+  border: 2px solid var(--prim-color-LL);
+  background-color: var(--sec-color-DD);
   min-height: 180px;
   padding: 10px;
 }
@@ -65,15 +40,18 @@
   align-items: center;
   margin-top: 10px;
 }
-.filters-header h4 { margin-bottom: 0; }
 .filters-actions {
   display: flex;
   gap: 8px;
 }
-.btn-filter-apply, 
-.btn-filter-clear {
-  padding: 4px 10px;
+
+/* # Filter buttons # */
+.btn-filter-apply, .btn-filter-clear {
+  background-color: var(--prim-color-LLL);
+  color: var(--sec-color);
+  border: 1px solid var(--prim-color-LL);
   border-radius: 4px;
+  padding: 4px 10px;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
@@ -85,6 +63,12 @@
   cursor: not-allowed;
   filter: none;
 }
+.btn-filter-apply:not(:disabled):hover, 
+.btn-filter-clear:not(:disabled):hover {
+  filter: brightness(var(--bright));
+}
+
+/* # Filter inputs */
 #dynamic-filters-grid {
   display: grid;
   gap: 12px;
@@ -96,102 +80,116 @@
   flex-direction: column;
   gap: 6px;
 }
-.filter-label { font-weight: bold; }
 .filter-group select, .filter-group input {
+  background-color: var(--prim-color-L);
+  border: 1px solid var(--prim-color-LL);
+  color: var(--sec-color);
   border-radius: 4px;
   font-size: 0.9rem;
   padding: 8px;
   width: 100%;
 }
+.filter-label { font-weight: bold; }
 
-/* Traits */
+/* # Traits # */
 #traits-container { min-height: 220px; }
-#traits-container .title-wrapper {
+.traits-header {
   display: inline-flex;
   align-items: center;
   gap: 10px;
 }
-#traits-container .title-text { line-height: 1; }
+.traits-title { line-height: 1; }
 
-.states-buttons-grid {
+/* # State buttons # */
+.states-grid {
   display: flex;
   gap: 6px;
   padding: 5px 0;
 }
 .state-btn {
-  padding: 8px 12px;
-  text-align: left;
+  background-color: var(--prim-color-L);
+  color: var(--sec-color);
+  border: 1px solid var(--prim-color-LL);
   border-radius: 4px;
+  padding: 5px 8px;
+  filter: drop-shadow(var(--contrast));
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 0.9rem;
 }
+.state-btn:hover { background-color: var(--prim-color-LL); }
+.state-btn:active { filter: none; }
+.state-active, .badge-active {
+  background-color: var(--prim-color-LLL);
+  border: 1px solid var(--prim-color-LL);
+  color: var(--sec-color);
+}
+.state-active:hover { background-color: var(--sec-color-DD); }
 
-/* =_=_=_=_=_=_=_=_=_=<<  RIGHT COLUMN (LENGTH, TRAITS)  >>=_=_=_=_=_=_=_=_=_= */
-#matching-container {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  gap: 10px;
-  min-height: 480px;
-}
-.match-title {
-  padding: 10px 0 5px;
-  text-align: center;
-}
 
-/* Active traits */
-.badges-wrapper {
+/* ##### RIGHT COLUMN: ACTIVE STATES, MATCHING SPECIES ##### */
+.title-margin { margin-bottom: 10px; }
+
+/* # Active states # */
+.badge-wrapper {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: 15px;
 }
-.active-trait-badge {
+.badge-active {
+  border-radius: 4px;
+  padding: 5px 8px;
+  filter: drop-shadow(var(--contrast));
+
   display: inline-flex;
   align-items: center;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
   gap: 6px;
-}
-.clear-badge-btn {
-  background: none;
-  border: none;
+  
   cursor: pointer;
-  font-size: 1.1rem;
-  padding: 0;
-  line-height: 1;
+  font-size: 0.8rem;
 }
+.badge-active:hover { background-color: var(--sec-color-DD); }
+.badge-active:active { filter: none; }
 
-/* Matching species */
-.traits-notes-list {
+/* # Matching species # */
+.matching-sex { margin-left: 8px; }
+.matching-link { margin-bottom: 15px; }
+.matching-details {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.sex-traits {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   list-style: none;
-  margin-left: 0 !important;
   padding: 0;
 }
-.trait-note-item {
+.sex-traits-item {
   display: flex;
   align-items: center;
 }
-.trait-icons-wrapper {
+.sex-traits-icons {
   display: inline-flex;
   align-items: center;
   gap: 4px;
 }
 
 
-/* =_=_=_=_=_=_=_=_=_=<<  RESPONSIVE DESIGN  >>=_=_=_=_=_=_=_=_=_= */
+/* ##### RESPONSIVE DESIGN ##### */
 @media (max-width: 768px) {
-  .identify-container {
+  #identify-container {
     display: flex;
     flex-direction: column;
   }
-  .identify-container #left-column { width: 100%; }
-  .identify-container #right-column {
+  #identify-left { width: 100%; }
+  #identify-right {
     border-left: none;
     border-top: 2px solid var(--prim-color-L);
     width: 100%;

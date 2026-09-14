@@ -1,20 +1,19 @@
+// ##### IMPORTS #####
 // COMPONENTS
 import Accordion from "../components/Accordion";
 import ErrorComponent from "../components/Error";
-
+import Skeleton from "../components/Skeleton";
 // HOOKS
 import { useFamilies } from "../hooks/useFamilies";
-
 // LIB
 import { Link } from "react-router-dom";
 import { useMemo } from "react";
 
-// STYLES
-import "../styles/SpeciesList.css";
-
-
 export default function SpeciesList() {
-  // Fetching-caching families and species
+
+
+  // ##### FETCHING-CACHING #####
+  // Fetching
   const { 
     families, 
     loadingFamilies, 
@@ -24,7 +23,7 @@ export default function SpeciesList() {
     fetchFamilySpecies 
   } = useFamilies();
 
-  // ACCORDION ITEMS
+  // Converting data into accordion items
   const accordionItems = useMemo(() => {
     return families.map((f) => {
       const family = f.family;
@@ -42,12 +41,11 @@ export default function SpeciesList() {
         content: (
           <div>
             {/* LOADING */}
-            {st.loading && <p className="species-hint">Loading species...</p>}
-
-            {/* ERROR */}
+            {st.loading && <Skeleton className="species-list" height="24px" width="200px" count={3} />}
+            {/* LOADED: ERROR */}
             {!st.loading && st.error && <ErrorComponent title="Oh no!" message={st.error} />}
 
-            {/* LOADED */}
+            {/* LOADED: SUCCESS */}
             {!st.loading && !st.error && st.loaded && (
               <ul className="species-list">
                 {list.map((sp) => (
@@ -57,18 +55,11 @@ export default function SpeciesList() {
                       target='_blank'
                       rel="noopener noreferrer"
                     >
-                      <span>
-                        <em>{sp.scientific_name}</em>
-                      </span>
+                        <em>{sp.scientific_name}</em> <span className="sp-li-authority">{sp.authority}</span>
                     </Link>
                   </li>
                 ))}
               </ul>
-            )}
-
-            {/* EMPTY FAMILY */}
-            {!st.loading && !st.error && st.loaded && list.length === 0 && (
-              <p className="species-hint">No species found for this family.</p>
             )}
           </div>
         ),
@@ -76,19 +67,24 @@ export default function SpeciesList() {
     });
   }, [families, familyStatus, familyCache]);
 
-  // RENDERING
+
+  // ##### RENDERING #####
   return (
     <section>
       <h3>Species List</h3>
 
-      {loadingFamilies && <p>Loading families...</p>}
-      {!loadingFamilies && errorFamilies && (
-        <ErrorComponent title="Error" message={errorFamilies} />
-      )}
+      {/* LOADING */}
+      {loadingFamilies && <>
+        <p id="list-loading">Loading families...</p>
+        <Skeleton height="40px" margin="0 0 2px 0" count={2} />
+      </>}
+      {/* LOADED: ERROR */}
+      {!loadingFamilies && errorFamilies && (<ErrorComponent title="Error" message={errorFamilies} />)}
 
+      {/* LOADED: SUCCESS */}
       {!loadingFamilies && !errorFamilies && (
         <>
-          <p id="select-p">Select a family, then a species to view details.</p>
+          <p id="list-tutorial">Select a family, then a species to view details.</p>
           <Accordion
             items={accordionItems}
             defaultAllOpen={false}
@@ -98,16 +94,6 @@ export default function SpeciesList() {
             }}
             hasProgressbar={true}
             getHeaderState={(it) => it.meta}
-            renderRight={(it, isOpen) => {
-              const loading = !!it.meta?.loading;
-              return (
-                <>
-                  <span className="acc-icon" aria-hidden="true">
-                    {isOpen ? "▲" : "▼"}
-                  </span>
-                </>
-              );
-            }}
           />
         </>
       )}

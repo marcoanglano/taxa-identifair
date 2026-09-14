@@ -1,54 +1,50 @@
-.acc-root { display: grid; }
-
+/* ##### GENERAL ##### */
+.acc-root {
+  display: grid;
+  gap: 2px;
+}
 .acc-item { overflow: hidden; }
 
-/* COLORS & EFFECTS */
-#acc-bg { background: var(--sec-color); }
-.header-bg { background: var(--sec-color-D); }
-.header-bd { border: none; border-bottom: 2px solid var(--sec-color); }
-.acc-header::before, .acc-header.is-loaded::before { background: var(--sec-color-DD); }
 
-.acc-header:hover { filter: brightness(var(--low)); }
+/* ##### HEADER ##### */
+.acc-header {
+  background: var(--sec-color-D);
+  border: none;
+  padding: 10px 14px;
 
-.acc-pd { padding: 0.5rem 14px 10px; }
-
-
-/* =_=_=_=_=_=_=_=_=_=<< HEADER + PROGRESS BAR >>=_=_=_=_=_=_=_=_=_= */
-
-.acc-left {
+  display: flex;
+  min-height: 40px;
+  width: 100%;
+  justify-content: space-between;
+  
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+}
+.acc-h-text {
   display: flex;
   align-items: center;
   margin: 0;
   z-index: 2;
 }
-.acc-right {
-  display: flex;
-  align-items: center;
-  z-index: 2;
-}
-div.acc-pd { padding: 0.5rem 14px 10px; }
 
-.acc-header {
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  cursor: pointer;
-  display: flex;
-  overflow: hidden;
-  position: relative;
-  padding: 8px 14px;
-}
-
-/* Loading effect */
-
+/* Effects */
+.acc-header:hover { filter: brightness(var(--low)); }
+/* Progress Bar */
 .acc-header::before {
+  background: var(--sec-color-DD);
+  content: "";
+
+  width: var(--acc-fill, 0%); /* --acc-fill in Accordion.jsx */
+  transition: width 220ms ease-in-out;
+
   inset: 0;
   position: absolute;
-  pointer-events: none;
-  transition: width 220ms ease-in-out;
-  width: var(--acc-fill, 0%); /* --acc-fill in Accordion.jsx */
   z-index: 1;
-  content: "";
+  pointer-events: none;
 }
-
 .acc-header.is-loaded::before { width: 100%; }
+
+
+/* ##### CONTENT ##### */
+.acc-content { padding: 10px 14px; }

@@ -7,20 +7,8 @@ Website based on React + Vite, which collects the main information available on 
 
 
 ## Roadmap 🛣️
-### v0.1-0.2
-First versions to test feasibility of the project and experiment functionalities.
-### v0.3
-Website re-built from zero, with a focus on efficiency, readability, restyling.
-### v0.4a - GBIF version
-Branched version for GBIF 2026 contest. Implement new functionality based on GBIF databases.<br>
-Contest info: [2026 GBIF Graduate Researchers Award call for nominations](https://www.gbif.org/news/2qFpkI7rwBNbMuSjn2rtae/2026-gbif-graduate-researchers-award-call-for-nominations).<br>
-Additional GBIF info: [GBIF Strategic Framework 2023-2027](https://www.gbif.org/document/50lI7Bxn2p1vRgpbs7aXaT/gbif-strategic-framework-2023-2027).
-### v0.5 - UZI version
-Version for UZI 2026 (and presentation to colleagues at Unisalento). Building identify, adding tooltips to assist the identification process.
-- #### v0.5.06
-    Bug correction and page improvement (check also "Future versions" for inspirations).
-- #### v0.5.07
-    Styling.
+### v0.6 - General efficiency
+General revision of database, code and style to improve efficiency before the first deployment.
 
 
 ### Future versions

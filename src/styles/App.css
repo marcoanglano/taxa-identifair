@@ -4,31 +4,67 @@
   height: 100vh;
 }
 
-/* << COLORS >> */
-#dark-bg { background-color: var(--prim-color); }
-#title { color: var(--sec-color); }
-#subtitle { color: var(--sec-color-D); }
-.dark-text { color: var(--sec-color-DD); }
 
-
-/* =_=_=_=_=_=_=_=_=_=<<  HEADER  >>=_=_=_=_=_=_=_=_=_= */
-
-.app-brand {
+/* #####  HEADER  ##### */
+#app-header { background-color: var(--prim-color); }
+#app-brand {
   padding: 10px 8px;
   text-align: center;
 }
+#title { color: var(--sec-color); }
+#subtitle {
+  color: var(--sec-color-D);
+  font-style: italic;
+}
 
-/* =_=_=_=_=_=_=_=_=_=<<  MAIN  >>=_=_=_=_=_=_=_=_=_= */
 
-.app-main {
+/* ##### NAVBAR ##### */
+#nav-container { display: flex; }
+/* Button */
+.nav-btn {
+  color: var(--sec-color);
+  display: flex;
+  justify-content: center;
+  padding: 7px 10px;
+  min-width: 140px;
+  letter-spacing: 0.04em;
+  transition: all 0.2s ease;
+}
+/* Button status */
+.nav-btn:visited { color: var(--sec-color); }
+.nav-btn:hover {
+  background-color: var(--prim-color-L);
+  filter: none;
+  text-decoration: none;
+}
+.nav-active, .nav-active:hover { background: var(--prim-color-LL); }
+/* Page icons */
+#nav-icon {
+  color: var(--sec-color-DD);
+  font-size: large;
+}
+
+
+/* #####  MAIN  ##### */
+#app-main {
   flex: 1 0 auto;
   padding: 2rem;
 }
 
-/* =_=_=_=_=_=_=_=_=_=<<  FOOTER  >>=_=_=_=_=_=_=_=_=_= */
 
-.app-footer {
+/* #####  FOOTER  ##### */
+#app-footer {
+  background-color: var(--prim-color);
   padding: 0.5rem;  
   font-weight: 200;
+}
+#footer-text {
+  color: var(--sec-color-DD);
   text-align: center;
 }
+/* Copy email */
+#copy-contact {
+  color: var(--sec-color-D);
+  cursor: pointer;
+}
+#copy-contact:hover { text-decoration: underline; }

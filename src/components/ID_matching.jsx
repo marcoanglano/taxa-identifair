@@ -1,4 +1,4 @@
-// ========== IMPORTS ==========
+// ##### IMPORTS #####
 // COMPONENTS
 import Accordion from "./Accordion";
 import Icon from "./Icon";
@@ -9,6 +9,7 @@ import { useMemo } from "react";
 import { resolveLabels, resolveIcons } from "../utils/speciesHelpers";
 
 
+// ##### PROPS #####
 export default function ID_matching({
     species = [],
     loading = false,
@@ -16,77 +17,74 @@ export default function ID_matching({
 }) {
 
 
-    if (selectedCount === 0) {
-        return <p className="match-placeholder">Select at least one trait.</p>;
-    }
-    if (loading) {
-        return <p className="match-placeholder">Updating matching species...</p>;
-    }
-    if (species.length === 0) {
-        return <p className="match-placeholder">No species match all selected traits.</p>;
-    }
-
-    
-    // Building accordions
+    // ##### BUILDING ACCORDIONS #####
     const accordionItems = useMemo(() => {
         return species.map((sp) => {
             const isBoth = sp.match_f && sp.match_m;
-
             return {
                 id: sp.id_species,
+
+                // ### Title ###
                 title: (
-                    <div className="matching-accordion-title">
-                        {sp.family} - <em>{sp.scientific_name}</em>
-                        <span className="match-sex-tags" style={{ marginLeft: "8px" }}>
+                    <>
+                        <span>{sp.family} - <em>{sp.scientific_name}</em></span>
+                        <span className="matching-sex">
                             {isBoth ? (
                                 <span className="b" title="Matches female & male">♀ ♂</span>
-                            ) : (
-                                <>
-                                    {sp.match_f && <span className="f" title="Matches female">♀</span>}
-                                    {sp.match_m && <span className="m" title="Matches male">♂</span>}
-                                </>
-                            )}
+                            ) : ( <>
+                                {sp.match_f && <span title="Matches female">♀</span>}
+                                {sp.match_m && <span title="Matches male">♂</span>}
+                            </> )}
                         </span>
-                    </div>
+                    </>
                 ),
-                content: (
-                    <div className="matching-species-detail">
-                        <p style={{ marginBottom: "10px" }}>
-                            <Link to={`/species/${sp.id_species}`} target="_blank" rel="noopener noreferrer">
-                                Details of the species
-                            </Link>
-                        </p>
 
-                        <div className="sex-lists-wrapper">
-                            {/* FEMALE */}
-                            {sp.match_f && (
-                                <div className="sex-traits-block female-block">
-                                    <h5 className="f" style={{ color: "var(--female-color)" }}>♀ Female</h5>
-                                    <ul className="traits-notes-list" style={{ marginLeft: "20px" }}>
+                // ### Content ###
+                content: ( <>
+                    <p className="matching-link">
+                        <Link to={`/species/${sp.id_species}`} target="_blank" rel="noopener noreferrer">
+                            About this species
+                        </Link>
+                    </p>
+                    <div className="matching-details">
+                        {[
+                            {isMatch: sp.match_f, key: "f", label: "♀ Female", color: "var(--female-color)"},
+                            {isMatch: sp.match_m, key: "m", label: "♂ Male", color: "var(--male-color)"}
+                        ].map((sex) => {
+                            if (!sex.isMatch) return null;
+                            return (
+
+                                // # Sex block #
+                                <div key={sex.key} className={`sex-traits-block ${sex.key}-block`}>
+                                    <h5>{sex.label}</h5>
+                                    <ul className="sex-traits">
                                         {sp.traits_info?.map((t) => {
-                                            const labels = resolveLabels(t.f_states, t.trait_states);
-                                            const icons = resolveIcons(t.f_states, t.trait_states);
+                                            const states = t[`${sex.key}_states`]
+                                            const notes = t[`${sex.key}_notes`]
+                                            const notesUrl = t[`${sex.key}_notes_url`]
+                                            const labels = resolveLabels(states, t.trait_states);
+                                            const icons = resolveIcons(states, t.trait_states);
                                             const tooltipContent = (
                                                 <span>
                                                     {t.trait_name.toUpperCase()}: {labels.toUpperCase()}
-                                                    {t.f_notes ? `. ${t.f_notes}.` : "."}
-                                                    {t.f_notes_url ? " (Bar = 100 µm)" : ""}
+                                                    {notes ? `. ${notes}.` : "."}
+                                                    {notesUrl ? " (Bar = 100 µm)" : ""}
                                                 </span>
                                             );
 
+                                            // Rendering
                                             return (
-                                                <li key={t.id_trait} className="trait-note-item">
+                                                <li key={t.id_trait} className="sex-traits-item">
                                                     {icons.length > 0 && (
-                                                        <span className="trait-icons-wrapper">
+                                                        <span className="sex-traits-icons">
                                                             {icons.map((url, i) => (
                                                                 <Icon
                                                                     key={i}
                                                                     iconUrl={url}
                                                                     size={36}
-                                                                    color="var(--female-color)"
-                                                                    className="f-state"
-
-                                                                    tooltipImage={t.f_notes_url}
+                                                                    color={sex.color}
+                                                                    className={`${sex.key}-state`}
+                                                                    tooltipImage={notesUrl}
                                                                     tooltipText={tooltipContent}
                                                                 />
                                                             ))}
@@ -97,63 +95,34 @@ export default function ID_matching({
                                         })}
                                     </ul>
                                 </div>
-                            )}
-
-                            {/* MALE */}
-                            {sp.match_m && (
-                                <div className="sex-traits-block male-block" style={{ marginTop: sp.match_f ? "12px" : "0" }}>
-                                    <h5 className="m" style={{ color: "var(--male-color)" }}>♂ Male</h5>
-                                    <ul className="traits-notes-list" style={{ marginLeft: "20px" }}>
-                                        {sp.traits_info?.map((t) => {
-                                            const labels = resolveLabels(t.m_states, t.trait_states);
-                                            const icons = resolveIcons(t.m_states, t.trait_states);
-                                            const tooltipContent = (
-                                                <span>
-                                                    {t.trait_name.toUpperCase()}: {labels.toUpperCase()}
-                                                    {t.m_notes ? `. ${t.m_notes}.` : "."}
-                                                    {t.m_notes_url ? " (Bar = 100 µm)" : ""}
-                                                </span>
-                                            );
-
-                                            return (
-                                                <li key={t.id_trait} className="trait-note-item">
-                                                    {icons.length > 0 && (
-                                                        <span className="trait-icons-wrapper">
-                                                            {icons.map((url, i) => (
-                                                                <Icon
-                                                                    key={i}
-                                                                    iconUrl={url}
-                                                                    size={36}
-                                                                    color="var(--male-color)"
-                                                                    className="m-state"
-
-                                                                    tooltipImage={t.m_notes_url}
-                                                                    tooltipText={tooltipContent}
-                                                                />
-                                                            ))}
-                                                        </span>
-                                                    )}
-                                                </li>
-                                            );
-                                        })}
-                                    </ul>
-                                </div>
-                            )}
-                        </div>
+                            );
+                        })}
                     </div>
-                )
+                </> )
             };
         });
     }, [species]);
 
 
-    // RENDERING
+    // ##### RENDERING #####
     return (
-        <div id="matching-accordion-container">
-            <Accordion
-                items={accordionItems}
-                defaultAllOpen={false}
-            />
+        <div id="matching-container">
+            <h4 className="title-margin">
+              Matching Species {selectedCount > 0 ? ` (${species.length})` : ""}
+            </h4>
+
+            {/* Conditions */}
+            {selectedCount === 0 && <p>Select at least one trait.</p>}
+            {loading && <p>Updating matching species...</p>}
+            {species.length === 0 && selectedCount !== 0 && !loading && <p>No species match all selected traits.</p>}
+
+            {/* Accordions */}
+            {selectedCount > 0 && !loading && species.length > 0 && (
+                <Accordion
+                    items={accordionItems}
+                    defaultAllOpen={false}
+                />
+            )}
         </div>
     );
 }

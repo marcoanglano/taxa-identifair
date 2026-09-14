@@ -1,16 +1,7 @@
-/* COLORS */
-.species-hint { color: var(--prim-color); }
-.species-error { color: var(--error-color); }
+/* ##### PAGE CONTENT ##### */
+#list-loading, #list-tutorial { margin: 16px 0; }
 
 
-/* =_=_=_=_=_=_=_=_=_=<<  SPECIES LIST  >>=_=_=_=_=_=_=_=_=_= */
-
-#select-p { margin-bottom: 16px; }
-
-.species-list {
-  margin-left: 18px;
-}
-
-.species-list li {
-  margin: 4px 0;
-}
+/* ##### ACCORDION CONTENT ##### */
+.species-list { margin: 4px 0 4px 18px; }
+.sp-li-authority { opacity: 70%; }

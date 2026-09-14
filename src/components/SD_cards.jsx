@@ -1,81 +1,92 @@
 // SOFT DEPENDENCY: GBIF dependant
 
-// ========== IMPORTS ==========
-// COMPONENTS
+// ##### IMPORTS #####
+// LIB
 import { MapContainer, TileLayer } from "react-leaflet";
-import ErrorComponent from "./Error";
-import Skeleton from "./Skeleton";
-// STYLES
-import "leaflet/dist/leaflet.css";
 // UTILS
 import { formatScientificName } from "../utils/speciesHelpers.jsx";
+// MAP STYLE
+import 'leaflet/dist/leaflet.css';
 
 
-// ========== PROPS ==========
+// ##### PROPS #####
 export default function SD_cards({
-    title,
-    classname,
     id,
-    content,
+    title,
 
-    gbifKey,         // from GBIF (number)
+    gbifKey,        // from GBIF (number)
     basionym,       // from GBIF (string)
     synonyms,       // from GBIF (array of strings)
     taxonomy,       // from GBIF {kingdom, phylum, class, order, family, genus}
     environment,    // from SUPABASE {marine, brackish, freshwater}
-
-    date = new Date().toLocaleDateString('it-IT'),
-    year = new Date().getFullYear()
 }) {
 
-    // Check if nomenclatur data is available
+
+    // ##### VARIABLES #####
     const hasNomenclature = basionym || (synonyms && synonyms.length > 0);
+    const date = new Date().toLocaleDateString('it-IT');
+    const year = new Date().getFullYear();
+    // Maps
+    const urlMap = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+    const attrMap = "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ"
+    const urlOccurr = `https://api.gbif.org/v2/map/occurrence/density/{z}/{x}/{y}@4x.png?srs=EPSG:3857&taxonKey=${gbifKey}&bin=hex&hexPerTile=117&style=blue.marker`
+    const attrOccurr = "&copy; GBIF"
+    // References
+    const ref = [
+        `GBIF Secretariat (${year}). GBIF Backbone Taxonomy. Taxon key: ${gbifKey}. [via GBIF API, ${date}]`,
+        `GBIF.org (${year}). GBIF Occurrence Density Maps (Tile Service). [${date}]`,
+        `Razouls C., Desreumaux N., Kouwenberg J. and de Bovée F., 2005-${year}.
+        Biodiversity of Marine Planktonic Copepods (morphology, geographical distribution and biological data).
+        Sorbonne University, CNRS. [${date}]`
+    ]
 
 
-    
-    // ========== RENDERING ==========
+    // ##### RENDERING #####
     return (
-        <div className={classname} id={id}>
-            { id !== "synbas-section" && (
+        // Hide title if synonym/basionym card
+        <div className="card-section" id={id}>
+            { id !== "syn-bas-section" && (
                 <h5>{title}:</h5>
             )}
 
-            {/* ===== BASIONYM & SYNONYMS ===== */}
-            { id === "synbas-section" && (
-                <>
-                    {!hasNomenclature ? (
-                        <p id="no-nomenclature">No basionym/synonyms found</p>
-                    ) : (
-                        <ul id="syn-bas">
-                            {/* Basionym */}
-                            {basionym && ( <li className="bas">≡ {formatScientificName(basionym)}</li> )}
-                            {/* Synonyms */}
-                            {synonyms && synonyms
-                                .filter(syn => syn !== basionym)
-                                .map((syn, index) => (
-                                    <li key={index} className="syn">= {formatScientificName(syn)}</li>
-                                )
-                            )}
-                        </ul>
-                    )}
-                </>
-            )}
+            {/* ### BASIONYM & SYNONYMS ### */}
+            { id === "syn-bas-section" && ( <>
+                {!hasNomenclature ? (
+                    <p id="no-nomenclature">No basionym/synonyms found.</p>
+                ) : (
+                    <ul id="syn-bas">
+                        {/* Basionym */}
+                        {basionym && ( <li className="bas">≡ {formatScientificName(basionym)}</li> )}
+                        {/* Synonyms */}
+                        {synonyms && synonyms
+                            .filter(syn => syn !== basionym)
+                            .map((syn, i) => ( <li key={i} className="syn">= {formatScientificName(syn)}</li> ))
+                        }
+                    </ul>
+                )}
+            </> )}
             
-            {/* ===== TAXONOMY ===== */}
-            { id === "taxonomy-section" && (
-                <p>{taxonomy?.kingdom} &gt; {taxonomy?.phylum} &gt; {taxonomy?.class} &gt; {taxonomy?.order} &gt; {taxonomy?.family} &gt; <em>{taxonomy?.genus}</em></p>
+            {/* ### TAXONOMY ### */}
+            { id === "taxonomy-section" && taxonomy && (
+                <p>
+                    {Object.entries(taxonomy).map(([rank, value], i) => (
+                        value && (
+                            <span key={rank}>
+                                {i > 0 && " > "}
+                                {rank === "genus" ? <em>{value}</em> : value}
+                            </span>
+                        )
+                    ))}
+                </p>
             )}
 
-            {/* ===== ENVIRONMENT ===== */}
-            { id === "env-section" && (
-                <p>{environment?.join(', ')}</p>
-            )}
+            {/* ### ENVIRONMENT ### */}
+            { id === "env-section" && ( <p>{environment?.join(', ')}</p> )}
 
-            {/* ===== OCCURRENCES ===== */}
+            {/* ### OCCURRENCES ### */}
             { id === "map-section" && (
-                <div className="map-bd" id="map-div">
+                <div id="map-div">
                     <MapContainer
-                        className="map-bg"
                         id="map-container"
                         center={{ lat: 0, lng: 0 }}
                         maxBounds={[[-90, -180], [90, 180]]}
@@ -85,28 +96,16 @@ export default function SD_cards({
                         zoom={1}
                         minZoom={1}
                     >
-                        <TileLayer // 1. MAP
-                            url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
-                            className="custom-map-tiles"
-                            attribution='Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
-                        />
-                        <TileLayer // 2. OCCURRENCES
-                            url={`https://api.gbif.org/v2/map/occurrence/density/{z}/{x}/{y}@1x.png?srs=EPSG:3857&taxonKey=${gbifKey}&bin=hex&hexPerTile=117&style=blue.marker`}
-                            attribution='&copy; GBIF'
-                        />
+                        <TileLayer className="tile-map" url={urlMap} attribution={attrMap} />
+                        <TileLayer className="tile-occurr" url={urlOccurr} attribution={attrOccurr} />
                     </MapContainer>
                 </div>
             )}
 
-            {/* ===== REFERENCES ===== */}
+            {/* ### REFERENCES ### */}
             { id === "ref-section" && (
                 <ul id="ref-list">
-                    <li>GBIF Secretariat ({year}). GBIF Backbone Taxonomy. Taxon key: {gbifKey}. 
-                        [via GBIF API, {date}]</li>
-                    <li>GBIF.org ({year}). GBIF Occurrence Density Maps (Tile Service). [{date}]</li>
-                    <li>Razouls C., Desreumaux N., Kouwenberg J. and de Bovée F., 2005-{year}.
-                        Biodiversity of Marine Planktonic Copepods (morphology, geographical distribution and biological data).
-                        Sorbonne University, CNRS. [{date}]</li>
+                    {ref.map(r => ( <li>{r}</li> ))}
                 </ul>
             )}
         </div>

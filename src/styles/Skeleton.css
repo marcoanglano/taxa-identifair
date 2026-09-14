@@ -5,7 +5,8 @@
   border: none !important;
 }
 
-/*Loading effect */
+
+/* ##### LOADING EFFECT ##### */
 .skeleton::after {
   content: "";
   position: absolute;
@@ -21,7 +22,6 @@
   );
   animation: shimmer 2s infinite;
 }
-
 @keyframes shimmer {
   100% { transform: translateX(100%); }
 }

@@ -1,18 +1,18 @@
-import "../styles/Skeleton.css";
-
+// ##### PROPS #####
 export default function Skeleton({ 
-    width, 
-    height, 
-    circle = false,
-    count = 1, 
-    className = "", 
-    id = "", 
+    width,
+    height,
     margin,
     padding,
-    style
+    style,
+    circle = false,
+    count = 1,
+    className = "",
+    id = ""
 }) {
 
-    // ===== Wrapper style =====
+    
+    // ##### WRAPPER STYLE #####
     const wrapperStyle = {
         width: width || "100%",
         height: height,
@@ -24,7 +24,8 @@ export default function Skeleton({
         ...style
     };
 
-    // ===== Inner style =====
+
+    // ##### INNER STYLE #####
     const innerStyle = {
         width: "100%",
         height: height || "20px",
@@ -35,7 +36,8 @@ export default function Skeleton({
         flex: 1,
     };
 
-    // ========== RENDERING ==========
+    
+    // ##### RENDERING #####
     return [...Array(count)].map((_, i) => (
         <div 
                 key={i}

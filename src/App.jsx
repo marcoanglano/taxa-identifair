@@ -1,5 +1,5 @@
-// ========== IMPORTS ==========
-// LIBRARIES
+// ##### IMPORTS #####
+// LIB
 import { Route, Routes } from "react-router-dom";
 // COMPONENTS
 import Navbar from "./components/Navbar";
@@ -9,39 +9,58 @@ import Home from "./pages/Home";
 import Identify from "./pages/Identify";
 import SpeciesDetail from "./pages/SpeciesDetail";
 import SpeciesList from "./pages/SpeciesList";
-// STYLES
-import "./styles/App.css";
+import Test from "./pages/Test";
 // VERSION
-import { authors, description, title, version } from "../package.json";
+import { authors, contact, description, title, version } from "../package.json";
 
 export default function App() {
+
+
+  // ##### FUNCTION: COPY CONTACT #####
+  function copyContact() {
+    navigator.clipboard.writeText(contact)
+      .then(() => {
+        alert("Email copied to clipboard!");
+      })
+      .catch((error) => {
+        console.error("Failed to copy contact email:", error);
+      });
+  }
+
+
+  // ##### RENDERING #####
   return (
     <>
       <div className="app-container">
+
         {/* HEADER */}
-        <header id="dark-bg">
-          <div className="app-brand">
+        <header id="app-header">
+          <div id="app-brand">
             <h1 id="title">{title}</h1>
             <h2 id="subtitle">{description}</h2>
           </div>
           <Navbar />
         </header>
 
-        {/* ROUTES */}
-        <main className="app-main">
+        {/* MAIN & ROUTES */}
+        <main id="app-main">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/species" element={<SpeciesList />} />
             <Route path="/species/:id" element={<SpeciesDetail />} />
             <Route path="/identify" element={<Identify />} />
+            <Route path="/test" element={<Test />} />
             {/* Catch all: */}
-            <Route path="*" element={<Error title="404" message="Page not found" id="404" />} />
+            <Route path="*" element={<Error title="404" id="404" />} />
           </Routes>
         </main>
 
         {/* FOOTER */}
-        <footer className="app-footer dark-text" id="dark-bg">
-          {title} v{version} © {authors}, 2025-{new Date().getFullYear()}
+        <footer id="app-footer">
+          <p id="footer-text">
+            {title} v{version} © {authors}, 2025-{new Date().getFullYear()}.
+            Contact: <span id="copy-contact" onClick={copyContact}>{contact}</span>
+          </p>
         </footer>
       </div>
     </>

@@ -1,35 +1,25 @@
-// ========== IMPORTS ==========
+// ##### IMPORTS #####
 // COMPONENTS
 import Icon from "./Icon";
 
 
+// ##### RENDERING #####
 export default function ID_active({ selectedTraits = [], onRemove }) {
     return (
-        <>
-            {selectedTraits.length ? (
-                <div className="badges-wrapper">
-                    {/* <div className="badges-wrapper">
-                        {selectedTraits.map((trait) => (
-                            <div key={trait.traitId} className="active-trait-badge">
-                            <span>{trait.traitName}: <strong>{trait.stateValue}</strong></span>
-                            <button 
-                                className="clear-badge-btn"
-                                onClick={() => onRemove(trait.traitId)}
-                                title="Remove this character"
-                            >
-                                &times;
-                            </button>
-                            </div>
-                        ))}
-                    </div> */}
+        <div id="active-states">
+            <h4 className="title-margin">
+                Selected Traits{selectedTraits.length ? (` (${selectedTraits.length})`) : ""}
+            </h4>
 
+            {/* ##### ACTIVE STATES ##### */}
+            {selectedTraits.length ? (
+                <div className="badge-wrapper">
                     {selectedTraits.map((trait) => {
                         const tooltipText = `${trait.traitName}: ${trait.stateValue}`;
-
                         return (
                             <button
                                 key={trait.traitId}
-                                className="active-trait-badge"
+                                className="badge-active"
                                 onClick={() => onRemove(trait.traitId)}
                             >
                                 <Icon
@@ -44,6 +34,6 @@ export default function ID_active({ selectedTraits = [], onRemove }) {
                     })}
                 </div>
             ) : ( <p>None.</p> )}
-        </>
+        </div>
     );
 }

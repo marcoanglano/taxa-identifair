@@ -1,23 +1,22 @@
-// ========== IMPORTS ==========
+// ##### IMPORTS #####
 import { formatLength } from "../utils/speciesHelpers.jsx";
 
+
+// ##### RENDERING #####
 export default function SD_length({ data }) {
-
-
-
-    // ========== RENDERING ==========
     const hasData = data.fMean !== null || data.mMean !== null;
-
     return (
-        <div className="SUP" id="length-section">
-            <h5>Total length (mm):</h5>
-            {hasData ? ( <>
-                <div id="bar-bg">
+        <div id="length-section">
+            <h5>Total length:</h5>
+
+            {/* ### LENGTH BARS ### */}
+            {hasData ? (<>
+                <div id="bar-container">
 
                     {/* Female Bar */}
                     {data.fMean !== null &&
                     <p>
-                        <span className="bar bordered" id="f-bar" style={{ width: `${data.fMean / 15 * 100}%` }}></span>
+                        <span className="bar f" id="f-bar" style={{ width: `${data.fMean / 15 * 100}%` }}></span>
                         {formatLength(data.fMin, data.fMax)}
                     </p>
                     }
@@ -25,7 +24,7 @@ export default function SD_length({ data }) {
                     {/* Male Bar */}
                     {data.mMean !== null &&
                     <p>
-                        <span className="bar bordered" id="m-bar" style={{ width: `${data.mMean / 15 * 100}%` }}></span>
+                        <span className="bar m" id="m-bar" style={{ width: `${data.mMean / 15 * 100}%` }}></span>
                         {formatLength(data.mMin, data.mMax)}
                     </p>
                     }
@@ -33,13 +32,16 @@ export default function SD_length({ data }) {
 
                 {/* Scale Bar */}
                 <div className="scale-line" id="scale-bar">
-                    <span className="scale-seg">5</span>
+                    <span className="scale-seg first-seg">
+                        <span className="scale-mm">mm</span>
+                        <span>5</span>
+                    </span>
                     <span className="scale-seg">10</span>
                     <span className="scale-seg">15</span>
                 </div>
             </> ) : (
 
-                // No data available
+                // ### NO DATA ###
                 <p>No data available for this species.</p>
             )}
         </div>

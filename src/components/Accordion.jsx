@@ -1,93 +1,81 @@
-// LIBRARIES
+// ##### IMPORTS #####
+// LIB
 import { useId, useMemo, useState } from "react";
 
-// STYLES
-import "../styles/Accordion.css";
 
-/**
- * GENERIC ACCORDION
- * [{id, title, content, meta?}]
- * 
- * Props:
- * - defaultAllOpen: boolean (default: false)
- * - singleOpen: boolean (default: false)
- * - onToggle: (id, nextIsOpen) => void
- * - renderRight: (item, isOpen) => ReactNode // (arrow, etc.)
- * - getHeaderState: (item) => {loading?: bool, loaded?: bool, progress?: number}
- * - hasProgressbar: boolean (default: false)
-*/
+// ##### CONTENT & PROPS #####
 export default function Accordion({
-  items = [],
-  defaultAllOpen = false,
-  singleOpen = false,
-  onToggle,
-  renderRight,
-  getHeaderState,
-  hasProgressbar = false,
+  items = [],               // Content: [{id, title, content, meta?}]
+  // Props
+  defaultAllOpen = false,   // All open when loading page
+  singleOpen = false,       // Only one open at a time
+  onToggle,                 // When an accordion is opened or closed
+  renderRight,              // Arrow on the right of the header
+  getHeaderState,           // {loading, loaded, progress} for each item
+  hasProgressbar = false,   // Loading bar on the header
 }) {
   const baseId = useId();
 
-  // INITIAL STATE: all open if defaultAllOpen is true, otherwise all closed
+  // ### defaultAllOpen ###
   const initialOpenState = useMemo(() => {
     if (defaultAllOpen) return new Set(items.map((it) => it.id));
     return new Set();
   }, [defaultAllOpen, items]);
-
   const [openSet, setOpenSet] = useState(initialOpenState);
 
+  // ### singleOpen, onToggle ###
   function toggle(id) {
     setOpenSet((prev) => {
       const next = new Set(prev);
       const isOpen = next.has(id);
-
       let nextIsOpen = false;
       
-      // SINGLE OPEN: TRUE
+      // # singleOpen = true #
       if (singleOpen) {
         next.clear();
         if (!isOpen) {
           next.add(id);
           nextIsOpen = true;
         }
+      // # singleOpen = false #
       } else {
-        // SINGLE OPEN: FALSE
         if (isOpen) next.delete(id);
         else {
           next.add(id);
           nextIsOpen = true;
         }
       }
-
+      // # onToggle #
       if (onToggle) onToggle(id, nextIsOpen);
       return next;
     });
   }
 
+
+  // ##### RENDERING #####
   return (
     <div className="acc-root">
       {items.map((it, idx) => {
         const isOpen = openSet.has(it.id);
         const headerId = `${baseId}-h-${idx}`;
         const contentId = `${baseId}-c-${idx}`;
-
         const hs = getHeaderState ? getHeaderState(it) : {};
         const progress = Math.max(0, Math.min(100, hs?.progress ?? 0));
         const loading = !!hs?.loading;
         const loaded = !!hs?.loaded;
 
-
-        // RENDER LEFT CONTENT + FILL
+        // ### Header + Progress Bar ###
         return (
-          <div className="acc-item" id="acc-bg" key={it.id}>
+          <div className="acc-item" key={it.id}>
             <button
               type="button"
-              className={`acc-header header-bg header-bd acc-pd ${
+              className={`acc-header ${
                 loading ? "is-loading" : 
                 loaded ? "is-loaded" : 
                 ""
               }`}
               style={hasProgressbar ? {
-                // CSS variable for fill
+                // CSS variable for progress bar
                 "--acc-fill": `${progress}%`,
               } : {}}
               id={headerId}
@@ -95,10 +83,10 @@ export default function Accordion({
               aria-expanded={isOpen}
               onClick={() => toggle(it.id)}
             >
-              <h5 className="acc-left">{it.title}</h5>
+              <h5 className="acc-h-text">{it.title}</h5>
 
-              {/* RENDER RIGHT CONTENT */}
-              <span className="acc-right">
+              {/* ### Right arrow on the header ### */}
+              <span className="acc-h-text">
                 {renderRight ? (
                   renderRight(it, isOpen)
                 ) : (
@@ -109,14 +97,14 @@ export default function Accordion({
               </span>
             </button>
             
-            {/* RENDER CONTENT */}
+            {/* ### Content ### */}
             <div
               id={contentId}
               role="region"
               aria-labelledby={headerId}
               hidden={!isOpen}
             >
-              <div className="acc-pd" id="acc-bg">{it.content}</div>
+              <div className="acc-content">{it.content}</div>
             </div>
           </div>
         );

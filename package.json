@@ -3,8 +3,9 @@
   "title": "Taxa IdentiFAIR",
   "description": "Interactive identification of adult Calanoida", "_comment": "TO DO: change taxon based on selected database",
   "authors": "Anglano, M.",
+  "contact": "marco.anglano@unisalento.it",
   "private": true,
-  "version": "0.5.05.03_UZI_2026",
+  "version": "0.6.00.00",
   "type": "module",
   "scripts": {
     "dev": "vite",

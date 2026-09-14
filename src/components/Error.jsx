@@ -1,21 +1,24 @@
+// ##### IMPORTS #####
 // ASSETS
 import ErrorImage from "../assets/Error.png";
-
 // LIB
 import { Link } from "react-router-dom";
 
-// STYLES
-import "../styles/Error.css";
-
-
 export default function ErrorComponent({ title, message, id }) {
+
+
+    // ##### RENDERING #####
     return (
          <div className="error-container" id={id}>
+
+            {/* Error Image */}
             <div className="error-left">
-            <img src={ErrorImage} alt="Sheldon J. Plankton is really sad" />
+                <img src={ErrorImage} alt="Sheldon J. Plankton is really sad..." />
             </div>
+
+            {/* Error Text */}
             <div className="error-right">
-            <h3>{title}</h3>
+            <h1>{title}</h1>
             {id === "404" ? (
                 <>
                     <p>Ouch! It seems you drifted too far away!</p>
