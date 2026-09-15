@@ -1,19 +1,196 @@
-// ================================
-// ============= GBIF =============
-// ================================
+// ##### IMPORTS #####
+import { supabase } from "../lib/supabaseClient";
 
-// Synonyms & Basionym
+
+// ================================================
+// 1. HELPERS & PRESETS
+// ================================================
+
+// ##### GENERIC HELPER (try/catch, if (error) throw) #####
+const queryDB = async (queryPromise) => {
+  const { data, error } = await queryPromise;
+  if (error) throw error;
+  return data;
+};
+
+// ##### PRESETS SELECTION #####
+export const PRESETS = {
+  SPECIES_MINIMAL: "id_species, scientific_name, authority, family",
+  SPECIES_WITH_FILTERS: "*, filters(*)",
+  TRAITS_FULL: `
+    id_trait, trait_category, trait_name, description, description_url, trait_icon_url,
+    trait_states ( id_state, state_label, sort_order, state_icon_url )
+  `,
+  SPECIES_TRAITS_JOIN: `
+    f_states, f_notes, f_notes_url, m_states, m_notes, m_notes_url,
+    traits ( trait_category, trait_name,
+      trait_states ( id_state, state_label, state_icon_url )
+    )
+  `
+};
+
+
+// ================================================
+// 2. SUPABASE: ATOMIC & COMPOSABLE QUERIES
+// ================================================
+
+// ##### FAMILY COUNT #####
+export const getFamilyCounts = async () => {
+  const data = await queryDB(
+    supabase
+      .from("species_family_counts")
+      .select("family, n")
+      .order("family", { ascending: true })
+  );
+
+  return (data ?? []).map((row) => ({
+    family: row.family ?? "Unknown Family",
+    count: row.n ?? 0,
+  }));
+};
+
+// ##### SPECIES #####
+
+// # Species by family #
+export const getSpeciesByFamily = (family) =>
+  queryDB(
+    supabase
+      .from("species")
+      .select(PRESETS.SPECIES_MINIMAL)
+      .eq("family", family)
+      .order("scientific_name", { ascending: true })
+  );
+
+// # Species Details #
+export const getSpeciesDetail = (id) =>
+  queryDB(
+    supabase
+      .from("species")
+      .select(PRESETS.SPECIES_WITH_FILTERS)
+      .eq("id_species", id)
+      .single()
+  );
+
+// ##### TRAITS #####
+export const getTraits = () =>
+  queryDB(
+    supabase
+      .from("traits")
+      .select(PRESETS.TRAITS_FULL)
+      .order("trait_category", { ascending: true })
+  );
+
+// ##### SPECIES TRAITS #####
+export const getSpeciesTraits = (idSpecies) =>
+  queryDB(
+    supabase
+      .from("species_traits")
+      .select(PRESETS.SPECIES_TRAITS_JOIN)
+      .eq("id_species", idSpecies)
+  );
+
+
+// ================================================
+// 3. COMPLEX SERVICES - AGGREGATES
+// ================================================
+
+// ##### FILTERS #####
+export const getFilters = async () => {
+  const data = await queryDB(
+    supabase.from("filters").select("environment, f_min, f_max, m_min, m_max")
+  );
+
+  const envSet = new Set();
+  let absMin = Infinity;
+  let absMax = -Infinity;
+  (data || []).forEach((row) => {
+    if (Array.isArray(row.environment)) {
+      row.environment.forEach((env) => envSet.add(env));
+    }
+    const mins = [row.f_min, row.m_min].filter((v) => v !== null && v !== undefined);
+    const maxs = [row.f_max, row.m_max].filter((v) => v !== null && v !== undefined);
+    mins.forEach((v) => { if (v < absMin) absMin = v; });
+    maxs.forEach((v) => { if (v > absMax) absMax = v; });
+  });
+
+  // Option-type and Range-type inputs for "Identify" page
+  return [
+    {
+      id: "sex", label: "Sex", type: "select", placeholder: "All",
+      options: [
+        { value: "", label: "All" },
+        { value: "female", label: "Female" },
+        { value: "male", label: "Male" }
+      ]
+    },
+    {
+      id: "environment", label: "Environment", type: "select", placeholder: "All",
+      options: [
+        { value: "", label: "All" },
+        ...Array.from(envSet).sort().map((env) => ({
+          value: env,
+          label: env.charAt(0).toUpperCase() + env.slice(1)
+        }))
+      ]
+    },
+    {
+      id: "length", label: "Body Length (mm)", type: "range",
+      inputs: [
+        { id: "minLength", label: "Min", placeholder: `Min (es. ${absMin !== Infinity ? absMin : 0})` },
+        { id: "maxLength", label: "Max", placeholder: `Max (es. ${absMax !== -Infinity ? absMax : 15})` }
+      ]
+    }
+  ];
+};
+
+// ##### MATCHING SPECIES #####
+export const getMatchingSpecies = async (stateIds = []) => {
+  if (!stateIds.length) return [];
+  const matchedData = await queryDB(
+    supabase.rpc("match_species", { selected_states: stateIds })
+  );
+  if (!matchedData || matchedData.length === 0) return [];
+  const speciesIds = matchedData.map((sp) => sp.id_species);
+
+  // Adds filters
+  const filtersData = await queryDB(
+    supabase
+      .from("filters")
+      .select("id_species, environment, f_min, f_max, m_min, m_max")
+      .in("id_species", speciesIds)
+  );
+  const filtersMap = new Map((filtersData || []).map((f) => [f.id_species, f]));
+
+  return matchedData.map((sp) => ({
+    ...sp,
+    filters: filtersMap.get(sp.id_species) || null
+  }));
+};
+
+
+// ================================================
+// 4. EXTERNAL APIs (GBIF)
+// ================================================
+
+// ##### GBIF #####
+
+// # Check status #
+export const checkStatusGBIF = async (gbifKey) => {
+  if (!gbifKey) return false;
+  const response = await fetch(`https://api.gbif.org/v1/occurrence/search?taxonKey=${gbifKey}&limit=1`);
+  if (!response.ok) throw new Error(`GBIF API error: ${response.status}`);
+  return true;
+};
+
+// # Basionym & Synonyms #
 export const getNomenclatureGBIF = async (gbifKey, basionymKey) => {
   try {
     const promises = [
       fetch(`https://api.gbif.org/v1/species/${gbifKey}/synonyms`).then(res => res.json())
     ];
-
-    // Does basionym exist?
-    if (basionymKey && basionymKey !== parseInt(gbifKey)) {
+    if (basionymKey && basionymKey !== parseInt(gbifKey, 10)) {
       promises.push(fetch(`https://api.gbif.org/v1/species/${basionymKey}`).then(res => res.json()));
     }
-
     const [synData, basData] = await Promise.all(promises);
 
     return {
@@ -26,9 +203,10 @@ export const getNomenclatureGBIF = async (gbifKey, basionymKey) => {
   }
 };
 
-// Full taxonomy
+// # Taxonomy #
 export const getTaxonomyGBIF = async (gbifKey) => {
   const response = await fetch(`https://api.gbif.org/v1/species/${gbifKey}`);
+  if (!response.ok) throw new Error("Errore in recovering GBIF taxonomy");
   const data = await response.json();
   return {
     kingdom: data.kingdom,
@@ -36,249 +214,7 @@ export const getTaxonomyGBIF = async (gbifKey) => {
     class: data.class,
     order: data.order,
     family: data.family,
-    genus: data.genus
+    genus: data.genus,
+    basionymKey: data.basionymKey
   };
-};
-
-// GBIF API status (for occurrences)
-export const checkStatusGBIF = async (gbifKey) => {
-  if (!gbifKey) return false;
-
-  try {
-    const limit = 1;
-    const response = await fetch(
-      `https://api.gbif.org/v1/occurrence/search?taxonKey=${gbifKey}&limit=${limit}`
-    );
-    if (!response.ok) throw new Error(`GBIF API error: ${response.status}`);
-    const data = await response.json();
-
-    return true;
-  } catch (error) {
-    console.error("GBIF Service Check Error:", error);
-    throw error;
-  }
-};
-
-
-
-// ================================
-// =========== SUPABASE ===========
-// ================================
-import { supabase } from "../lib/supabaseClient";
-
-/**
- * <<< species_family_counts >>>
- */
-
-// List of families and nr. of species for each of them
-export const getFamilyCounts = async () => {
-  const { data, error } = await supabase
-    .from("species_family_counts")
-    .select("family, n")
-    .order("family", { ascending: true });
-
-  if (error) throw error;
-  return (data ?? []).map((row) => ({
-    family: row.family ?? "Unknown Family",
-    count: row.n ?? 0,
-  }));
-};
-
-/**
- * <<< species >>>
- */
-
-// List of species in a family
-export const getSpeciesByFamily = async (family) => {
-  const { data, error } = await supabase
-    .from("species")
-    .select("id_species, scientific_name, authority, family")
-    .eq("family", family)
-    .order("scientific_name", { ascending: true });
-
-  if (error) throw error;
-  return data ?? [];
-};
-
-// Details of a species
-export const getSpeciesDetail = async (id) => {
-  const { data, error } = await supabase
-    .from("species")
-    .select(`
-      *,
-      filters ( * )
-    `)
-    .eq("id_species", id)
-    .single();
-
-  if (error) throw error;
-  return data;
-};
-
-/**
- * <<< filters >>>
- */
-
-export const getFilters = async () => {
-  const { data, error } = await supabase
-    .from("filters")
-    .select("environment, f_min, f_max, m_min, m_max");
-  if (error) throw error;
-  const envSet = new Set();
-  let absMin = Infinity;
-  let absMax = -Infinity;
-
-  (data || []).forEach((row) => {
-    // Environment
-    if (Array.isArray(row.environment)) {
-      row.environment.forEach((env) => envSet.add(env));
-    }
-    // Body length
-    const mins = [row.f_min, row.m_min].filter((v) => v !== null && v !== undefined);
-    const maxs = [row.f_max, row.m_max].filter((v) => v !== null && v !== undefined);
-    mins.forEach((v) => { if (v < absMin) absMin = v; });
-    maxs.forEach((v) => { if (v > absMax) absMax = v; });
-  });
-
-  const environmentOptions = Array.from(envSet).sort();
-  const globalMin = absMin !== Infinity ? absMin : 0;
-  const globalMax = absMax !== -Infinity ? absMax : 15;
-
-  // Builds data
-  const filters_schema = [
-    // Sex (fixed)
-    {
-      id: "sex",
-      label: "Sex",
-      type: "select",
-      placeholder: "All",
-      options: [
-        { value: "", label: "All" },
-        { value: "female", label: "Female" },
-        { value: "male", label: "Male" }
-      ]
-    },
-    // Environment (from DB)
-    {
-      id: "environment",
-      label: "Environment",
-      type: "select",
-      placeholder: "All",
-      options: [
-        { value: "", label: "All" },
-        ...environmentOptions.map((env) => ({
-          value: env,
-          label: env.charAt(0).toUpperCase() + env.slice(1)
-        }))
-      ]
-    },
-    // Body Length (from DB)
-    {
-      id: "length",
-      label: "Body Length (mm)",
-      type: "range",
-      inputs: [
-        { 
-          id: "minLength", 
-          label: "Min", 
-          placeholder: `Min (es. ${globalMin})` 
-        },
-        { 
-          id: "maxLength", 
-          label: "Max", 
-          placeholder: `Max (es. ${globalMax})` 
-        }
-      ]
-    }
-  ];
-
-  return filters_schema;
-};
-
-/**
- * <<< species_traits >>>
- */
-
-// Traits of a species
-export const getSpeciesTraits = async (id) => {
-  const { data, error } = await supabase
-    .from("species_traits")
-    .select(`
-      f_states,
-      f_notes,
-      f_notes_url,
-      m_states,
-      m_notes,
-      m_notes_url,
-      traits (
-        trait_category,
-        trait_name,
-        trait_states (
-          id_state,
-          state_label,
-          state_icon_url
-        )
-      )
-    `)
-    .eq("id_species", id);
-
-  if (error) throw error;
-  return data || [];
-};
-
-/**
- * <<< traits >>>
- */
-
-// All Traits
-export const getTraits = async () => {
-  const { data, error } = await supabase
-    .from("traits")
-    .select(`
-      id_trait,
-      trait_category,
-      trait_name,
-      description,
-      description_url,
-      trait_icon_url,
-      trait_states (
-        id_state,
-        state_label,
-        sort_order,
-        state_icon_url
-      )
-    `)
-    .order("trait_category", { ascending: true });
-
-  if (error) throw error;
-  return data || [];
-};
-
-/**
- * Looks for species matching the selected traits through RPC Supabase
- * @param {string[]} stateIds - Array of selected state IDs
- */
-export const getMatchingSpecies = async (stateIds = []) => {
-  // 1. Traits
-  const { data: matchedData, error: rpcError } = await supabase.rpc("match_species", {
-    selected_states: stateIds
-  });
-  if (rpcError) throw rpcError;
-  if (!matchedData || matchedData.length === 0) return [];
-
-  // 2. IDs of matching species
-  const speciesIds = matchedData.map((sp) => sp.id_species);
-
-  // 3. Filters
-  const { data: filtersData, error: filtersError } = await supabase
-    .from("filters")
-    .select("id_species, environment, f_min, f_max, m_min, m_max")
-    .in("id_species", speciesIds);
-  if (filtersError) throw filtersError;
-  const filtersMap = new Map((filtersData || []).map((f) => [f.id_species, f]));
-
-  return matchedData.map((sp) => ({
-    ...sp,
-    filters: filtersMap.get(sp.id_species) || null
-  }));
 };
