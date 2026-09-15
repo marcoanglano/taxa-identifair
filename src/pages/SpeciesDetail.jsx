@@ -7,8 +7,7 @@ import SD_links from "../components/SD_links";
 import SD_traits from "../components/SD_traits";
 import Skeleton from "../components/Skeleton";
 // HOOKS
-import { useGBIF } from "../hooks/useGBIF";
-import { useOccurrencesGBIF } from "../hooks/useOccurrencesGBIF";
+import { useGBIF, useOccurrencesGBIF } from "../hooks/useGBIF";
 import { useSpeciesDetail } from "../hooks/useSpeciesDetail";
 // LIB
 import { useMemo } from "react";

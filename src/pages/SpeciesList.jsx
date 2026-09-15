@@ -4,7 +4,7 @@ import Accordion from "../components/Accordion";
 import ErrorComponent from "../components/Error";
 import Skeleton from "../components/Skeleton";
 // HOOKS
-import { useFamilies } from "../hooks/useFamilies";
+import { useFamilies } from "../hooks/useSpeciesList";
 // LIB
 import { Link } from "react-router-dom";
 import { useMemo } from "react";

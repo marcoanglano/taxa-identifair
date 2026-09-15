@@ -1,12 +1,13 @@
-// ========== IMPORTS ==========
+// ##### IMPORTS #####
 // LIB
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 // SERVICES
 import { getFamilyCounts, getSpeciesByFamily } from "../services/dataService";
 
-
 export function useFamilies() {
-  // STATES
+
+
+  // ##### STATES #####
   const [families, setFamilies] = useState([]);
   const [loadingFamilies, setLoadingFamilies] = useState(true);
   const [errorFamilies, setErrorFamilies] = useState(null);
@@ -14,22 +15,21 @@ export function useFamilies() {
   const [familyStatus, setFamilyStatus] = useState({});
   const requestSeq = useRef(0);
 
-  // --- 1. LOADING FAMILY
+
+  // ##### LOADING FAMILY #####
   useEffect(() => {
     async function fetchInitialData() {
       try {
         const data = await getFamilyCounts();
         setFamilies(data);
-      } catch (err) {
-        setErrorFamilies(err.message);
-      } finally {
-        setLoadingFamilies(false);
       }
+      catch (err) { setErrorFamilies(err.message); }
+      finally { setLoadingFamilies(false); }
     }
     fetchInitialData();
   }, []);
 
-  // --- 2. PROGRESS SIMULATION (Helper)
+  // ##### PROGRESS BAR SIMULATION #####
   const startProgress = (family) => {
     let p = 0;
     setFamilyStatus((prev) => ({
@@ -47,17 +47,15 @@ export function useFamilies() {
     return () => clearInterval(t);
   };
 
-  // --- 3. LOADING SPECIES
+
+  // ##### LOADING SPECIES #####
   const fetchFamilySpecies = async (family) => {
     if (familyCache[family]?.length || familyStatus[family]?.loading) return;
-
     const seq = ++requestSeq.current;
     const stop = startProgress(family);
-
     try {
       const data = await getSpeciesByFamily(family);
       if (seq !== requestSeq.current) return;
-      
       setFamilyCache((prev) => ({ ...prev, [family]: data }));
       setFamilyStatus((prev) => ({
         ...prev,
@@ -73,6 +71,7 @@ export function useFamilies() {
     }
   };
 
+  
   return {
     families,
     loadingFamilies,
