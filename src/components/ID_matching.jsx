@@ -46,6 +46,7 @@ export default function ID_matching({
                             About this species
                         </Link>
                     </p>
+
                     <div className="matching-details">
                         {[
                             {isMatch: sp.match_f, key: "f", label: "♀ Female", color: "var(--female-color)"},

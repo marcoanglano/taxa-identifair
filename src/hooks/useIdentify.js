@@ -10,10 +10,12 @@ export default function useIdentify() {
     // ##### FILTERS #####
 
     // States
+    const emptyState = { sex: "", environment: "", minLength: "", maxLength: "" };
     const [filtersSchema, setFiltersSchema] = useState([]);
     const [loadingFilters, setLoadingFilters] = useState(true);
-    const emptyState = { sex: "", environment: "", minLength: "", maxLength: "" }
-    const [draftFilters, setDraftFilters] = useState(emptyState);
+    // Active state (user input)
+    const [filters, setFilters] = useState(emptyState);
+    // Debounce state
     const [appliedFilters, setAppliedFilters] = useState(emptyState);
 
     // Fetch
@@ -24,26 +26,27 @@ export default function useIdentify() {
                 setLoadingFilters(true);
                 const schema = await getFilters();
                 if (isMounted) setFiltersSchema(schema);
-            } catch (err) {
-                console.error("Error fetching filters schema:", err);
-            } finally {
-                if (isMounted) setLoadingFilters(false);
             }
+            catch (err) { console.error("Error fetching filters schema:", err); }
+            finally { if (isMounted) setLoadingFilters(false); }
         };
         loadFiltersSchema();
         return () => { isMounted = false; };
     }, []);
 
+    // Debounce (300ms)
+    useEffect(() => {
+        const handler = setTimeout(() => { setAppliedFilters(filters); }, 300);
+        return () => clearTimeout(handler);
+    }, [filters]);
+
     // Handlers
-    const handleFilterChange = (key, value) => {
-        setDraftFilters((prev) => ({ ...prev, [key]: value }));
-    };
-    const handleApplyFilters = () => { setAppliedFilters({ ...draftFilters }); };
+    const handleFilterChange = (key, value) => { setFilters((prev) => ({ ...prev, [key]: value })); };
     const handleClearFilters = () => {
-        setDraftFilters(emptyState);
+        setFilters(emptyState);
         setAppliedFilters(emptyState);
     };
-    const hasDraftValues = Object.values(draftFilters).some(
+    const hasDraftValues = Object.values(filters).some(
         (val) => val !== "" && val !== null && val !== undefined
     );
 
@@ -120,15 +123,12 @@ export default function useIdentify() {
         setSelectedTraits((prev) => {
             const exists = prev.find((item) => item.traitId === traitId);
             if (exists) {
-                if (exists.stateId === stateId) {
-                    return prev.filter((item) => item.traitId !== traitId);
-                }
+                if (exists.stateId === stateId) { return prev.filter((item) => item.traitId !== traitId); }
                 return prev.map((item) =>
                     item.traitId === traitId ? { ...item, stateId, stateValue, iconUrl } : item
                 );
-            } else {
-                return [...prev, { traitId, traitName, stateId, stateValue, iconUrl }];
             }
+            else { return [...prev, { traitId, traitName, stateId, stateValue, iconUrl }]; }
         });
     };
     const handleRemoveTrait = (traitId) => {
@@ -141,56 +141,30 @@ export default function useIdentify() {
         const { sex, environment, minLength, maxLength } = appliedFilters;
         const reqMin = minLength !== "" && minLength !== null ? parseFloat(minLength) : null;
         const reqMax = maxLength !== "" && maxLength !== null ? parseFloat(maxLength) : null;
+        const isWithinRange = (spMin, spMax) => {
+            if (spMin === null && spMax === null) return true;
+            const effectiveMin = spMin ?? spMax;
+            const effectiveMax = spMax ?? spMin;
+            if (reqMin !== null && effectiveMax < reqMin) return false;
+            if (reqMax !== null && effectiveMin > reqMax) return false;
+            return true;
+        };
 
         return matchingSpecies
-            .filter((sp) => {
-                // Sex
-                if (sex === "female" && !sp.match_f) return false;
-                if (sex === "male" && !sp.match_m) return false;
-                // Env
-                if (environment && environment !== "") {
-                    const spEnv = sp.filters?.environment || [];
-                    if (spEnv.length > 0 && !spEnv.includes(environment)) return false;
-                }
-                // Length
-                if (reqMin !== null || reqMax !== null) {
-                    const fMin = sp.filters?.f_min ?? null;
-                    const fMax = sp.filters?.f_max ?? null;
-                    const mMin = sp.filters?.m_min ?? null;
-                    const mMax = sp.filters?.m_max ?? null;
-                    const isWithinRange = (spMin, spMax) => {
-                        if (spMin === null && spMax === null) return true;
-                        const effectiveMin = spMin ?? spMax;
-                        const effectiveMax = spMax ?? spMin;
-                        if (reqMin !== null && effectiveMax < reqMin) return false;
-                        if (reqMax !== null && effectiveMax > reqMax) return false;
-                        return true;
-                    };
-                    if (sex === "female") {
-                        if (!isWithinRange(fMin, fMax)) return false;
-                    } else if (sex === "male") {
-                        if (!isWithinRange(mMin, mMax)) return false;
-                    } else {
-                        const matchFemaleRange = isWithinRange(fMin, fMax);
-                        const matchMaleRange = isWithinRange(mMin, mMax);
-                        if (!matchFemaleRange && !matchMaleRange) return false;
-                    }
-                }
-
-                return true;
+            .map((sp) => {
+                const { f_min = null, f_max = null, m_min = null, m_max = null } = sp.filters || {};
+                const match_f = sp.match_f && (sex !== "male") && isWithinRange(f_min, f_max);
+                const match_m = sp.match_m && (sex !== "female") && isWithinRange(m_min, m_max);
+                return { ...sp, match_f, match_m };
             })
-            .map((sp) => ({
-                ...sp,
-                match_f: sex === "male" ? false : sp.match_f,
-                match_m: sex === "female" ? false : sp.match_m
-            }));
+            .filter((sp) => sp.match_f || sp.match_m )
     }, [matchingSpecies, appliedFilters]);
 
 
     return {
         filtersSchema,
         loadingFilters,
-        filters: draftFilters,
+        filters,
         appliedFilters,
         hasDraftValues,
         availableTraits,
@@ -200,7 +174,6 @@ export default function useIdentify() {
         loadingMatching,
         error,
         handleFilterChange,
-        handleApplyFilters,
         handleClearFilters,
         handleTraitSelect,
         handleRemoveTrait

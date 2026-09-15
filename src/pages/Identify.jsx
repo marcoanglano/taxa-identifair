@@ -14,15 +14,11 @@ import useIdentify from "../hooks/useIdentify";
 export default function Identify() {
   const {
     filters, loadingFilters, filtersSchema, hasDraftValues,
-    handleFilterChange, handleApplyFilters, handleClearFilters,
+    handleFilterChange, handleClearFilters,
     loadingTraits, availableTraits, selectedTraits,
     handleTraitSelect, handleRemoveTrait,
     matchingSpecies, loadingMatching, error
   } = useIdentify();
-  const filterActions = [
-    {name: "Apply", handler: handleApplyFilters},
-    {name: "Clear", handler: handleClearFilters}
-  ]
 
 
   // ##### ERROR #####
@@ -61,17 +57,15 @@ export default function Identify() {
               <div className="filters-header">
                 <h4>Contextual filters</h4>
                 <div className="filters-actions">
-                  {filterActions.map(act => ( <>
-                      <button
-                        type="button"
-                        className={`btn-filter-${act.name.toLowerCase()}`}
-                        onClick={act.handler}
-                        disabled={!hasDraftValues}
-                        title={`${act.name} filters`}
-                      >
-                        {act.name}
-                      </button>
-                  </> ))}
+                  <button
+                    type="button"
+                    className="btn-filter-clear"
+                    onClick={handleClearFilters}
+                    disabled={!hasDraftValues}
+                    title="Clear filters"
+                  >
+                    Clear
+                  </button>
                 </div>
               </div>
               <ID_filters schema={filtersSchema} values={filters} onChange={handleFilterChange} />
