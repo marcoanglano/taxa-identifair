@@ -155,7 +155,22 @@ export default function useIdentify() {
                 const { f_min = null, f_max = null, m_min = null, m_max = null } = sp.filters || {};
                 const match_f = sp.match_f && (sex !== "male") && isWithinRange(f_min, f_max);
                 const match_m = sp.match_m && (sex !== "female") && isWithinRange(m_min, m_max);
-                return { ...sp, match_f, match_m };
+
+                // Missing info
+                const missingInfo = [];
+                // Filters
+                if ((reqMin !== null || reqMax !== null)) {
+                    if (match_f && f_min === null) { missingInfo.push("Female body length"); }
+                    if (match_m && m_min === null) { missingInfo.push("Male body length"); }
+                }
+                // Traits
+                const speciesTraitIds = new Set((sp.traits_info || []).map((t) => t.id_trait));
+                selectedTraits.forEach((st) => {
+                    if (!speciesTraitIds.has(st.traitId)) { missingInfo.push(st.traitName); }
+                });
+                const hasMissingData = missingInfo.length > 0;
+
+                return { ...sp, match_f, match_m, hasMissingData, missingInfo };
             })
             .filter((sp) => sp.match_f || sp.match_m )
     }, [matchingSpecies, appliedFilters]);
