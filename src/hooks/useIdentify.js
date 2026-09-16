@@ -173,6 +173,14 @@ export default function useIdentify() {
                 return { ...sp, match_f, match_m, hasMissingData, missingInfo };
             })
             .filter((sp) => sp.match_f || sp.match_m )
+            .sort((a, b) => {
+                // 1. Sort by hasMissingData
+                if (a.hasMissingData !== b.hasMissingData) { return a.hasMissingData ? 1 : -1; }
+                // 2. Sort by Family
+                if (a.family !== b.family) { return a.family.localeCompare(b.family); }
+                // 3. Sort by Scientific name
+                return a.scientific_name.localeCompare(b.scientific_name);
+            });
     }, [matchingSpecies, appliedFilters]);
 
 

@@ -27,10 +27,15 @@ export default function ID_matching({
                 // ### Title ###
                 title: (
                     <>
-                        <span>{sp.family} - <em>{sp.scientific_name}</em></span>
+                        <span>
+                            {sp.family} - <em>{sp.scientific_name}</em>
+                            {sp.hasMissingData && (
+                                <span className="missing-data-icon" title="Missing data">⚠️</span>
+                            )}
+                        </span>
                         <span className="matching-sex">
                             {isBoth ? (
-                                <span className="b" title="Matches female & male">♀ ♂</span>
+                                <span title="Matches female & male">♀ ♂</span>
                             ) : ( <>
                                 {sp.match_f && <span title="Matches female">♀</span>}
                                 {sp.match_m && <span title="Matches male">♂</span>}
@@ -41,6 +46,12 @@ export default function ID_matching({
 
                 // ### Content ###
                 content: ( <>
+                    {sp.hasMissingData && (
+                        <p className="missing-data-list" style={{ color: "var(--error-color)" }}>
+                            Missing data: {sp.missingInfo.join(", ")}.
+                        </p>
+                    )}
+
                     <p className="matching-link">
                         <Link to={`/species/${sp.id_species}`} target="_blank" rel="noopener noreferrer">
                             About this species

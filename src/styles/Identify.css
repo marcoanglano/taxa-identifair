@@ -157,8 +157,11 @@
 .badge-active:active { filter: none; }
 
 /* # Matching species # */
-.matching-sex { margin-left: 8px; }
-.matching-link { margin-bottom: 15px; }
+.missing-data-icon, .matching-sex {
+  margin-left: 8px;
+  text-shadow: var(--contrast);
+}
+.missing-data-list, .matching-link { margin-bottom: 15px; }
 .matching-details {
   display: flex;
   flex-direction: column;
