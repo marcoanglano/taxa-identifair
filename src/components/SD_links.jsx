@@ -22,13 +22,20 @@ export default function SD_links({ gbifUrl, wormsUrl, otherUrl }) {
     // ##### RENDERING #####
     return (
         <div id="species-logos">
-            {sd_links.map(sd => ( <>
-                { sd.link && ( <>
-                    <a className="logo-button" id={sd.id} href={sd.link} target="_blank" rel="noopener noreferrer">
+            {sd_links.map((sd) =>
+                sd.link ? (
+                    <a
+                        key={sd.id}
+                        className="logo-button"
+                        id={sd.id}
+                        href={sd.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
                         <img className="logo" alt={sd.alt} src={sd.src} />
                     </a>
-                </>)}
-            </> ))}
+                ) : null
+            )}
         </div>
     );
 }

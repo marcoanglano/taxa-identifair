@@ -47,9 +47,7 @@ export default function ID_matching({
                 // ### Content ###
                 content: ( <>
                     {sp.hasMissingData && (
-                        <p className="missing-data-list" style={{ color: "var(--error-color)" }}>
-                            Missing data: {sp.missingInfo.join(", ")}.
-                        </p>
+                        <p className="missing-data-list">Missing data: {sp.missingInfo.join(", ")}.</p>
                     )}
 
                     <p className="matching-link">

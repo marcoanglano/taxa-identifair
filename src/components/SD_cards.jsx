@@ -105,7 +105,7 @@ export default function SD_cards({
             {/* ### REFERENCES ### */}
             { id === "ref-section" && (
                 <ul id="ref-list">
-                    {ref.map(r => ( <li>{r}</li> ))}
+                    {ref.map((r, i) => ( <li key={i}>{r}</li> ))}
                 </ul>
             )}
         </div>

@@ -161,7 +161,11 @@
   margin-left: 8px;
   text-shadow: var(--contrast);
 }
-.missing-data-list, .matching-link { margin-bottom: 15px; }
+.missing-data-list {
+  color: var(--error-color);
+  margin-bottom: 15px;
+}
+.matching-link { margin-bottom: 15px; }
 .matching-details {
   display: flex;
   flex-direction: column;

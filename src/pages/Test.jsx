@@ -34,7 +34,7 @@ const rootShadow = ["--shadow", "--contrast"]
 
 
 // ##### RENDERING #####
-export default function SpeciesList() {
+export default function Test() {
     return (
         <section id="test-container" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
 
@@ -57,8 +57,9 @@ export default function SpeciesList() {
 
             {/* Icons & Tooltips */}
             <div className="test-subcontainer" id="test-icons-tooltips">
-                {iconList.map(ic => (
+                {iconList.map((ic, i) => (
                     <Icon
+                        key={i}
                         iconUrl={iconUrl}
                         size={ic.size}
                         color={ic.color}
@@ -85,18 +86,18 @@ export default function SpeciesList() {
 
             {/* :root variables */}
             <div className="test-subcontainer" id="test-root">
-                {rootColors.map(r => (
-                    <div className="test-square" style={{ backgroundColor: `var(${r})` }}></div>
+                {rootColors.map((r, i) => (
+                    <div key={i} className="test-square" style={{ backgroundColor: `var(${r})` }}></div>
                 ))}
-                <br></br>
-                {rootBright.map(r => ( <>
-                    {r == "none"
-                        ? <div className="test-square test-bright"></div>
-                        : <div className="test-square test-bright" style={{ filter: `brightness(var(${r}))` }}></div>}
-                </> ))}
-                <br></br>
-                {rootShadow.map(r => ( 
-                    <div className="test-square test-shadow" style={{ filter: `drop-shadow(var(${r}))` }}></div>
+                <br />
+                {rootBright.map((r, i) => (
+                    r == "none"
+                        ? <div key={i} className="test-square test-bright"></div>
+                        : <div key={i} className="test-square test-bright" style={{ filter: `brightness(var(${r}))` }}></div>
+                ))}
+                <br />
+                {rootShadow.map((r, i) => ( 
+                    <div key={i} className="test-square test-shadow" style={{ filter: `drop-shadow(var(${r}))` }}></div>
                  ))}
             </div>
 

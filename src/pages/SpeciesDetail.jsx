@@ -82,17 +82,17 @@ export default function SpeciesDetail() {
             </> ) : ( <>
 
               {/* Cards */}
-              <SD_cards classname="card-section" id="syn-bas-section" 
+              <SD_cards id="syn-bas-section" 
                 title="Synonyms & Basionym" basionym={basionym} synonyms={synonyms} />
-              <SD_cards classname="card-section" id="taxonomy-section" title="Taxonomy" taxonomy={taxonomy} />
-              <SD_cards classname="card-section" id="env-section"
+              <SD_cards id="taxonomy-section" title="Taxonomy" taxonomy={taxonomy} />
+              <SD_cards id="env-section"
                 title="Environment" environment={species?.filters?.environment} />
               { // Map
                 map_load ? ( <Skeleton className="card-section" height={400} /> ) :
                 map_err ? ( <ErrorComponent title="Oh no!" message="GBIF Map Service unavailable" id="gbif-error" /> ) :
-                ( <SD_cards classname="card-section" id="map-section" title="Occurrences" gbifKey={species?.gbif_key} /> )
+                ( <SD_cards id="map-section" title="Occurrences" gbifKey={species?.gbif_key} /> )
               }
-              <SD_cards classname="card-section" id="ref-section" title="References" gbifKey={species?.gbif_key} />
+              <SD_cards id="ref-section" title="References" gbifKey={species?.gbif_key} />
             </> )}
           </div>
         )}

@@ -15,11 +15,12 @@ const linkList = [
 export default function Navbar() {
     return (
         <nav className="app-nav nav-bg nav-bd" id="nav-container">
-            {linkList.map(page => {
+            {linkList.map((page) => {
                 return (
                     
                     // Generates buttons for each link
                     <NavLink
+                        key={page.name}
                         to={page.path}
                         end
                         className={({ isActive }) => isActive ? "nav-btn nav-active" : "nav-btn"}
