@@ -1,7 +1,11 @@
 // ##### IMPORTS #####
 // COMPONENTS
 import ErrorComponent from "../components/Error";
-import SD_cards from "../components/SD_cards";
+import SD_card_syn_bas from "../components/SD_card_syn_bas.jsx";
+import SD_card_taxonomy from "../components/SD_card_taxonomy.jsx";
+import SD_card_env from "../components/SD_card_env.jsx";
+import SD_card_map from "../components/SD_card_map.jsx";
+import SD_card_ref from "../components/SD_card_ref.jsx";
 import SD_length from "../components/SD_length";
 import SD_links from "../components/SD_links";
 import SD_traits from "../components/SD_traits";
@@ -82,17 +86,15 @@ export default function SpeciesDetail() {
             </> ) : ( <>
 
               {/* Cards */}
-              <SD_cards id="syn-bas-section" 
-                title="Synonyms & Basionym" basionym={basionym} synonyms={synonyms} />
-              <SD_cards id="taxonomy-section" title="Taxonomy" taxonomy={taxonomy} />
-              <SD_cards id="env-section"
-                title="Environment" environment={species?.filters?.environment} />
+              <SD_card_syn_bas basionym={basionym} synonyms={synonyms} />
+              <SD_card_taxonomy taxonomy={taxonomy} />
+              <SD_card_env environment={species?.filters?.environment} />
               { // Map
                 map_load ? ( <Skeleton className="card-section" height={400} /> ) :
                 map_err ? ( <ErrorComponent title="Oh no!" message="GBIF Map Service unavailable" id="gbif-error" /> ) :
-                ( <SD_cards id="map-section" title="Occurrences" gbifKey={species?.gbif_key} /> )
+                ( <SD_card_map gbifKey={species?.gbif_key} /> )
               }
-              <SD_cards id="ref-section" title="References" gbifKey={species?.gbif_key} />
+              <SD_card_ref gbifKey={species?.gbif_key} />
             </> )}
           </div>
         )}
