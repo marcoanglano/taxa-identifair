@@ -1,7 +1,7 @@
 {/*
   
 ------------------------------
---       SCHEMA 0.5         --
+--       SCHEMA 0.6         --
 ------------------------------
 
 --          SPECIES         --
@@ -61,8 +61,14 @@ create table public.traits (
   description_url text null,
   trait_icon_url text null,
   created_at timestamp with time zone not null default now(),
-  constraint traits_pkey primary key (id_trait)
+  parent_trait_id text null,
+  required_state_id text null,
+  constraint traits_pkey primary key (id_trait),
+  constraint traits_parent_trait_fkey foreign KEY (parent_trait_id) references traits (id_trait) on delete set null,
+  constraint traits_required_state_fkey foreign KEY (parent_trait_id, required_state_id) references trait_states (id_trait, id_state) on delete set null
 ) TABLESPACE pg_default;
+
+create index IF not exists idx_traits_parent on public.traits using btree (parent_trait_id) TABLESPACE pg_default;
 
 
 --       TRAIT_STATES       --
