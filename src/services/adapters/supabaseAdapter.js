@@ -17,7 +17,7 @@ const PRESETS = {
     SPECIES_MINIMAL: "id_species, scientific_name, authority, family",
     SPECIES_WITH_FILTERS: "*, filters(*)",
     TRAITS_FULL: `
-        id_trait, trait_category, trait_name, description, description_url, trait_icon_url,
+        id_trait, trait_category, trait_name, description, description_url, trait_icon_url, parent_trait_id, required_state_id,
         trait_states ( id_state, state_label, sort_order, state_icon_url )
     `,
     SPECIES_TRAITS_JOIN: `

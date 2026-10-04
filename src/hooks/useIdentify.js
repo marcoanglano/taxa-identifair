@@ -54,7 +54,7 @@ export default function useIdentify() {
     // ##### TRAITS & MATCHING SPECIES #####
 
     // States
-    const [availableTraits, setAvailableTraits] = useState([]);
+    const [allTraits, setAllTraits] = useState([]);
     const [selectedTraits, setSelectedTraits] = useState([]);
     const [matchingSpecies, setMatchingSpecies] = useState([]);
     const [loadingTraits, setLoadingTraits] = useState(true);
@@ -76,13 +76,15 @@ export default function useIdentify() {
                         description: t.description,
                         descriptionUrl: t.description_url,
                         traitIcon: t.trait_icon_url,
+                        parentTraitId: t.parent_trait_id || null,
+                        requiredStateId: t.required_state_id || null,
                         states: (t.trait_states || []).map(s => ({
                             id: s.id_state,
                             value: s.state_label,
                             stateIcon: s.state_icon_url
                         }))
                     }));
-                    setAvailableTraits(normalizedTraits);
+                    setAllTraits(normalizedTraits);
                 }
             } catch (err) {
                 if (isMounted) setError(err.message || "Error fetching traits.");
@@ -93,6 +95,30 @@ export default function useIdentify() {
         loadTraits();
         return () => { isMounted = false; };
     }, []);
+
+    // Filter available traits based on parent dependencies
+    const availableTraits = useMemo(() => {
+        const selectedStateMap = new Map(selectedTraits.map(st => [st.traitId, st.stateId]));
+        
+        return allTraits.filter(trait => {
+            // If trait has no parent, it's always available
+            if (!trait.parentTraitId) return true;
+            
+            // If trait has a parent, verify if parent is selected with the required state
+            const parentSelectedState = selectedStateMap.get(trait.parentTraitId);
+            return parentSelectedState === trait.required_state_id || parentSelectedState === trait.requiredStateId;
+        });
+    }, [allTraits, selectedTraits]);
+
+    // Clean up selected traits if their parent requirement is no longer met
+    useEffect(() => {
+        const activeTraitIds = new Set(availableTraits.map(t => t.id));
+        setSelectedTraits(prev => {
+            const next = prev.filter(st => activeTraitIds.has(st.traitId));
+            if (next.length !== prev.length) return next;
+            return prev;
+        });
+    }, [availableTraits]);
 
     // Fetch Matching Species
     useEffect(() => {
