@@ -5,7 +5,7 @@
   "authors": "Anglano, M.",
   "contact": "marco.anglano@unisalento.it",
   "private": true,
-  "version": "0.6.04.02",
+  "version": "0.6.04.03",
   "type": "module",
   "scripts": {
     "dev": "vite",

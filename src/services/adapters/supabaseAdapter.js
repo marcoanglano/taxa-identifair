@@ -15,15 +15,15 @@ const queryDB = async (queryPromise) => {
 // ##### PRESETS SELECTION #####
 const PRESETS = {
     SPECIES_MINIMAL: "id_species, scientific_name, authority, family",
-    SPECIES_WITH_FILTERS: "*, filters(*)",
+    SPECIES_WITH_FILTERS: "*, filters!filters_id_species_fkey(*)",
     TRAITS_FULL: `
         id_trait, trait_category, trait_name, description, description_url, trait_icon_url, parent_trait_id, required_state_id,
-        trait_states ( id_state, state_label, sort_order, state_icon_url )
+        trait_states!trait_states_id_trait_fkey ( id_state, state_label, sort_order, state_icon_url )
     `,
     SPECIES_TRAITS_JOIN: `
         f_states, f_notes, f_notes_url, m_states, m_notes, m_notes_url,
         traits ( trait_category, trait_name,
-        trait_states ( id_state, state_label, state_icon_url )
+            trait_states!trait_states_id_trait_fkey ( id_state, state_label, state_icon_url )
         )
     `
 };
@@ -63,13 +63,21 @@ export const supabaseAdapter = {
 
     // # Species Details #
     async getSpeciesDetail(id) {
-        return queryDB(
+        const data = await queryDB(
             supabase
             .from("species")
             .select(PRESETS.SPECIES_WITH_FILTERS)
             .eq("id_species", id)
-            .single()
+            .maybeSingle()
         );
+        if (!data) return null;
+        const normalizedFilters = Array.isArray(data.filters) 
+            ? (data.filters[0] || null) 
+            : data.filters;
+        return {
+            ...data,
+            filters: normalizedFilters
+        };
     },
 
     // ##### TRAITS #####
