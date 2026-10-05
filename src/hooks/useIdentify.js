@@ -106,7 +106,7 @@ export default function useIdentify() {
             
             // If trait has a parent, verify if parent is selected with the required state
             const parentSelectedState = selectedStateMap.get(trait.parentTraitId);
-            return parentSelectedState === trait.required_state_id || parentSelectedState === trait.requiredStateId;
+            return parentSelectedState === trait.requiredStateId;
         });
     }, [allTraits, selectedTraits]);
 
