@@ -69,21 +69,27 @@ export default function useIdentify() {
                 setLoadingTraits(true);
                 const data = await getTraits();
                 if (isMounted) {
-                    const normalizedTraits = (data || []).map(t => ({
-                        id: t.id_trait,
-                        name: t.trait_name,
-                        category: t.trait_category,
-                        description: t.description,
-                        descriptionUrl: t.description_url,
-                        traitIcon: t.trait_icon_url,
-                        parentTraitId: t.parent_trait_id || null,
-                        requiredStateId: t.required_state_id || null,
-                        states: (t.trait_states || []).map(s => ({
-                            id: s.id_state,
-                            value: s.state_label,
-                            stateIcon: s.state_icon_url
-                        }))
-                    }));
+                    const normalizedTraits = (data || []).map(t => {
+                        // Controlla esplicitamente sia la sintassi snake_case che camelCase
+                        const isAsymAllowed = Boolean(t.can_be_asymmetric ?? t.canBeAsymmetric);
+                        
+                        return {
+                            id: t.id_trait,
+                            name: t.trait_name,
+                            category: t.trait_category,
+                            description: t.description,
+                            descriptionUrl: t.description_url,
+                            traitIcon: t.trait_icon_url,
+                            parentTraitId: t.parent_trait_id || null,
+                            requiredStateId: t.required_state_id || null,
+                            canBeAsymmetric: isAsymAllowed,
+                            states: (t.trait_states || []).map(s => ({
+                                id: s.id_state,
+                                value: s.state_label,
+                                stateIcon: s.state_icon_url
+                            }))
+                        };
+                    });
                     setAllTraits(normalizedTraits);
                 }
             } catch (err) {
@@ -98,13 +104,18 @@ export default function useIdentify() {
 
     // Filter available traits based on parent dependencies
     const availableTraits = useMemo(() => {
-        const selectedStateMap = new Map(selectedTraits.map(st => [st.traitId, st.stateId]));
+        const selectedStateMap = new Map();
+        selectedTraits.forEach(st => {
+            if (!st.isAsymmetric && st.stateId) {
+                selectedStateMap.set(st.traitId, st.stateId);
+            } else if (st.isAsymmetric) {
+                if (st.leftStateId) selectedStateMap.set(st.traitId, st.leftStateId);
+                if (st.rightStateId) selectedStateMap.set(st.traitId, st.rightStateId);
+            }
+        });
         
         return allTraits.filter(trait => {
-            // If trait has no parent, it's always available
             if (!trait.parentTraitId) return true;
-            
-            // If trait has a parent, verify if parent is selected with the required state
             const parentSelectedState = selectedStateMap.get(trait.parentTraitId);
             return parentSelectedState === trait.requiredStateId;
         });
@@ -131,34 +142,176 @@ export default function useIdentify() {
             }
             try {
                 setLoadingMatching(true);
-                const stateIds = selectedTraits.map(t => t.stateId);
-                const results = await getMatchingSpecies(stateIds);
-                if (isMounted) setMatchingSpecies(results);
-            } catch (err) {
-                if (isMounted) setError(err.message || "Error matching species.");
-            } finally {
-                if (isMounted) setLoadingMatching(false);
+
+                const symmetricStates = selectedTraits.filter(t => !t.isAsymmetric && t.stateId).map(t => t.stateId);
+                const leftStates = selectedTraits.filter(t => t.isAsymmetric && t.leftStateId).map(t => t.leftStateId);
+                const rightStates = selectedTraits.filter(t => t.isAsymmetric && t.rightStateId).map(t => t.rightStateId);
+                const results = await getMatchingSpecies({ symmetricStates, leftStates, rightStates });
+
+                if (isMounted) {
+                    const enrichedResults = (results || []).map(sp => {
+                        let rawTraits = sp.traits_info;
+                        if (typeof rawTraits === 'string') {
+                            try { rawTraits = JSON.parse(rawTraits); }
+                            catch (e) { rawTraits = []; }
+                        }
+                        const traitsList = Array.isArray(rawTraits) ? rawTraits : [];
+
+                        // 1. Consideriamo SOLO i tratti che l'utente ha effettivamente selezionato nell'interfaccia
+                        const selectedTraitIds = new Set(selectedTraits.map(st => st.traitId));
+                        const filteredTraitsList = traitsList.filter(ti => selectedTraitIds.has(ti.id_trait));
+
+                        return {
+                            ...sp,
+                            traits_info: filteredTraitsList.map(ti => {
+                                const traitObj = allTraits.find(t => t.id === ti.id_trait);
+                                const selectedInfo = selectedTraits.find(st => st.traitId === ti.id_trait);
+
+                                return {
+                                    ...ti,
+                                    trait_name: traitObj?.name || "",
+                                    is_asymmetric_selection: selectedInfo?.isAsymmetric || false,
+                                    trait_states: (traitObj?.states || []).map(s => ({
+                                        id_state: s.id,
+                                        state_label: s.value,
+                                        state_icon_url: s.stateIcon
+                                    }))
+                                };
+                            })
+                        };
+                    });
+                    setMatchingSpecies(enrichedResults);
+                }
             }
+            catch (err) { if (isMounted) setError(err.message || "Error matching species."); }
+            finally { if (isMounted) setLoadingMatching(false); }
         };
         fetchMatches();
         return () => { isMounted = false; };
-    }, [selectedTraits]);
+    }, [selectedTraits, allTraits]);
 
     // Handlers
-    const handleTraitSelect = (traitId, traitName, stateId, stateValue, iconUrl) => {
+    const handleToggleAsymmetry = (traitId, isAsymmetric) => {
         setSelectedTraits((prev) => {
-            const exists = prev.find((item) => item.traitId === traitId);
-            if (exists) {
-                if (exists.stateId === stateId) { return prev.filter((item) => item.traitId !== traitId); }
-                return prev.map((item) =>
-                    item.traitId === traitId ? { ...item, stateId, stateValue, iconUrl } : item
-                );
+            const existing = prev.find((t) => t.traitId === traitId);
+            const traitObj = allTraits.find((t) => t.id === traitId);
+
+            if (!existing) {
+                if (!isAsymmetric) return prev;
+                return [...prev, {
+                    traitId,
+                    traitName: traitObj?.name || "",
+                    isAsymmetric: true,
+                    leftStateId: null, leftStateValue: null, leftIconUrl: null,
+                    rightStateId: null, rightStateValue: null, rightIconUrl: null,
+                    stateId: null, stateValue: null, iconUrl: null
+                }];
             }
-            else { return [...prev, { traitId, traitName, stateId, stateValue, iconUrl }]; }
+
+            if (!isAsymmetric) {
+                const stateId = existing.stateId || existing.leftStateId || existing.rightStateId || null;
+                if (!stateId) return prev.filter((t) => t.traitId !== traitId);
+                
+                return prev.map((t) => t.traitId === traitId ? {
+                    ...t,
+                    isAsymmetric: false,
+                    stateId,
+                    stateValue: existing.stateValue || existing.leftStateValue || existing.rightStateValue || "",
+                    iconUrl: existing.iconUrl || existing.leftIconUrl || existing.rightIconUrl || null,
+                    leftStateId: null, leftStateValue: null, leftIconUrl: null,
+                    rightStateId: null, rightStateValue: null, rightIconUrl: null
+                } : t);
+            }
+
+            return prev.map((t) => t.traitId === traitId ? {
+                ...t,
+                isAsymmetric: true,
+                leftStateId: t.stateId || null,
+                leftStateValue: t.stateValue || null,
+                leftIconUrl: t.iconUrl || null,
+                stateId: null, stateValue: null, iconUrl: null
+            } : t);
         });
     };
-    const handleRemoveTrait = (traitId) => {
-        setSelectedTraits((prev) => prev.filter((item) => item.traitId !== traitId));
+
+    const handleTraitSelect = (traitObj, stateObj, side = null) => {
+        setSelectedTraits((prev) => {
+            const existing = prev.find((item) => item.traitId === traitObj.id);
+
+            // --- CASE 1: SYMMETRIC ---
+            if (!side) {
+                if (existing) {
+                    if (existing.stateId === stateObj.id) {
+                        return prev.filter((item) => item.traitId !== traitObj.id);
+                    }
+                    return prev.map((item) => item.traitId === traitObj.id ? {
+                        ...item,
+                        isAsymmetric: false,
+                        stateId: stateObj.id,
+                        stateValue: stateObj.value,
+                        iconUrl: stateObj.stateIcon
+                    } : item);
+                }
+                return [...prev, {
+                    traitId: traitObj.id,
+                    traitName: traitObj.name,
+                    isAsymmetric: false,
+                    stateId: stateObj.id,
+                    stateValue: stateObj.value,
+                    iconUrl: stateObj.stateIcon
+                }];
+            }
+
+            // --- CASE 2: ASYMMETRIC (L or R) ---
+            const isLeft = side === "left";
+            const keyId = isLeft ? "leftStateId" : "rightStateId";
+            const keyVal = isLeft ? "leftStateValue" : "rightStateValue";
+            const keyIcon = isLeft ? "leftIconUrl" : "rightIconUrl";
+
+            if (existing) {
+                const isDeselect = existing[keyId] === stateObj.id;
+                const updated = {
+                    ...existing,
+                    isAsymmetric: true,
+                    [keyId]: isDeselect ? null : stateObj.id,
+                    [keyVal]: isDeselect ? null : stateObj.value,
+                    [keyIcon]: isDeselect ? null : stateObj.stateIcon
+                };
+
+                if (!updated.leftStateId && !updated.rightStateId) {
+                    return prev.filter((item) => item.traitId !== traitObj.id);
+                }
+                return prev.map((item) => item.traitId === traitObj.id ? updated : item);
+            }
+
+            return [...prev, {
+                traitId: traitObj.id,
+                traitName: traitObj.name,
+                isAsymmetric: true,
+                [keyId]: stateObj.id,
+                [keyVal]: stateObj.value,
+                [keyIcon]: stateObj.stateIcon
+            }];
+        });
+    };
+
+    const handleRemoveTrait = (traitId, side = null) => {
+        setSelectedTraits((prev) => {
+            if (!side) {
+                return prev.filter((item) => item.traitId !== traitId);
+            }
+            return prev.map((item) => {
+                if (item.traitId !== traitId) return item;
+                const isLeft = side === "left";
+                const updated = {
+                    ...item,
+                    [isLeft ? "leftStateId" : "rightStateId"]: null,
+                    [isLeft ? "leftStateValue" : "rightStateValue"]: null,
+                    [isLeft ? "leftIconUrl" : "rightIconUrl"]: null
+                };
+                return (!updated.leftStateId && !updated.rightStateId) ? null : updated;
+            }).filter(Boolean);
+        });
     };
 
     // Filter Matching Species
@@ -207,7 +360,7 @@ export default function useIdentify() {
                 // 3. Sort by Scientific name
                 return a.scientific_name.localeCompare(b.scientific_name);
             });
-    }, [matchingSpecies, appliedFilters]);
+    }, [matchingSpecies, appliedFilters, selectedTraits]);
 
 
     return {
@@ -224,6 +377,7 @@ export default function useIdentify() {
         error,
         handleFilterChange,
         handleClearFilters,
+        handleToggleAsymmetry,
         handleTraitSelect,
         handleRemoveTrait
     };

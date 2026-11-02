@@ -58,48 +58,94 @@ export default function ID_matching({
 
                     <div className="matching-details">
                         {[
-                            {isMatch: sp.match_f, key: "f", label: "♀ Female", color: "var(--female-color)"},
-                            {isMatch: sp.match_m, key: "m", label: "♂ Male", color: "var(--male-color)"}
+                            { isMatch: sp.match_f, key: "f", label: "♀ Female", color: "var(--female-color)" },
+                            { isMatch: sp.match_m, key: "m", label: "♂ Male", color: "var(--male-color)" }
                         ].map((sex) => {
                             if (!sex.isMatch) return null;
                             return (
-
-                                // # Sex block #
                                 <div key={sex.key} className={`sex-traits-block ${sex.key}-block`}>
                                     <h5>{sex.label}</h5>
                                     <ul className="sex-traits">
                                         {sp.traits_info?.map((t) => {
-                                            const states = t[`${sex.key}_states`]
-                                            const notes = t[`${sex.key}_notes`]
-                                            const notesUrl = t[`${sex.key}_notes_url`]
-                                            const labels = resolveLabels(states, t.trait_states);
-                                            const icons = resolveIcons(states, t.trait_states);
-                                            const tooltipContent = (
-                                                <span>
-                                                    {t.trait_name.toUpperCase()}: {labels.toUpperCase()}
-                                                    {notes ? `. ${notes}.` : "."}
-                                                    {notesUrl ? " (Bar = 100 µm)" : ""}
-                                                </span>
-                                            );
+                                            const notes = t[`${sex.key}_notes`];
+                                            const notesUrl = t[`${sex.key}_notes_url`];
 
-                                            // Rendering
+                                            // Costruiamo la lista delle icone da mostrare tenendo conto di L e R
+                                            const iconsToRender = [];
+
+                                            if (!t.is_asymmetric_selection) {
+                                                // --- CASO SIMMETRICO ---
+                                                const states = t[`${sex.key}_left_states`]?.length 
+                                                    ? t[`${sex.key}_left_states`] 
+                                                    : (t[`${sex.key}_right_states`] || []);
+
+                                                const labels = resolveLabels(states, t.trait_states);
+                                                const icons = resolveIcons(states, t.trait_states);
+
+                                                icons.forEach((iconUrl) => {
+                                                    iconsToRender.push({
+                                                        iconUrl,
+                                                        tooltipText: `${t.trait_name.toUpperCase()}: ${labels.toUpperCase()}${notes ? `. ${notes}.` : "."}${notesUrl ? " (Bar = 100 µm)" : ""}`
+                                                    });
+                                                });
+                                            } else {
+                                                // --- CASO ASIMMETRICO (L / R) ---
+                                                const leftStates = t[`${sex.key}_left_states`] || [];
+                                                const rightStates = t[`${sex.key}_right_states`] || [];
+
+                                                const leftLabels = resolveLabels(leftStates, t.trait_states);
+                                                const leftIcons = resolveIcons(leftStates, t.trait_states);
+
+                                                const rightLabels = resolveLabels(rightStates, t.trait_states);
+                                                const rightIcons = resolveIcons(rightStates, t.trait_states);
+
+                                                // Se i due lati hanno lo stesso identico stato nella specie
+                                                const isSameOnBothSides = leftStates.length > 0 && 
+                                                    leftStates.length === rightStates.length && 
+                                                    leftStates.every((val, idx) => val === rightStates[idx]);
+
+                                                if (isSameOnBothSides) {
+                                                    leftIcons.forEach((iconUrl) => {
+                                                        iconsToRender.push({
+                                                            iconUrl,
+                                                            tooltipText: `${t.trait_name.toUpperCase()} (L&R): ${leftLabels.toUpperCase()}${notes ? `. ${notes}.` : "."}${notesUrl ? " (Bar = 100 µm)" : ""}`
+                                                        });
+                                                    });
+                                                } else {
+                                                    // Lato Sinistro (L)
+                                                    leftIcons.forEach((iconUrl) => {
+                                                        iconsToRender.push({
+                                                            iconUrl,
+                                                            tooltipText: `${t.trait_name.toUpperCase()} (L): ${leftLabels.toUpperCase()}${notes ? `. ${notes}.` : "."}${notesUrl ? " (Bar = 100 µm)" : ""}`
+                                                        });
+                                                    });
+                                                    // Lato Destro (R)
+                                                    rightIcons.forEach((iconUrl) => {
+                                                        iconsToRender.push({
+                                                            iconUrl,
+                                                            tooltipText: `${t.trait_name.toUpperCase()} (R): ${rightLabels.toUpperCase()}${notes ? `. ${notes}.` : "."}${notesUrl ? " (Bar = 100 µm)" : ""}`
+                                                        });
+                                                    });
+                                                }
+                                            }
+
+                                            if (iconsToRender.length === 0) return null;
+
                                             return (
                                                 <li key={t.id_trait} className="sex-traits-item">
-                                                    {icons.length > 0 && (
-                                                        <span className="sex-traits-icons">
-                                                            {icons.map((url, i) => (
-                                                                <Icon
-                                                                    key={i}
-                                                                    iconUrl={url}
-                                                                    size={36}
-                                                                    color={sex.color}
-                                                                    className={`${sex.key}-state`}
-                                                                    tooltipImage={notesUrl}
-                                                                    tooltipText={tooltipContent}
-                                                                />
-                                                            ))}
-                                                        </span>
-                                                    )}
+                                                    <span className="sex-traits-icons">
+                                                        {iconsToRender.map((item, i) => (
+                                                            <Icon
+                                                                key={i}
+                                                                iconUrl={item.iconUrl}
+                                                                size={36}
+                                                                color={sex.color}
+                                                                className={`${sex.key}-state`}
+                                                                tooltipImage={notesUrl}
+                                                                tooltipText={<span>{item.tooltipText}</span>}
+                                                            />
+                                                        ))}
+                                                    </span>
                                                 </li>
                                             );
                                         })}

@@ -16,7 +16,7 @@ export default function Identify() {
     filters, loadingFilters, filtersSchema, hasDraftValues,
     handleFilterChange, handleClearFilters,
     loadingTraits, availableTraits, selectedTraits,
-    handleTraitSelect, handleRemoveTrait,
+    handleToggleAsymmetry, handleTraitSelect, handleRemoveTrait,
     matchingSpecies, loadingMatching, error
   } = useIdentify();
 
@@ -72,7 +72,12 @@ export default function Identify() {
             </div>
 
             {/* # TRAITS # */}
-            <ID_traits traits={availableTraits} selectedTraits={selectedTraits} onSelect={handleTraitSelect} />
+            <ID_traits
+              traits={availableTraits}
+              selectedTraits={selectedTraits}
+              onSelect={handleTraitSelect}
+              onToggleAsymmetry={handleToggleAsymmetry}
+            />
           </div>
         </div>
 

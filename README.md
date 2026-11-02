@@ -39,6 +39,7 @@ General revision of database, code and style to improve efficiency before the fi
     - SpeciesDetail:
         - Improve trait section: icons, f/m/common traits, etc.
         - Gallery (from GBIF? Filter cards and documents).
+        - Interactive, full picture of the species.
     - SpeciesList:
         - Search function with filters (family, genus, environment, etc.).
         - Family icons.

@@ -17,12 +17,17 @@ const PRESETS = {
     SPECIES_MINIMAL: "id_species, scientific_name, authority, family",
     SPECIES_WITH_FILTERS: "*, filters!filters_id_species_fkey(*)",
     TRAITS_FULL: `
-        id_trait, trait_category, trait_name, description, description_url, trait_icon_url, parent_trait_id, required_state_id,
+        id_trait, trait_category, trait_name, description, description_url, trait_icon_url,
+        can_be_asymmetric, parent_trait_id, required_state_id,
         trait_states!trait_states_id_trait_fkey ( id_state, state_label, sort_order, state_icon_url )
     `,
     SPECIES_TRAITS_JOIN: `
-        f_states, f_notes, f_notes_url, m_states, m_notes, m_notes_url,
-        traits ( trait_category, trait_name,
+        f_left_states, f_right_states, f_notes, f_notes_url, 
+        m_left_states, m_right_states, m_notes, m_notes_url,
+        traits ( 
+            trait_category, 
+            trait_name, 
+            can_be_asymmetric,
             trait_states!trait_states_id_trait_fkey ( id_state, state_label, state_icon_url )
         )
     `
@@ -110,11 +115,16 @@ export const supabaseAdapter = {
     },
 
     // ##### MATCHING SPECIES #####
-    async getMatchingSpeciesRPC(stateIds) {
-        if (!stateIds.length) return [];
+    async getMatchingSpeciesRPC(payload) {
+        const { symmetricStates = [], leftStates = [], rightStates = [] } = payload;
+        if (!symmetricStates.length && !leftStates.length && !rightStates.length) return [];
+
         const matchedData = await queryDB(
-            supabase
-            .rpc("match_species", { selected_states: stateIds })
+            supabase.rpc("match_species", {
+                p_symmetric_states: symmetricStates,
+                p_left_states: leftStates,
+                p_right_states: rightStates
+            })
         );
         if (!matchedData || matchedData.length === 0) return [];
         

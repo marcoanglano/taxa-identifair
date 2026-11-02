@@ -131,6 +131,35 @@
 }
 .state-active:hover { background-color: var(--sec-color-DD); }
 
+/* Asymmetric states */
+.asymmetry-toggle-bar {
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed var(--prim-color-LL);
+}
+.asymmetry-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.asymmetric-grid-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.side-label {
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: var(--prim-color-LLL);
+}
+
 
 /* ##### RIGHT COLUMN: ACTIVE STATES, MATCHING SPECIES ##### */
 .title-margin { margin-bottom: 10px; }
