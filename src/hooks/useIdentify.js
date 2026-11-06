@@ -4,6 +4,10 @@ import { useState, useEffect, useMemo } from 'react';
 // SERVICES
 import { getFilters, getMatchingSpecies, getTraits } from '../services/dataService';
 
+// ##### HELPER #####
+// Filtra gli stati validi rimuovendo valori vuoti o nulli (evita falsi positivi da [""] o null)
+const getValidStates = (arr) => (Array.isArray(arr) ? arr.filter(s => s && s.trim() !== "") : []);
+
 export default function useIdentify() {
 
 
@@ -40,7 +44,6 @@ export default function useIdentify() {
         return () => clearTimeout(handler);
     }, [filters]);
 
-    // Handlers
     const handleFilterChange = (key, value) => { setFilters((prev) => ({ ...prev, [key]: value })); };
     const handleClearFilters = () => {
         setFilters(emptyState);
@@ -70,7 +73,6 @@ export default function useIdentify() {
                 const data = await getTraits();
                 if (isMounted) {
                     const normalizedTraits = (data || []).map(t => {
-                        // Controlla esplicitamente sia la sintassi snake_case che camelCase
                         const isAsymAllowed = Boolean(t.can_be_asymmetric ?? t.canBeAsymmetric);
                         
                         return {
@@ -157,27 +159,37 @@ export default function useIdentify() {
                         }
                         const traitsList = Array.isArray(rawTraits) ? rawTraits : [];
 
-                        // 1. Consideriamo SOLO i tratti che l'utente ha effettivamente selezionato nell'interfaccia
-                        const selectedTraitIds = new Set(selectedTraits.map(st => st.traitId));
-                        const filteredTraitsList = traitsList.filter(ti => selectedTraitIds.has(ti.id_trait));
+                        // 1. Mappa i tratti inviati dal DB
+                        const dbTraitsMap = new Map(traitsList.map(t => [t.id_trait, t]));
+
+                        // 2. Costruisci traits_info garantendo la presenza di OGNI tratto selezionato
+                        const completeTraitsInfo = selectedTraits.map(st => {
+                            const dbTrait = dbTraitsMap.get(st.traitId);
+                            const traitObj = allTraits.find(t => t.id === st.traitId);
+
+                            return {
+                                id_trait: st.traitId,
+                                trait_name: traitObj?.name || "",
+                                is_asymmetric_selection: st.isAsymmetric || false,
+                                trait_states: (traitObj?.states || []).map(s => ({
+                                    id_state: s.id,
+                                    state_label: s.value,
+                                    state_icon_url: s.stateIcon
+                                })),
+                                f_left_states: dbTrait?.f_left_states || [],
+                                f_right_states: dbTrait?.f_right_states || [],
+                                f_notes: dbTrait?.f_notes || null,
+                                f_notes_url: dbTrait?.f_notes_url || null,
+                                m_left_states: dbTrait?.m_left_states || [],
+                                m_right_states: dbTrait?.m_right_states || [],
+                                m_notes: dbTrait?.m_notes || null,
+                                m_notes_url: dbTrait?.m_notes_url || null,
+                            };
+                        });
 
                         return {
                             ...sp,
-                            traits_info: filteredTraitsList.map(ti => {
-                                const traitObj = allTraits.find(t => t.id === ti.id_trait);
-                                const selectedInfo = selectedTraits.find(st => st.traitId === ti.id_trait);
-
-                                return {
-                                    ...ti,
-                                    trait_name: traitObj?.name || "",
-                                    is_asymmetric_selection: selectedInfo?.isAsymmetric || false,
-                                    trait_states: (traitObj?.states || []).map(s => ({
-                                        id_state: s.id,
-                                        state_label: s.value,
-                                        state_icon_url: s.stateIcon
-                                    }))
-                                };
-                            })
+                            traits_info: completeTraitsInfo
                         };
                     });
                     setMatchingSpecies(enrichedResults);
@@ -320,6 +332,7 @@ export default function useIdentify() {
         const { sex, environment, minLength, maxLength } = appliedFilters;
         const reqMin = minLength !== "" && minLength !== null ? parseFloat(minLength) : null;
         const reqMax = maxLength !== "" && maxLength !== null ? parseFloat(maxLength) : null;
+        
         const isWithinRange = (spMin, spMax) => {
             if (spMin === null && spMax === null) return true;
             const effectiveMin = spMin ?? spMax;
@@ -332,32 +345,109 @@ export default function useIdentify() {
         return matchingSpecies
             .map((sp) => {
                 const { f_min = null, f_max = null, m_min = null, m_max = null } = sp.filters || {};
-                const match_f = sp.match_f && (sex !== "male") && isWithinRange(f_min, f_max);
-                const match_m = sp.match_m && (sex !== "female") && isWithinRange(m_min, m_max);
+                
+                let match_f = Boolean(sp.match_f) && (sex !== "male") && isWithinRange(f_min, f_max);
+                let match_m = Boolean(sp.match_m) && (sex !== "female") && isWithinRange(m_min, m_max);
+                
+                const missing_f = [];
+                const missing_m = [];
 
-                // Missing info
-                const missingInfo = [];
-                // Filters
                 if ((reqMin !== null || reqMax !== null)) {
-                    if (match_f && f_min === null) { missingInfo.push("Female body length"); }
-                    if (match_m && m_min === null) { missingInfo.push("Male body length"); }
+                    if (match_f && f_min === null) missing_f.push("Female body length");
+                    if (match_m && m_min === null) missing_m.push("Male body length");
                 }
-                // Traits
-                const speciesTraitIds = new Set((sp.traits_info || []).map((t) => t.id_trait));
-                selectedTraits.forEach((st) => {
-                    if (!speciesTraitIds.has(st.traitId)) { missingInfo.push(st.traitName); }
-                });
-                const hasMissingData = missingInfo.length > 0;
 
-                return { ...sp, match_f, match_m, hasMissingData, missingInfo };
+                const speciesTraitsMap = new Map((sp.traits_info || []).map((t) => [t.id_trait, t]));
+
+                selectedTraits.forEach((st) => {
+                    const traitData = speciesTraitsMap.get(st.traitId);
+                    
+                    if (!traitData) {
+                        if (match_f) missing_f.push(`${st.traitName} (♀)`);
+                        if (match_m) missing_m.push(`${st.traitName} (♂)`);
+                        return;
+                    }
+
+                    // --- VERIFICA FEMMINA (♀) ---
+                    if (match_f) {
+                        if (!st.isAsymmetric) {
+                            const fLeft = getValidStates(traitData.f_left_states);
+                            const fRight = getValidStates(traitData.f_right_states);
+                            const fStates = fLeft.length > 0 ? fLeft : fRight;
+                            
+                            if (fStates.length === 0) {
+                                missing_f.push(`${st.traitName} (♀)`);
+                            } else if (st.stateId && !fStates.includes(st.stateId)) {
+                                match_f = false;
+                            }
+                        } else {
+                            if (st.leftStateId) {
+                                const left = getValidStates(traitData.f_left_states);
+                                if (left.length === 0) missing_f.push(`${st.traitName} Left (♀)`);
+                                else if (!left.includes(st.leftStateId)) match_f = false;
+                            }
+                            if (st.rightStateId) {
+                                const right = getValidStates(traitData.f_right_states);
+                                if (right.length === 0) missing_f.push(`${st.traitName} Right (♀)`);
+                                else if (!right.includes(st.rightStateId)) match_f = false;
+                            }
+                        }
+                    }
+
+                    // --- VERIFICA MASCHIO (♂) ---
+                    if (match_m) {
+                        if (!st.isAsymmetric) {
+                            const mLeft = getValidStates(traitData.m_left_states);
+                            const mRight = getValidStates(traitData.m_right_states);
+                            const mStates = mLeft.length > 0 ? mLeft : mRight;
+                            
+                            if (mStates.length === 0) {
+                                missing_m.push(`${st.traitName} (♂)`);
+                            } else if (st.stateId && !mStates.includes(st.stateId)) {
+                                match_m = false;
+                            }
+                        } else {
+                            if (st.leftStateId) {
+                                const left = getValidStates(traitData.m_left_states);
+                                if (left.length === 0) missing_m.push(`${st.traitName} Left (♂)`);
+                                else if (!left.includes(st.leftStateId)) match_m = false;
+                            }
+                            if (st.rightStateId) {
+                                const right = getValidStates(traitData.m_right_states);
+                                if (right.length === 0) missing_m.push(`${st.traitName} Right (♂)`);
+                                else if (!right.includes(st.rightStateId)) match_m = false;
+                            }
+                        }
+                    }
+                });
+
+                const fHasMissing = match_f && missing_f.length > 0;
+                const mHasMissing = match_m && missing_m.length > 0;
+
+                // 1. PRESENZA DATO MANCANTE (Per formattazione visiva in ID_matching):
+                // È true se QUALSIASI sesso combaciante ha almeno un dato mancante.
+                const hasMissingData = fHasMissing || mHasMissing;
+
+                // 2. RETROCECIONE / ORDINAMENTO IN FONDO (Per la classifica):
+                // È true SOLO SE tutti i sessi che combaciano hanno dati mancanti.
+                let shouldDemote = false;
+                if (match_f && match_m) {
+                    shouldDemote = fHasMissing && mHasMissing;
+                } else if (match_f) {
+                    shouldDemote = fHasMissing;
+                } else if (match_m) {
+                    shouldDemote = mHasMissing;
+                }
+
+                const missingInfo = [...new Set([...(match_f ? missing_f : []), ...(match_m ? missing_m : [])])];
+
+                return { ...sp, match_f, match_m, hasMissingData, shouldDemote, missingInfo };
             })
-            .filter((sp) => sp.match_f || sp.match_m )
+            .filter((sp) => sp.match_f || sp.match_m)
             .sort((a, b) => {
-                // 1. Sort by hasMissingData
-                if (a.hasMissingData !== b.hasMissingData) { return a.hasMissingData ? 1 : -1; }
-                // 2. Sort by Family
+                // Si ordina in base a `shouldDemote` invece di `hasMissingData`
+                if (a.shouldDemote !== b.shouldDemote) { return a.shouldDemote ? 1 : -1; }
                 if (a.family !== b.family) { return a.family.localeCompare(b.family); }
-                // 3. Sort by Scientific name
                 return a.scientific_name.localeCompare(b.scientific_name);
             });
     }, [matchingSpecies, appliedFilters, selectedTraits]);

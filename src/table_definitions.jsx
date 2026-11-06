@@ -205,146 +205,172 @@ group by s.id_species, s.scientific_name, s.family, f.environment, f.f_min, f.f_
         (st_table.f_left_states || st_table.f_right_states) as f_all_states,
         (st_table.m_left_states || st_table.m_right_states) as m_all_states
       from public.species s
-      join public.species_traits st_table on s.id_species = st_table.id_species
+      left join public.species_traits st_table on s.id_species = st_table.id_species
     )
     select 
       se.id_species,
       se.scientific_name,
       se.family,
       
-      -- MATCH FEMMINA (♀)
+      -- MATCH FEMMINA (♀): Match se lo stato è presente OPPURE se il dato è assente (array vuoto o riga mancante)
       (
         (cardinality(p_symmetric_states) = 0 or coalesce((
-          select bool_and(exists (
-            select 1 from species_expanded se_sub
-            where se_sub.id_species = se.id_species
-              and sym_st = any(se_sub.f_all_states)
-          ))
+          select bool_and(
+            se_sub_full.id_trait is null
+            or coalesce(cardinality(se_sub_full.f_all_states), 0) = 0
+            or sym_st = any(se_sub_full.f_all_states)
+          )
           from unnest(p_symmetric_states) sym_st
+          left join species_expanded se_sub_full 
+            on se_sub_full.id_species = se.id_species 
+          and se_sub_full.id_trait = (select id_trait from public.trait_states where id_state = sym_st limit 1)
         ), true))
         AND
         (cardinality(p_left_states) = 0 or coalesce((
-          select bool_and(exists (
-            select 1 from species_expanded se_sub
-            where se_sub.id_species = se.id_species
-              and l_st = any(se_sub.f_left_states)
-          ))
+          select bool_and(
+            se_sub_full.id_trait is null
+            or coalesce(cardinality(se_sub_full.f_left_states), 0) = 0
+            or l_st = any(se_sub_full.f_left_states)
+          )
           from unnest(p_left_states) l_st
+          left join species_expanded se_sub_full 
+            on se_sub_full.id_species = se.id_species 
+          and se_sub_full.id_trait = (select id_trait from public.trait_states where id_state = l_st limit 1)
         ), true))
         AND
         (cardinality(p_right_states) = 0 or coalesce((
-          select bool_and(exists (
-            select 1 from species_expanded se_sub
-            where se_sub.id_species = se.id_species
-              and r_st = any(se_sub.f_right_states)
-          ))
+          select bool_and(
+            se_sub_full.id_trait is null
+            or coalesce(cardinality(se_sub_full.f_right_states), 0) = 0
+            or r_st = any(se_sub_full.f_right_states)
+          )
           from unnest(p_right_states) r_st
+          left join species_expanded se_sub_full 
+            on se_sub_full.id_species = se.id_species 
+          and se_sub_full.id_trait = (select id_trait from public.trait_states where id_state = r_st limit 1)
         ), true))
       ) as match_f,
 
       -- MATCH MASCHIO (♂)
       (
         (cardinality(p_symmetric_states) = 0 or coalesce((
-          select bool_and(exists (
-            select 1 from species_expanded se_sub
-            where se_sub.id_species = se.id_species
-              and sym_st = any(se_sub.m_all_states)
-          ))
+          select bool_and(
+            se_sub_full.id_trait is null
+            or coalesce(cardinality(se_sub_full.m_all_states), 0) = 0
+            or sym_st = any(se_sub_full.m_all_states)
+          )
           from unnest(p_symmetric_states) sym_st
+          left join species_expanded se_sub_full 
+            on se_sub_full.id_species = se.id_species 
+          and se_sub_full.id_trait = (select id_trait from public.trait_states where id_state = sym_st limit 1)
         ), true))
         AND
         (cardinality(p_left_states) = 0 or coalesce((
-          select bool_and(exists (
-            select 1 from species_expanded se_sub
-            where se_sub.id_species = se.id_species
-              and l_st = any(se_sub.m_left_states)
-          ))
+          select bool_and(
+            se_sub_full.id_trait is null
+            or coalesce(cardinality(se_sub_full.m_left_states), 0) = 0
+            or l_st = any(se_sub_full.m_left_states)
+          )
           from unnest(p_left_states) l_st
+          left join species_expanded se_sub_full 
+            on se_sub_full.id_species = se.id_species 
+          and se_sub_full.id_trait = (select id_trait from public.trait_states where id_state = l_st limit 1)
         ), true))
         AND
         (cardinality(p_right_states) = 0 or coalesce((
-          select bool_and(exists (
-            select 1 from species_expanded se_sub
-            where se_sub.id_species = se.id_species
-              and r_st = any(se_sub.m_right_states)
-          ))
+          select bool_and(
+            se_sub_full.id_trait is null
+            or coalesce(cardinality(se_sub_full.m_right_states), 0) = 0
+            or r_st = any(se_sub_full.m_right_states)
+          )
           from unnest(p_right_states) r_st
+          left join species_expanded se_sub_full 
+            on se_sub_full.id_species = se.id_species 
+          and se_sub_full.id_trait = (select id_trait from public.trait_states where id_state = r_st limit 1)
         ), true))
       ) as match_m,
 
-      jsonb_agg(
-        jsonb_build_object(
-          'id_trait', se.id_trait,
-          'f_left_states', se.f_left_states,
-          'f_right_states', se.f_right_states,
-          'f_notes', se.f_notes,
-          'f_notes_url', se.f_notes_url,
-          'm_left_states', se.m_left_states,
-          'm_right_states', se.m_right_states,
-          'm_notes', se.m_notes,
-          'm_notes_url', se.m_notes_url
-        )
+      coalesce(
+        jsonb_agg(
+          jsonb_build_object(
+            'id_trait', se.id_trait,
+            'f_left_states', se.f_left_states,
+            'f_right_states', se.f_right_states,
+            'f_notes', se.f_notes,
+            'f_notes_url', se.f_notes_url,
+            'm_left_states', se.m_left_states,
+            'm_right_states', se.m_right_states,
+            'm_notes', se.m_notes,
+            'm_notes_url', se.m_notes_url
+          )
+        ) filter (where se.id_trait is not null),
+        '[]'::jsonb
       ) as traits_info
 
     from species_expanded se
     group by se.id_species, se.scientific_name, se.family
     having 
-      -- Deve matchare la femmina OPPURE il maschio
       (
         (cardinality(p_symmetric_states) = 0 or coalesce((
-          select bool_and(exists (
-            select 1 from species_expanded se_sub
-            where se_sub.id_species = se.id_species
-              and sym_st = any(se_sub.f_all_states)
-          ))
+          select bool_and(
+            se_sub_full.id_trait is null
+            or coalesce(cardinality(se_sub_full.f_all_states), 0) = 0
+            or sym_st = any(se_sub_full.f_all_states)
+          )
           from unnest(p_symmetric_states) sym_st
+          left join species_expanded se_sub_full on se_sub_full.id_species = se.id_species and se_sub_full.id_trait = (select id_trait from public.trait_states where id_state = sym_st limit 1)
         ), true))
         AND
         (cardinality(p_left_states) = 0 or coalesce((
-          select bool_and(exists (
-            select 1 from species_expanded se_sub
-            where se_sub.id_species = se.id_species
-              and l_st = any(se_sub.f_left_states)
-          ))
+          select bool_and(
+            se_sub_full.id_trait is null
+            or coalesce(cardinality(se_sub_full.f_left_states), 0) = 0
+            or l_st = any(se_sub_full.f_left_states)
+          )
           from unnest(p_left_states) l_st
+          left join species_expanded se_sub_full on se_sub_full.id_species = se.id_species and se_sub_full.id_trait = (select id_trait from public.trait_states where id_state = l_st limit 1)
         ), true))
         AND
         (cardinality(p_right_states) = 0 or coalesce((
-          select bool_and(exists (
-            select 1 from species_expanded se_sub
-            where se_sub.id_species = se.id_species
-              and r_st = any(se_sub.f_right_states)
-          ))
+          select bool_and(
+            se_sub_full.id_trait is null
+            or coalesce(cardinality(se_sub_full.f_right_states), 0) = 0
+            or r_st = any(se_sub_full.f_right_states)
+          )
           from unnest(p_right_states) r_st
+          left join species_expanded se_sub_full on se_sub_full.id_species = se.id_species and se_sub_full.id_trait = (select id_trait from public.trait_states where id_state = r_st limit 1)
         ), true))
       )
       OR
       (
         (cardinality(p_symmetric_states) = 0 or coalesce((
-          select bool_and(exists (
-            select 1 from species_expanded se_sub
-            where se_sub.id_species = se.id_species
-              and sym_st = any(se_sub.m_all_states)
-          ))
+          select bool_and(
+            se_sub_full.id_trait is null
+            or coalesce(cardinality(se_sub_full.m_all_states), 0) = 0
+            or sym_st = any(se_sub_full.m_all_states)
+          )
           from unnest(p_symmetric_states) sym_st
+          left join species_expanded se_sub_full on se_sub_full.id_species = se.id_species and se_sub_full.id_trait = (select id_trait from public.trait_states where id_state = sym_st limit 1)
         ), true))
         AND
         (cardinality(p_left_states) = 0 or coalesce((
-          select bool_and(exists (
-            select 1 from species_expanded se_sub
-            where se_sub.id_species = se.id_species
-              and l_st = any(se_sub.m_left_states)
-          ))
+          select bool_and(
+            se_sub_full.id_trait is null
+            or coalesce(cardinality(se_sub_full.m_left_states), 0) = 0
+            or l_st = any(se_sub_full.m_left_states)
+          )
           from unnest(p_left_states) l_st
+          left join species_expanded se_sub_full on se_sub_full.id_species = se.id_species and se_sub_full.id_trait = (select id_trait from public.trait_states where id_state = l_st limit 1)
         ), true))
         AND
         (cardinality(p_right_states) = 0 or coalesce((
-          select bool_and(exists (
-            select 1 from species_expanded se_sub
-            where se_sub.id_species = se.id_species
-              and r_st = any(se_sub.m_right_states)
-          ))
+          select bool_and(
+            se_sub_full.id_trait is null
+            or coalesce(cardinality(se_sub_full.m_right_states), 0) = 0
+            or r_st = any(se_sub_full.m_right_states)
+          )
           from unnest(p_right_states) r_st
+          left join species_expanded se_sub_full on se_sub_full.id_species = se.id_species and se_sub_full.id_trait = (select id_trait from public.trait_states where id_state = r_st limit 1)
         ), true))
       );
   end;
