@@ -114,34 +114,6 @@ export const supabaseAdapter = {
         );
     },
 
-    // ##### MATCHING SPECIES #####
-    async getMatchingSpeciesRPC(payload) {
-        const { symmetricStates = [], leftStates = [], rightStates = [] } = payload;
-        if (!symmetricStates.length && !leftStates.length && !rightStates.length) return [];
-
-        const matchedData = await queryDB(
-            supabase.rpc("match_species", {
-                p_symmetric_states: symmetricStates,
-                p_left_states: leftStates,
-                p_right_states: rightStates
-            })
-        );
-        if (!matchedData || matchedData.length === 0) return [];
-        
-        const speciesIds = matchedData.map((sp) => sp.id_species);
-        const filtersData = await queryDB(
-            supabase
-            .from("filters")
-            .select("id_species, environment, f_min, f_max, m_min, m_max")
-            .in("id_species", speciesIds)
-        );
-        const filtersMap = new Map((filtersData || []).map((f) => [f.id_species, f]));
-        return matchedData.map((sp) => ({
-            ...sp,
-            filters: filtersMap.get(sp.id_species) || null
-        }));
-    },
-
 
     // ================================================
     // 3. DB DOWNLOAD & VERSIONING

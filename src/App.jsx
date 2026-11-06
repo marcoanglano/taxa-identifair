@@ -1,5 +1,6 @@
 // ##### IMPORTS #####
 // LIB
+import { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 // COMPONENTS
 import Navbar from "./components/Navbar";
@@ -10,10 +11,20 @@ import Identify from "./pages/Identify";
 import SpeciesDetail from "./pages/SpeciesDetail";
 import SpeciesList from "./pages/SpeciesList";
 import Test from "./pages/Test";
+// SERVICES
+import { getIdentificationDataset } from "./services/dataService";
 // VERSION
 import { authors, contact, description, title, version } from "../package.json";
 
 export default function App() {
+
+
+  // ##### PRE-LOAD DATASET #####
+  useEffect(() => {
+    getIdentificationDataset().catch((err) => {
+      console.warn("Pre-fetch del dataset fallito in background:", err);
+    });
+  }, []);
 
 
   // ##### FUNCTION: COPY CONTACT #####

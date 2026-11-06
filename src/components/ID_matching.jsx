@@ -21,6 +21,7 @@ export default function ID_matching({
     const accordionItems = useMemo(() => {
         return species.map((sp) => {
             const isBoth = sp.match_f && sp.match_m;
+            let noIcons = false;
             return {
                 id: sp.id_species,
 
@@ -72,7 +73,6 @@ export default function ID_matching({
 
                                             // Costruiamo la lista delle icone da mostrare tenendo conto di L e R
                                             const iconsToRender = [];
-                                            let noIcons = false;
 
                                             if (!t.is_asymmetric_selection) {
                                                 // --- CASO SIMMETRICO ---
@@ -136,24 +136,23 @@ export default function ID_matching({
                                             return (
                                                 <li key={t.id_trait} className="sex-traits-item">
                                                     <span className="sex-traits-icons">
-                                                        {noIcons ? ( "⚠️ Missing data" ) : (
-                                                            iconsToRender.map((item, i) => (
-                                                                <Icon
-                                                                    key={i}
-                                                                    iconUrl={item.iconUrl}
-                                                                    size={36}
-                                                                    color={sex.color}
-                                                                    className={`${sex.key}-state`}
-                                                                    tooltipImage={notesUrl}
-                                                                    tooltipText={<span>{item.tooltipText}</span>}
-                                                                />
-                                                            ))
-                                                        )}
+                                                        {iconsToRender.map((item, i) => (
+                                                            <Icon
+                                                                key={i}
+                                                                iconUrl={item.iconUrl}
+                                                                size={36}
+                                                                color={sex.color}
+                                                                className={`${sex.key}-state`}
+                                                                tooltipImage={notesUrl}
+                                                                tooltipText={<span>{item.tooltipText}</span>}
+                                                            />
+                                                        ))}
                                                     </span>
                                                 </li>
                                             );
                                         })}
                                     </ul>
+                                    {noIcons ? "⚠️ Missing data" : ""}
                                 </div>
                             );
                         })}

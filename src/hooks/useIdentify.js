@@ -1,44 +1,58 @@
 // ##### IMPORTS #####
-// LIB
 import { useState, useEffect, useMemo } from 'react';
-// SERVICES
-import { getFilters, getMatchingSpecies, getTraits } from '../services/dataService';
+import { getFilters, getTraits, getIdentificationDataset } from '../services/dataService';
+import { calculateMatchesJS } from '../utils/matchingEngine';
 
-// ##### HELPER #####
-// Filtra gli stati validi rimuovendo valori vuoti o nulli (evita falsi positivi da [""] o null)
 const getValidStates = (arr) => (Array.isArray(arr) ? arr.filter(s => s && s.trim() !== "") : []);
 
 export default function useIdentify() {
-
-
-    // ##### FILTERS #####
-
-    // States
+    // Statics / Schema
     const emptyState = { sex: "", environment: "", minLength: "", maxLength: "" };
     const [filtersSchema, setFiltersSchema] = useState([]);
     const [loadingFilters, setLoadingFilters] = useState(true);
-    // Active state (user input)
     const [filters, setFilters] = useState(emptyState);
-    // Debounce state
     const [appliedFilters, setAppliedFilters] = useState(emptyState);
 
-    // Fetch
+    // Full Local Dataset state (Caricamento automatico da IndexedDB/Supabase)
+    const [dataset, setDataset] = useState([]);
+    const [loadingDataset, setLoadingDataset] = useState(true);
+
+    const [allTraits, setAllTraits] = useState([]);
+    const [selectedTraits, setSelectedTraits] = useState([]);
+    const [loadingTraits, setLoadingTraits] = useState(true);
+    const [error, setError] = useState(null);
+
+    // 1. CARICAMENTO AUTOMATICO DATASET & FILTRI AL MOUNT
     useEffect(() => {
         let isMounted = true;
-        const loadFiltersSchema = async () => {
+        const loadInitialData = async () => {
             try {
                 setLoadingFilters(true);
-                const schema = await getFilters();
-                if (isMounted) setFiltersSchema(schema);
+                setLoadingDataset(true);
+                
+                const [schema, fullData] = await Promise.all([
+                    getFilters(),
+                    getIdentificationDataset() // <- Fa partire l'auto-sync/fetch su IndexedDB
+                ]);
+
+                if (isMounted) {
+                    setFiltersSchema(schema);
+                    setDataset(fullData);
+                }
+            } catch (err) {
+                if (isMounted) setError(err.message || "Errore nel caricamento del dataset.");
+            } finally {
+                if (isMounted) {
+                    setLoadingFilters(false);
+                    setLoadingDataset(false);
+                }
             }
-            catch (err) { console.error("Error fetching filters schema:", err); }
-            finally { if (isMounted) setLoadingFilters(false); }
         };
-        loadFiltersSchema();
+        loadInitialData();
         return () => { isMounted = false; };
     }, []);
 
-    // Debounce (300ms)
+    // Debounce filtri contestuali
     useEffect(() => {
         const handler = setTimeout(() => { setAppliedFilters(filters); }, 300);
         return () => clearTimeout(handler);
@@ -53,18 +67,7 @@ export default function useIdentify() {
         (val) => val !== "" && val !== null && val !== undefined
     );
 
-
-    // ##### TRAITS & MATCHING SPECIES #####
-
-    // States
-    const [allTraits, setAllTraits] = useState([]);
-    const [selectedTraits, setSelectedTraits] = useState([]);
-    const [matchingSpecies, setMatchingSpecies] = useState([]);
-    const [loadingTraits, setLoadingTraits] = useState(true);
-    const [loadingMatching, setLoadingMatching] = useState(false);
-    const [error, setError] = useState(null);
-
-    // Fetch Traits
+    // Fetch Tratti
     useEffect(() => {
         let isMounted = true;
         const loadTraits = async () => {
@@ -72,26 +75,22 @@ export default function useIdentify() {
                 setLoadingTraits(true);
                 const data = await getTraits();
                 if (isMounted) {
-                    const normalizedTraits = (data || []).map(t => {
-                        const isAsymAllowed = Boolean(t.can_be_asymmetric ?? t.canBeAsymmetric);
-                        
-                        return {
-                            id: t.id_trait,
-                            name: t.trait_name,
-                            category: t.trait_category,
-                            description: t.description,
-                            descriptionUrl: t.description_url,
-                            traitIcon: t.trait_icon_url,
-                            parentTraitId: t.parent_trait_id || null,
-                            requiredStateId: t.required_state_id || null,
-                            canBeAsymmetric: isAsymAllowed,
-                            states: (t.trait_states || []).map(s => ({
-                                id: s.id_state,
-                                value: s.state_label,
-                                stateIcon: s.state_icon_url
-                            }))
-                        };
-                    });
+                    const normalizedTraits = (data || []).map(t => ({
+                        id: t.id_trait,
+                        name: t.trait_name,
+                        category: t.trait_category,
+                        description: t.description,
+                        descriptionUrl: t.description_url,
+                        traitIcon: t.trait_icon_url,
+                        parentTraitId: t.parent_trait_id || null,
+                        requiredStateId: t.required_state_id || null,
+                        canBeAsymmetric: Boolean(t.can_be_asymmetric ?? t.canBeAsymmetric),
+                        states: (t.trait_states || []).map(s => ({
+                            id: s.id_state,
+                            value: s.state_label,
+                            stateIcon: s.state_icon_url
+                        }))
+                    }));
                     setAllTraits(normalizedTraits);
                 }
             } catch (err) {
@@ -104,7 +103,7 @@ export default function useIdentify() {
         return () => { isMounted = false; };
     }, []);
 
-    // Filter available traits based on parent dependencies
+    // Gestione gerarchia tratti parent/child
     const availableTraits = useMemo(() => {
         const selectedStateMap = new Map();
         selectedTraits.forEach(st => {
@@ -123,7 +122,6 @@ export default function useIdentify() {
         });
     }, [allTraits, selectedTraits]);
 
-    // Clean up selected traits if their parent requirement is no longer met
     useEffect(() => {
         const activeTraitIds = new Set(availableTraits.map(t => t.id));
         setSelectedTraits(prev => {
@@ -133,74 +131,41 @@ export default function useIdentify() {
         });
     }, [availableTraits]);
 
-    // Fetch Matching Species
-    useEffect(() => {
-        let isMounted = true;
-        const fetchMatches = async () => {
-            if (selectedTraits.length === 0) {
-                setMatchingSpecies([]);
-                setLoadingMatching(false);
-                return;
-            }
-            try {
-                setLoadingMatching(true);
+    // 2. ESECUZIONE MATCHING IN-MEMORY ISTANTANEO (Zero latenza di rete!)
+    const rawMatchingSpecies = useMemo(() => {
+        if (!selectedTraits.length || !dataset.length) return [];
+        
+        const results = calculateMatchesJS(dataset, selectedTraits);
 
-                const symmetricStates = selectedTraits.filter(t => !t.isAsymmetric && t.stateId).map(t => t.stateId);
-                const leftStates = selectedTraits.filter(t => t.isAsymmetric && t.leftStateId).map(t => t.leftStateId);
-                const rightStates = selectedTraits.filter(t => t.isAsymmetric && t.rightStateId).map(t => t.rightStateId);
-                const results = await getMatchingSpecies({ symmetricStates, leftStates, rightStates });
+        return results.map(sp => {
+            const dbTraitsMap = new Map((sp.traits_info || []).map(t => [t.id_trait, t]));
+            const completeTraitsInfo = selectedTraits.map(st => {
+                const dbTrait = dbTraitsMap.get(st.traitId);
+                const traitObj = allTraits.find(t => t.id === st.traitId);
 
-                if (isMounted) {
-                    const enrichedResults = (results || []).map(sp => {
-                        let rawTraits = sp.traits_info;
-                        if (typeof rawTraits === 'string') {
-                            try { rawTraits = JSON.parse(rawTraits); }
-                            catch (e) { rawTraits = []; }
-                        }
-                        const traitsList = Array.isArray(rawTraits) ? rawTraits : [];
+                return {
+                    id_trait: st.traitId,
+                    trait_name: traitObj?.name || "",
+                    is_asymmetric_selection: st.isAsymmetric || false,
+                    trait_states: (traitObj?.states || []).map(s => ({
+                        id_state: s.id,
+                        state_label: s.value,
+                        state_icon_url: s.stateIcon
+                    })),
+                    f_left_states: dbTrait?.f_left || [],
+                    f_right_states: dbTrait?.f_right || [],
+                    f_notes: dbTrait?.f_notes || null,
+                    f_notes_url: dbTrait?.f_notes_url || null,
+                    m_left_states: dbTrait?.m_left || [],
+                    m_right_states: dbTrait?.m_right || [],
+                    m_notes: dbTrait?.m_notes || null,
+                    m_notes_url: dbTrait?.m_notes_url || null,
+                };
+            });
 
-                        // 1. Mappa i tratti inviati dal DB
-                        const dbTraitsMap = new Map(traitsList.map(t => [t.id_trait, t]));
-
-                        // 2. Costruisci traits_info garantendo la presenza di OGNI tratto selezionato
-                        const completeTraitsInfo = selectedTraits.map(st => {
-                            const dbTrait = dbTraitsMap.get(st.traitId);
-                            const traitObj = allTraits.find(t => t.id === st.traitId);
-
-                            return {
-                                id_trait: st.traitId,
-                                trait_name: traitObj?.name || "",
-                                is_asymmetric_selection: st.isAsymmetric || false,
-                                trait_states: (traitObj?.states || []).map(s => ({
-                                    id_state: s.id,
-                                    state_label: s.value,
-                                    state_icon_url: s.stateIcon
-                                })),
-                                f_left_states: dbTrait?.f_left_states || [],
-                                f_right_states: dbTrait?.f_right_states || [],
-                                f_notes: dbTrait?.f_notes || null,
-                                f_notes_url: dbTrait?.f_notes_url || null,
-                                m_left_states: dbTrait?.m_left_states || [],
-                                m_right_states: dbTrait?.m_right_states || [],
-                                m_notes: dbTrait?.m_notes || null,
-                                m_notes_url: dbTrait?.m_notes_url || null,
-                            };
-                        });
-
-                        return {
-                            ...sp,
-                            traits_info: completeTraitsInfo
-                        };
-                    });
-                    setMatchingSpecies(enrichedResults);
-                }
-            }
-            catch (err) { if (isMounted) setError(err.message || "Error matching species."); }
-            finally { if (isMounted) setLoadingMatching(false); }
-        };
-        fetchMatches();
-        return () => { isMounted = false; };
-    }, [selectedTraits, allTraits]);
+            return { ...sp, traits_info: completeTraitsInfo };
+        });
+    }, [dataset, selectedTraits, allTraits]);
 
     // Handlers
     const handleToggleAsymmetry = (traitId, isAsymmetric) => {
@@ -250,7 +215,6 @@ export default function useIdentify() {
         setSelectedTraits((prev) => {
             const existing = prev.find((item) => item.traitId === traitObj.id);
 
-            // --- CASE 1: SYMMETRIC ---
             if (!side) {
                 if (existing) {
                     if (existing.stateId === stateObj.id) {
@@ -274,7 +238,6 @@ export default function useIdentify() {
                 }];
             }
 
-            // --- CASE 2: ASYMMETRIC (L or R) ---
             const isLeft = side === "left";
             const keyId = isLeft ? "leftStateId" : "rightStateId";
             const keyVal = isLeft ? "leftStateValue" : "rightStateValue";
@@ -326,9 +289,9 @@ export default function useIdentify() {
         });
     };
 
-    // Filter Matching Species
+    // Filter contestuali sulle specie matchate
     const filteredMatchingSpecies = useMemo(() => {
-        if (!matchingSpecies || matchingSpecies.length === 0) return [];
+        if (!rawMatchingSpecies || rawMatchingSpecies.length === 0) return [];
         const { sex, environment, minLength, maxLength } = appliedFilters;
         const reqMin = minLength !== "" && minLength !== null ? parseFloat(minLength) : null;
         const reqMax = maxLength !== "" && maxLength !== null ? parseFloat(maxLength) : null;
@@ -342,7 +305,7 @@ export default function useIdentify() {
             return true;
         };
 
-        return matchingSpecies
+        return rawMatchingSpecies
             .map((sp) => {
                 const { f_min = null, f_max = null, m_min = null, m_max = null } = sp.filters || {};
                 
@@ -368,7 +331,6 @@ export default function useIdentify() {
                         return;
                     }
 
-                    // --- VERIFICA FEMMINA (♀) ---
                     if (match_f) {
                         if (!st.isAsymmetric) {
                             const fLeft = getValidStates(traitData.f_left_states);
@@ -394,7 +356,6 @@ export default function useIdentify() {
                         }
                     }
 
-                    // --- VERIFICA MASCHIO (♂) ---
                     if (match_m) {
                         if (!st.isAsymmetric) {
                             const mLeft = getValidStates(traitData.m_left_states);
@@ -424,12 +385,8 @@ export default function useIdentify() {
                 const fHasMissing = match_f && missing_f.length > 0;
                 const mHasMissing = match_m && missing_m.length > 0;
 
-                // 1. PRESENZA DATO MANCANTE (Per formattazione visiva in ID_matching):
-                // È true se QUALSIASI sesso combaciante ha almeno un dato mancante.
                 const hasMissingData = fHasMissing || mHasMissing;
 
-                // 2. RETROCECIONE / ORDINAMENTO IN FONDO (Per la classifica):
-                // È true SOLO SE tutti i sessi che combaciano hanno dati mancanti.
                 let shouldDemote = false;
                 if (match_f && match_m) {
                     shouldDemote = fHasMissing && mHasMissing;
@@ -445,17 +402,15 @@ export default function useIdentify() {
             })
             .filter((sp) => sp.match_f || sp.match_m)
             .sort((a, b) => {
-                // Si ordina in base a `shouldDemote` invece di `hasMissingData`
                 if (a.shouldDemote !== b.shouldDemote) { return a.shouldDemote ? 1 : -1; }
                 if (a.family !== b.family) { return a.family.localeCompare(b.family); }
                 return a.scientific_name.localeCompare(b.scientific_name);
             });
-    }, [matchingSpecies, appliedFilters, selectedTraits]);
-
+    }, [rawMatchingSpecies, appliedFilters, selectedTraits]);
 
     return {
         filtersSchema,
-        loadingFilters,
+        loadingFilters: loadingFilters || loadingDataset,
         filters,
         appliedFilters,
         hasDraftValues,
@@ -463,7 +418,7 @@ export default function useIdentify() {
         selectedTraits,
         matchingSpecies: filteredMatchingSpecies,
         loadingTraits,
-        loadingMatching,
+        loadingMatching: false, // Azzerato! Non c'è più attesa di rete quando si selezionano i tratti
         error,
         handleFilterChange,
         handleClearFilters,
