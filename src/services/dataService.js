@@ -1,6 +1,8 @@
 // ##### IMPORTS #####
 // DB ADAPTER
 import { supabaseAdapter as db } from "./adapters/supabaseAdapter";
+// DB DOWNLOAD
+import { cacheManager } from "../utils/cacheManager";
 
 
 // ================================================
@@ -113,4 +115,51 @@ export const getTaxonomyGBIF = async (gbifKey) => {
     genus: data.genus,
     basionymKey: data.basionymKey
   };
+};
+
+
+// ================================================
+// 3. DB DOWNLOAD
+// ================================================
+
+export const getIdentificationDataset = async () => {
+  try {
+    // 1. Controlla versione remota DB
+    const remoteVersion = await db.getMatrixVersion();
+    
+    // 2. Leggi versione e dati memorizzati localmente
+    const cachedVersion = await cacheManager.get("matrix_version");
+    const cachedData = await cacheManager.get("matrix_data");
+
+    // 3. Cache HIT: Se le versioni coincidono e i dati esistono, usa la cache
+    if (cachedVersion && cachedVersion === remoteVersion && cachedData) {
+      return cachedData;
+    }
+
+    // 4. Cache MISS: Scarica la vista completa da Supabase
+    const rawMatrix = await db.getFullIdentificationMatrix();
+
+    // 5. Pre-processing: Converti l'array di tratti in Map O(1)
+    const processedDataset = (rawMatrix || []).map((sp) => {
+      const traitsMap = {};
+      if (Array.isArray(sp.traits)) {
+        sp.traits.forEach((t) => {
+          traitsMap[t.id_trait] = t;
+        });
+      }
+      return {
+        ...sp,
+        traitsMap // Accesso rapido per l'algoritmo di matching
+      };
+    });
+
+    // 6. Aggiorna la cache locale per i futuri avvii
+    await cacheManager.set("matrix_version", remoteVersion);
+    await cacheManager.set("matrix_data", processedDataset);
+
+    return processedDataset;
+  } catch (error) {
+    console.error("Error fetching or syncing identification dataset:", error);
+    throw error;
+  }
 };

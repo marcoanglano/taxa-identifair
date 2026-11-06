@@ -29,7 +29,7 @@ General revision of database, code and style to improve efficiency before the fi
         - Hero element to improve user experience (title, aim of the website, full picture, etc.).
         - “What’s new” (latest update).
     - Identify:
-        - Substitute accordions with interactive calanoid picture?
+        - Substitute accordions with interactive calanoid picture? Or maybe use it for SpeciesDetail.
         - “Best match” function in case of “no results”. Maybe allow it just for 3+ selected traits?
         - “Compare” function: allows to select a species that will be used as reference during the identification process. Any picture of traits will show both that of the matching species and that of the compared species (if possible, with the correct proportions of size).
         - “Generate Key” function: generates a new key using the matching species.

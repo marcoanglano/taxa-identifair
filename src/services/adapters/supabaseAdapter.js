@@ -140,5 +140,31 @@ export const supabaseAdapter = {
             ...sp,
             filters: filtersMap.get(sp.id_species) || null
         }));
+    },
+
+
+    // ================================================
+    // 3. DB DOWNLOAD & VERSIONING
+    // ================================================
+
+    // ##### APP METADATA & DATASET VERSIONING #####
+    async getMatrixVersion() {
+        const data = await queryDB(
+            supabase
+            .from("app_metadata")
+            .select("data_version")
+            .eq("key", "identification_matrix")
+            .maybeSingle()
+        );
+        return data?.data_version ?? 0;
+    },
+
+    // ##### FULL IDENTIFICATION MATRIX DOWNLOAD #####
+    async getFullIdentificationMatrix() {
+        return queryDB(
+            supabase
+            .from("v_identification_matrix")
+            .select("*")
+        );
     }
 };
