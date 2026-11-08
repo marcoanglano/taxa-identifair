@@ -15,6 +15,7 @@ export const getSpeciesByFamily = (family) => db.getSpeciesByFamily(family);
 export const getSpeciesDetail = (id) => db.getSpeciesDetail(id);
 export const getTraits = () => db.getTraits();
 export const getSpeciesTraits = (idSpecies) => db.getSpeciesTraits(idSpecies);
+export const getSpeciesReferences = (idSpecies) => db.getSpeciesReferences(idSpecies);
 
 
 // ##### Complex services #####
@@ -62,9 +63,6 @@ export const getFilters = async () => {
     }
   ];
 };
-
-// # Matching Species #
-export const getMatchingSpecies = (stateIds) => db.getMatchingSpeciesRPC(stateIds);
 
 
 // ================================================

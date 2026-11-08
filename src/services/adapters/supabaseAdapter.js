@@ -114,6 +114,17 @@ export const supabaseAdapter = {
         );
     },
 
+    // ##### SPECIES REFERENCES #####
+    async getSpeciesReferences(idSpecies) {
+        return queryDB(
+            supabase
+            .from("species_references")
+            .select("citation")
+            .eq("id_species", idSpecies)
+            .order("citation", { ascending: true })
+        );
+    },
+
 
     // ================================================
     // 3. DB DOWNLOAD & VERSIONING

@@ -47,4 +47,8 @@
 
 
 /* ##### CONTENT ##### */
-.acc-content { padding: 10px 14px; }
+.acc-content {
+  padding: 10px 14px;
+  text-align: justify;
+}
+.acc-content ul { margin-left: 5px; }

@@ -2,7 +2,7 @@
 // LIB
 import { useState, useEffect } from "react";
 // SERVICES
-import { getSpeciesDetail, getSpeciesTraits } from "../services/dataService";
+import { getSpeciesDetail, getSpeciesTraits, getSpeciesReferences } from "../services/dataService";
 
 export function useSpeciesDetail(id) {
 
@@ -10,6 +10,7 @@ export function useSpeciesDetail(id) {
   // ##### STATES #####
   const [species, setSpecies] = useState(null);
   const [traits, setTraits] = useState([]);
+  const [ref, setRef] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -23,14 +24,17 @@ export function useSpeciesDetail(id) {
       setError(null);
       try {
 
-        // Species & Traits
-        const [speciesData, traitsData] = await Promise.all([
+        // Species, Traits, References
+        const [speciesData, traitsData, refData] = await Promise.all([
           getSpeciesDetail(id),
-          getSpeciesTraits(id)
+          getSpeciesTraits(id),
+          getSpeciesReferences(id)
         ]);
+        console.log("Custom References for", id, ":", refData);
         if (isMounted) {
           setSpecies(speciesData);
           setTraits(traitsData);
+          setRef(refData);
         }
 
       } catch (err) {
@@ -45,5 +49,5 @@ export function useSpeciesDetail(id) {
     fetchAllData();
     return () => { isMounted = false; };
   }, [id]);
-  return { species, traits, loading, error };
+  return { species, traits, ref, loading, error };
 }

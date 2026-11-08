@@ -26,7 +26,7 @@ export default function SpeciesDetail() {
   // Species ID from URL
   const { id } = useParams();
   // Hooks (fetch/cache)
-  const {species, traits, loading: s_load, error: s_err} = useSpeciesDetail(id);
+  const {species, traits, ref, loading: s_load, error: s_err} = useSpeciesDetail(id);
   const {taxonomy, basionym, synonyms, loading: g_load, error: g_err} = useGBIF(species?.gbif_key);
   const {loading: map_load, error: map_err} = useOccurrencesGBIF(species?.gbif_key);
   const isDataReady = !s_load && !g_load && (taxonomy || g_err); // Avoids loading problem (GBIF skeleton)
@@ -94,7 +94,7 @@ export default function SpeciesDetail() {
                 map_err ? ( <ErrorComponent title="Oh no!" message="GBIF Map Service unavailable" id="gbif-error" /> ) :
                 ( <SD_card_map gbifKey={species?.gbif_key} /> )
               }
-              <SD_card_ref gbifKey={species?.gbif_key} />
+              <SD_card_ref gbifKey={species?.gbif_key} customRef={ref} />
             </> )}
           </div>
         )}

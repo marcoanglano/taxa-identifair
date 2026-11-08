@@ -21,7 +21,6 @@ export default function ID_matching({
     const accordionItems = useMemo(() => {
         return species.map((sp) => {
             const isBoth = sp.match_f && sp.match_m;
-            let noIcons = false;
             return {
                 id: sp.id_species,
 
@@ -63,6 +62,8 @@ export default function ID_matching({
                             { isMatch: sp.match_m, key: "m", label: "♂ Male", color: "var(--male-color)" }
                         ].map((sex) => {
                             if (!sex.isMatch) return null;
+                            let sexHasMissingIcons = false;
+
                             return (
                                 <div key={sex.key} className={`sex-traits-block ${sex.key}-block`}>
                                     <h5>{sex.label}</h5>
@@ -131,7 +132,7 @@ export default function ID_matching({
                                             }
 
                                             if (iconsToRender.length === 0)
-                                                noIcons = true;
+                                                sexHasMissingIcons = true;
 
                                             return (
                                                 <li key={t.id_trait} className="sex-traits-item">
@@ -152,7 +153,7 @@ export default function ID_matching({
                                             );
                                         })}
                                     </ul>
-                                    {noIcons ? "⚠️ Missing data" : ""}
+                                    {sexHasMissingIcons && <p className="missing-data-text">⚠️ Missing data</p>}
                                 </div>
                             );
                         })}
