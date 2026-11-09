@@ -14,7 +14,7 @@ import Test from "./pages/Test";
 // SERVICES
 import { getIdentificationDataset } from "./services/dataService";
 // VERSION
-import { authors, title, subtitle, version } from "../package.json";
+import { author, title, subtitle, version } from "../package.json";
 
 export default function App() {
 
@@ -69,8 +69,8 @@ export default function App() {
         {/* FOOTER */}
         <footer id="app-footer">
           <p id="footer-text">
-            {title} v{version} © {authors.name}, 2025-{new Date().getFullYear()}.
-            Contact: <span id="copy-contact" onClick={copyContact}>{authors.email}</span>
+            {title} v{version} © {author.name}, 2025-{new Date().getFullYear()}.
+            Contact: <span id="copy-contact" onClick={copyContact}>{author.email}</span>
           </p>
         </footer>
       </div>
