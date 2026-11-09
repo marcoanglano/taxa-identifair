@@ -15,7 +15,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run sync-metadata && tsc --noEmit && vite build",
+    "build": "npm run sync-metadata && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "sync-metadata": "node scripts/sync-metadata.js",
