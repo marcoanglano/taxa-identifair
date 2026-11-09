@@ -1,18 +1,25 @@
 {
-  "name": "T-FAIR",
+  "name": "taxa-identifair",
   "title": "Taxa IdentiFAIR",
-  "description": "Interactive identification of adult Calanoida",
-  "_comment": "TO DO: change taxon based on selected database",
-  "authors": "Anglano, M.",
-  "contact": "marco.anglano@unisalento.it",
+  "subtitle": "Interactive identification of adult Calanoida",
+  "version": "0.6.07.01",
+  "description": "Website which collects the main information available on each species of Calanoida. The main aim is to provide an identification tool down to the species level, using data archived on GBIF, Supabase and other databases. The search occurs by exclusion using the provided filters (environment, sex, length etc.) and traits (anatomical details).",
+  "author": {
+    "name": "Marco Anglano",
+    "email": "marco.anglano@unisalento.it",
+    "url": "https://orcid.org/0009-0007-1498-0598",
+    "affiliation": "University of Salento, Department of Biological and Environmental Sciences and Technologies, Lecce, Italy"
+  },
+  "license": "MIT",
   "private": true,
-  "version": "0.6.07.00",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run sync-metadata && tsc && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sync-metadata": "node scripts/sync-metadata.js",
+    "version": "npm run sync-metadata && git add CITATION.cff codemeta.json"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.81.1",

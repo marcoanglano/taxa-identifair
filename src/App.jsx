@@ -14,7 +14,7 @@ import Test from "./pages/Test";
 // SERVICES
 import { getIdentificationDataset } from "./services/dataService";
 // VERSION
-import { authors, contact, description, title, version } from "../package.json";
+import { authors, title, subtitle, version } from "../package.json";
 
 export default function App() {
 
@@ -29,7 +29,7 @@ export default function App() {
 
   // ##### FUNCTION: COPY CONTACT #####
   function copyContact() {
-    navigator.clipboard.writeText(contact)
+    navigator.clipboard.writeText(authors.email)
       .then(() => {
         alert("Email copied to clipboard!");
       })
@@ -48,7 +48,7 @@ export default function App() {
         <header id="app-header">
           <div id="app-brand">
             <h1 id="title">{title}</h1>
-            <h2 id="subtitle">{description}</h2>
+            <h2 id="subtitle">{subtitle}</h2>
           </div>
           <Navbar />
         </header>
@@ -69,8 +69,8 @@ export default function App() {
         {/* FOOTER */}
         <footer id="app-footer">
           <p id="footer-text">
-            {title} v{version} © {authors}, 2025-{new Date().getFullYear()}.
-            Contact: <span id="copy-contact" onClick={copyContact}>{contact}</span>
+            {title} v{version} © {authors.name}, 2025-{new Date().getFullYear()}.
+            Contact: <span id="copy-contact" onClick={copyContact}>{authors.email}</span>
           </p>
         </footer>
       </div>

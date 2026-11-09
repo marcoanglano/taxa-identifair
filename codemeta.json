@@ -1,0 +1,35 @@
+{
+  "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+  "@type": "SoftwareSourceCode",
+  "identifier": "taxa-identifair",
+  "name": "Taxa IdentiFAIR",
+  "description": "Website which collects the main information available on each species of Calanoida. The main aim is to provide an identification tool down to the species level, using data archived on GBIF, Supabase and other databases. The search occurs by exclusion using the provided filters (environment, sex, length etc.) and traits (anatomical details).",
+  "codeRepository": "https://github.com/marcoanglano/taxa-identifair",
+  "issueTracker": "https://github.com/marcoanglano/taxa-identifair/issues",
+  "license": "https://spdx.org/licenses/MIT.html",
+  "version": "0.6.07.01",
+  "datePublished": "2026-11-09",
+  "programmingLanguage": [
+    "TypeScript",
+    "JavaScript",
+    "PL/pgSQL"
+  ],
+  "runtimePlatform": "Browser (React, Vite, IndexedDB), Supabase",
+  "author": [
+    {
+      "@type": "Person",
+      "givenName": "Marco",
+      "familyName": "Anglano",
+      "email": "marco.anglano@unisalento.it",
+      "id": "https://orcid.org/0009-0007-1498-0598"
+    }
+  ],
+  "keywords": [
+    "zooplankton",
+    "Calanoida",
+    "marine biology",
+    "taxonomic identification",
+    "FAIR data",
+    "Copepoda"
+  ]
+}

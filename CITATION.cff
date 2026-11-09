@@ -1,0 +1,24 @@
+
+    cff-version: 1.2.0
+    message: "If you use this software or the underlying taxonomic dataset, please cite it using the metadata below."
+    type: dataset
+    title: "Taxa IdentiFAIR"
+    abstract: "Website which collects the main information available on each species of Calanoida. The main aim is to provide an identification tool down to the species level, using data archived on GBIF, Supabase and other databases. The search occurs by exclusion using the provided filters (environment, sex, length etc.) and traits (anatomical details)."
+    authors:
+    - family-names: "Anglano"
+    - given-names: "Marco"
+    - orcid: "https://orcid.org/0009-0007-1498-0598"
+    - affiliation: "University of Salento, Department of Biological and Environmental Sciences and Technologies, Lecce, Italy"
+    repository-code: "https://github.com/marcoanglano/taxa-identifair"
+    url: "https://taxa-identifair.vercel.app/"
+    keywords:
+    - "zooplankton"
+    - "Calanoida"
+    - "marine biology"
+    - "taxonomic identification"
+    - "FAIR data"
+    - "Copepoda"
+    license: CC-BY-4.0
+    license-code: MIT
+    version: "0.6.07.01"
+    date-released: "2026-11-09"
