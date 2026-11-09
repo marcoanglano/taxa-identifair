@@ -7,10 +7,9 @@
   "codeRepository": "https://github.com/marcoanglano/taxa-identifair",
   "issueTracker": "https://github.com/marcoanglano/taxa-identifair/issues",
   "license": "https://spdx.org/licenses/MIT.html",
-  "version": "0.6.07.01",
+  "version": "1.0.0",
   "datePublished": "2026-11-09",
   "programmingLanguage": [
-    "TypeScript",
     "JavaScript",
     "PL/pgSQL"
   ],

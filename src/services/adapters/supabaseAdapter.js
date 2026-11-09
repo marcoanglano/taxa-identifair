@@ -149,5 +149,17 @@ export const supabaseAdapter = {
             .from("v_identification_matrix")
             .select("*")
         );
+    },
+
+    // ##### ACTIVE RELEASE INFO (DOI, etc.) #####
+    async getActiveReleaseInfo() {
+    const data = await queryDB(
+        supabase
+        .from("app_metadata")
+        .select("dataset_version, schema_version, doi, release_date, changelog")
+        .eq("key", "active_release")
+        .maybeSingle()
+    );
+    return data ?? null;
     }
 };

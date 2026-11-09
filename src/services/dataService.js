@@ -122,22 +122,33 @@ export const getTaxonomyGBIF = async (gbifKey) => {
 
 export const getIdentificationDataset = async () => {
   try {
-    // 1. Controlla versione remota DB
-    const remoteVersion = await db.getMatrixVersion();
-    
-    // 2. Leggi versione e dati memorizzati localmente
-    const cachedVersion = await cacheManager.get("matrix_version");
+    // 1. Esegui query parallele a Supabase per versioning matrice e release FAIR
+    const [remoteMatrixVersion, remoteReleaseInfo] = await Promise.all([
+      db.getMatrixVersion(),
+      db.getActiveReleaseInfo()
+    ]);
+
+    // 2. Leggi la cache locale
+    const cachedMatrixVersion = await cacheManager.get("matrix_version");
+    const cachedDatasetVersion = await cacheManager.get("dataset_version");
     const cachedData = await cacheManager.get("matrix_data");
 
-    // 3. Cache HIT: Se le versioni coincidono e i dati esistono, usa la cache
-    if (cachedVersion && cachedVersion === remoteVersion && cachedData) {
-      return cachedData;
+    const isMatrixValid = cachedMatrixVersion === remoteMatrixVersion;
+    const isDatasetVersionValid = remoteReleaseInfo?.dataset_version
+      ? cachedDatasetVersion === remoteReleaseInfo.dataset_version
+      : true;
+
+    // 3. Cache HIT: Se sia la versione matrice sia la release FAIR coincidono
+    if (isMatrixValid && isDatasetVersionValid && cachedData) {
+      return {
+        dataset: cachedData,
+        release: remoteReleaseInfo
+      };
     }
 
-    // 4. Cache MISS: Scarica la vista completa da Supabase
+    // 4. Cache MISS / Invalidation: Scarica il dataset aggiornato
     const rawMatrix = await db.getFullIdentificationMatrix();
 
-    // 5. Pre-processing: Converti l'array di tratti in Map O(1)
     const processedDataset = (rawMatrix || []).map((sp) => {
       const traitsMap = {};
       if (Array.isArray(sp.traits)) {
@@ -147,17 +158,30 @@ export const getIdentificationDataset = async () => {
       }
       return {
         ...sp,
-        traitsMap // Accesso rapido per l'algoritmo di matching
+        traitsMap
       };
     });
 
-    // 6. Aggiorna la cache locale per i futuri avvii
-    await cacheManager.set("matrix_version", remoteVersion);
-    await cacheManager.set("matrix_data", processedDataset);
+    // 5. Scrittura transazionale della nuova cache
+    await Promise.all([
+      cacheManager.set("matrix_version", remoteMatrixVersion),
+      cacheManager.set("dataset_version", remoteReleaseInfo?.dataset_version || "1.0.0"),
+      cacheManager.set("fair_release_info", remoteReleaseInfo),
+      cacheManager.set("matrix_data", processedDataset)
+    ]);
 
-    return processedDataset;
+    return {
+      dataset: processedDataset,
+      release: remoteReleaseInfo
+    };
   } catch (error) {
     console.error("Error fetching or syncing identification dataset:", error);
+    // Fallback disconnessione: prova ad usare i dati memorizzati
+    const cachedData = await cacheManager.get("matrix_data");
+    const cachedRelease = await cacheManager.get("fair_release_info");
+    if (cachedData) {
+      return { dataset: cachedData, release: cachedRelease };
+    }
     throw error;
   }
 };

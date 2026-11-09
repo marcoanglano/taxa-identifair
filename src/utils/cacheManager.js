@@ -1,8 +1,7 @@
 const DB_NAME = "taxa_identifair_db";
 const STORE_NAME = "identification_cache";
-const DB_VERSION = 1;
+const DB_VERSION = 2; // Incrementata versione schema IDB
 
-// Helper per verificare l'effettiva disponibilità di IndexedDB
 function isIndexedDBSupported() {
   try {
     return typeof window !== "undefined" && "indexedDB" in window && window.indexedDB !== null;
@@ -17,12 +16,14 @@ function openDB() {
       return reject(new Error("IndexedDB non supportato"));
     }
     const request = indexedDB.open(DB_NAME, DB_VERSION);
+
     request.onupgradeneeded = (e) => {
       const db = e.target.result;
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         db.createObjectStore(STORE_NAME);
       }
     };
+
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
@@ -30,24 +31,25 @@ function openDB() {
 
 export const cacheManager = {
   async get(key) {
-    // 1. Prova IndexedDB
     if (isIndexedDBSupported()) {
+      let db;
       try {
-        const db = await openDB();
-        const data = await new Promise((resolve) => {
+        db = await openDB();
+        const data = await new Promise((resolve, reject) => {
           const tx = db.transaction(STORE_NAME, "readonly");
           const store = tx.objectStore(STORE_NAME);
           const req = store.get(key);
           req.onsuccess = () => resolve(req.result ?? null);
-          req.onerror = () => resolve(null);
+          req.onerror = () => reject(req.error);
         });
-        if (data !== null) return data;
+        return data;
       } catch (e) {
-        console.warn("IndexedDB fallito, provo localStorage...", e);
+        console.warn("IndexedDB read fallito, fallback a localStorage...", e);
+      } finally {
+        if (db) db.close(); // Previene memory leak chiudendo le connessioni aperte
       }
     }
 
-    // 2. Fallback su localStorage
     try {
       const raw = localStorage.getItem(`taxa_${key}`);
       return raw ? JSON.parse(raw) : null;
@@ -58,10 +60,10 @@ export const cacheManager = {
   },
 
   async set(key, value) {
-    // 1. Prova IndexedDB
     if (isIndexedDBSupported()) {
+      let db;
       try {
-        const db = await openDB();
+        db = await openDB();
         await new Promise((resolve, reject) => {
           const tx = db.transaction(STORE_NAME, "readwrite");
           const store = tx.objectStore(STORE_NAME);
@@ -71,15 +73,43 @@ export const cacheManager = {
         });
         return;
       } catch (e) {
-        console.warn("IndexedDB set fallito, provo localStorage...", e);
+        console.warn("IndexedDB set fallito, fallback a localStorage...", e);
+      } finally {
+        if (db) db.close();
       }
     }
 
-    // 2. Fallback su localStorage
     try {
       localStorage.setItem(`taxa_${key}`, JSON.stringify(value));
     } catch (e) {
       console.warn("localStorage set fallito", e);
+    }
+  },
+
+  async clear() {
+    if (isIndexedDBSupported()) {
+      let db;
+      try {
+        db = await openDB();
+        await new Promise((resolve, reject) => {
+          const tx = db.transaction(STORE_NAME, "readwrite");
+          const store = tx.objectStore(STORE_NAME);
+          const req = store.clear();
+          req.onsuccess = () => resolve(true);
+          req.onerror = () => reject(req.error);
+        });
+      } catch (e) {
+        console.warn("IndexedDB clear fallito", e);
+      } finally {
+        if (db) db.close();
+      }
+    }
+    try {
+      Object.keys(localStorage)
+        .filter((k) => k.startsWith("taxa_"))
+        .forEach((k) => localStorage.removeItem(k));
+    } catch (e) {
+      console.warn("localStorage clear fallito", e);
     }
   }
 };

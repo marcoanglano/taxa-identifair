@@ -55,7 +55,6 @@ const codemeta = {
   "version": pkg.version,
   "datePublished": today,
   "programmingLanguage": [
-    "TypeScript",
     "JavaScript",
     "PL/pgSQL"
   ],

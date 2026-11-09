@@ -7,14 +7,16 @@
 
 -- 1. METADATA & DATASET VERSIONING (Client-Side Cache/Sync)
 create table public.app_metadata (
-  key text primary key,
+  key text not null,
   data_version integer not null default 1,
-  updated_at timestamp with time zone default now()
-);
-
-insert into public.app_metadata (key, data_version) 
-values ('identification_matrix', 1) 
-on conflict (key) do nothing;
+  updated_at timestamp with time zone null default now(),
+  schema_version character varying(20) not null default '1.0.0'::character varying,
+  dataset_version character varying(20) not null default '1.0.0'::character varying,
+  doi character varying(255) null,
+  release_date timestamp with time zone not null default now(),
+  changelog text null,
+  constraint app_metadata_pkey primary key (key)
+) TABLESPACE pg_default;
 
 
 -- 2. SPECIES (Taxonomy & External Identifiers)

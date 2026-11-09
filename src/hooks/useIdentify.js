@@ -30,13 +30,17 @@ export default function useIdentify() {
                 setLoadingFilters(true);
                 setLoadingDataset(true);
                 
-                const [schema, fullData] = await Promise.all([
+                const [schema, datasetResult] = await Promise.all([
                     getFilters(),
-                    getIdentificationDataset() // <- Fa partire l'auto-sync/fetch su IndexedDB
+                    getIdentificationDataset()
                 ]);
 
                 if (isMounted) {
                     setFiltersSchema(schema);
+                    const fullData = Array.isArray(datasetResult) 
+                        ? datasetResult 
+                        : (datasetResult?.dataset || []);
+
                     setDataset(fullData);
                 }
             } catch (err) {
