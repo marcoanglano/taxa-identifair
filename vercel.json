@@ -1,4 +1,5 @@
 {
+  "//": "Redirects all incoming HTTP requests to index.html to enable React Router HTML5 pushState client-side routing.",
   "rewrites": [
     {
       "source": "/(.*)",

@@ -30,6 +30,7 @@ export default function Identify() {
     <section id="identify-container">
       <div id="identify left">
         <h3 id="identify-title">Identify</h3>
+        <p id="identify-tutorial">Use the traits (one or more) to start identifying species. Use contextual filters to apply further criteria of exclusion.</p>
           <div id="filters-traits-container">
             <Skeleton className="filters-color" id="filters-container" padding="0" style={{borderRadius: "0"}} />
             <Skeleton id="traits-container" />
@@ -50,6 +51,7 @@ export default function Identify() {
         {/* ### LEFT COLUMN ### */}
         <div id="identify-left">
           <h3 id="identify-title">Identify</h3>
+          <p id="identify-tutorial">Use the traits (one or more) to start identifying species. Use contextual filters to apply further criteria of exclusion.</p>
           <div id="filters-traits-container">
 
             {/* # FILTERS # */}

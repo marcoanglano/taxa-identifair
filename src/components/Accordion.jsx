@@ -11,8 +11,6 @@ export default function Accordion({
   singleOpen = false,       // Only one open at a time
   onToggle,                 // When an accordion is opened or closed
   renderRight,              // Arrow on the right of the header
-  getHeaderState,           // {loading, loaded, progress} for each item
-  hasProgressbar = false,   // Loading bar on the header
 }) {
   const baseId = useId();
 
@@ -59,25 +57,13 @@ export default function Accordion({
         const isOpen = openSet.has(it.id);
         const headerId = `${baseId}-h-${idx}`;
         const contentId = `${baseId}-c-${idx}`;
-        const hs = getHeaderState ? getHeaderState(it) : {};
-        const progress = Math.max(0, Math.min(100, hs?.progress ?? 0));
-        const loading = !!hs?.loading;
-        const loaded = !!hs?.loaded;
 
         // ### Header + Progress Bar ###
         return (
           <div className="acc-item" key={it.id}>
             <button
               type="button"
-              className={`acc-header ${
-                loading ? "is-loading" : 
-                loaded ? "is-loaded" : 
-                ""
-              }`}
-              style={hasProgressbar ? {
-                // CSS variable for progress bar
-                "--acc-fill": `${progress}%`,
-              } : {}}
+              className="acc-header"
               id={headerId}
               aria-controls={contentId}
               aria-expanded={isOpen}

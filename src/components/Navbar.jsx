@@ -5,9 +5,9 @@ import { NavLink } from "react-router-dom";
 
 // ##### LIST OF LINKS #####
 const linkList = [
-    {icon: "⌂", name: "Home", path: "/"},                  // Homepage
-    {icon: "≡", name: "Species List", path: "/species"},   // Species list by family
-    {icon: "👁", name: "Identify", path: "/identify"},     // Interactive identification
+    {icon: "⌂", name: "Home", path: "/"},               // Homepage
+    {icon: "≡", name: "Species", path: "/species"},     // Species list by family
+    {icon: "👁", name: "Identify", path: "/identify"},  // Interactive identification
 ]
 
 

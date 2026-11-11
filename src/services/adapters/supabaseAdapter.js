@@ -1,5 +1,10 @@
+// src/services/adapters/supabaseAdapter.js
+// Transforms raw response objects from Supabase client queries into normalized data models
+
 // ##### IMPORTS #####
+// LIB
 import { supabase } from "../../lib/supabaseClient";
+
 
 // ================================================
 // 1. HELPERS & PRESETS
@@ -39,32 +44,7 @@ const PRESETS = {
 // ================================================
 export const supabaseAdapter = {
 
-    // ##### FAMILY COUNT #####
-    async getFamilyCounts() {
-        const data = await queryDB(
-                supabase
-                .from("species_family_counts")
-                .select("family, n")
-                .order("family", { ascending: true })
-            );
-        return (data ?? []).map((row) => ({
-            family: row.family ?? "Unknown Family",
-            count: row.n ?? 0,
-        }));
-    },
-
     // ##### SPECIES #####
-
-    // # Species by family #
-    async getSpeciesByFamily(family) {
-        return queryDB(
-            supabase
-            .from("species")
-            .select(PRESETS.SPECIES_MINIMAL)
-            .eq("family", family)
-            .order("scientific_name", { ascending: true })
-        );
-    },
 
     // # Species Details #
     async getSpeciesDetail(id) {
@@ -105,15 +85,6 @@ export const supabaseAdapter = {
         );
     },
 
-    // ##### FILTERS #####
-    async getRawFiltersData() {
-        return queryDB(
-            supabase
-            .from("filters")
-            .select("environment, f_min, f_max, m_min, m_max")
-        );
-    },
-
     // ##### SPECIES REFERENCES #####
     async getSpeciesReferences(idSpecies) {
         return queryDB(
@@ -130,16 +101,22 @@ export const supabaseAdapter = {
     // 3. DB DOWNLOAD & VERSIONING
     // ================================================
 
-    // ##### APP METADATA & DATASET VERSIONING #####
-    async getMatrixVersion() {
+    // ##### APP METADATA & DATASET VERSIONING (BATCH) #####
+    // Fetches versioning and release metadata
+    async getMetadataBatch() {
         const data = await queryDB(
             supabase
             .from("app_metadata")
-            .select("data_version")
-            .eq("key", "identification_matrix")
-            .maybeSingle()
+            .select("key, data_version, dataset_version, schema_version, doi, release_date, changelog")
+            .in("key", ["identification_matrix", "active_release"])
         );
-        return data?.data_version ?? 0;
+        const matrixRow = data?.find((row) => row.key === "identification_matrix");
+        const releaseRow = data?.find((row) => row.key === "active_release");
+
+        return {
+            matrixVersion: matrixRow?.data_version ?? 0,
+            releaseInfo: releaseRow ?? null,
+        };
     },
 
     // ##### FULL IDENTIFICATION MATRIX DOWNLOAD #####
@@ -150,16 +127,4 @@ export const supabaseAdapter = {
             .select("*")
         );
     },
-
-    // ##### ACTIVE RELEASE INFO (DOI, etc.) #####
-    async getActiveReleaseInfo() {
-    const data = await queryDB(
-        supabase
-        .from("app_metadata")
-        .select("dataset_version, schema_version, doi, release_date, changelog")
-        .eq("key", "active_release")
-        .maybeSingle()
-    );
-    return data ?? null;
-    }
 };

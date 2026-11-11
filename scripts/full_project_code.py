@@ -1,8 +1,8 @@
 import os
 
 # Configurazione
-OUTPUT_FILE = "full_project_code.md"
-SRC_DIR = "src"
+OUTPUT_FILE = "PROVV.md"
+SRC_DIR = "src/styles"
 
 # Estensioni da includere
 ALLOWED_EXTENSIONS = {".js", ".jsx", ".ts", ".tsx", ".css", ".sql"}

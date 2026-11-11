@@ -55,16 +55,92 @@
 /* #####  FOOTER  ##### */
 #app-footer {
   background-color: var(--prim-color);
-  padding: 0.5rem;  
-  font-weight: 200;
-}
-#footer-text {
-  color: var(--sec-color-DD);
-  text-align: center;
-}
-/* Copy email */
-#copy-contact {
   color: var(--sec-color-D);
+  padding: 0.8rem 0rem 0.8rem;
+  font-weight: 300;
+}
+.footer-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  gap: 2.4rem;
+  margin-bottom: 0.8rem;
+  padding: 0 0.8rem;
+}
+
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
+}
+.footer-title {
+  color: var(--sec-color-DD);
+  font-size: 0.95rem;
+  border-bottom: 1px solid var(--prim-color-LL);
+  padding-bottom: 0.3rem;
+  margin-bottom: 0.4rem;
+}
+.footer-item {
+  font-size: 0.85rem;
+  margin: 0;
+}
+.footer-link {
+  color: var(--sec-color-DD) !important;
+  text-decoration: underline;
+}
+.footer-link:visited { color: var(--sec-color-DD); }
+.footer-link:hover { color: var(--sec-color); }
+.btn-footer-action {
+  background: var(--prim-color-L);
+  color: var(--sec-color-DD);
+  border: 1px solid var(--prim-color-LL);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  align-self: flex-start;
+  margin-top: 4px;
+}
+.btn-footer-action:hover {
+  background: var(--prim-color-LL);
+  color: var(--sec-color);
+}
+.footer-link-highlight {
+  color: var(--sec-color-DD);
+  font-weight: 500;
+  text-decoration: underline;
+  display: inline-block;
+}
+.footer-link-highlight:visited { color: var(--sec-color-DD); }
+.footer-link-highlight:hover { color: var(--sec-color); }
+#copy-contact {
+  text-decoration: underline;
   cursor: pointer;
 }
-#copy-contact:hover { text-decoration: underline; }
+#copy-contact:hover { color: var(--sec-color); }
+
+.footer-bottom {
+  border-top: 1px solid var(--prim-color-L);
+  padding: 0.8rem 0.8rem 0;
+}
+#footer-text {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.75rem;
+  text-align: left;
+}
+
+
+/* ##### RESPONSIVE DESIGN ##### */
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .footer-bottom { margin-top: 1.5rem; }
+  #footer-text {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+}

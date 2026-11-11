@@ -1,3 +1,7 @@
+// src/services/dataService.js
+// High-Level Data Service Layer
+// Coordinates adapter queries, external REST APIs and offline-first dataset synchronization via CacheManager.
+
 // ##### IMPORTS #####
 // DB ADAPTER
 import { supabaseAdapter as db } from "./adapters/supabaseAdapter";
@@ -5,36 +9,76 @@ import { supabaseAdapter as db } from "./adapters/supabaseAdapter";
 import { cacheManager } from "../utils/cacheManager";
 
 
+// ##### GET LOCAL DB #####
+const getLocalDataset = async () => {
+  let cachedData = await cacheManager.get("matrix_data");
+  if (!cachedData) {
+    const result = await getIdentificationDataset();
+    cachedData = result?.dataset || [];
+  }
+  return cachedData;
+};
+
+
 // ================================================
 // 1. EXPORTS
 // ================================================
 
 // ##### SIMPLE SERVICES #####
-export const getFamilyCounts = () => db.getFamilyCounts();
-export const getSpeciesByFamily = (family) => db.getSpeciesByFamily(family);
 export const getSpeciesDetail = (id) => db.getSpeciesDetail(id);
 export const getTraits = () => db.getTraits();
 export const getSpeciesTraits = (idSpecies) => db.getSpeciesTraits(idSpecies);
 export const getSpeciesReferences = (idSpecies) => db.getSpeciesReferences(idSpecies);
 
+// Family counts
+export const getFamilyCounts = async () => {
+  const dataset = await getLocalDataset();
+  const counts = {};
+  dataset.forEach((sp) => {
+    const fam = sp.family || "Unknown Family";
+    counts[fam] = (counts[fam] || 0) + 1;
+  });
+  return Object.entries(counts)
+    .map(([family, count]) => ({ family, count }))
+    .sort((a, b) => a.family.localeCompare(b.family));
+};
+
+// Species by family
+export const getSpeciesByFamily = async (family) => {
+  const dataset = await getLocalDataset();
+  return dataset
+    .filter((sp) => sp.family === family)
+    .map((sp) => ({
+      id_species: sp.id_species,
+      scientific_name: sp.scientific_name,
+      authority: sp.authority,
+      family: sp.family
+    }))
+    .sort((a, b) => a.scientific_name.localeCompare(b.scientific_name));
+};
+
 
 // ##### Complex services #####
 
 // # Filters #
+// Aggregates raw species environment and length filters
 export const getFilters = async () => {
-  const data = await db.getRawFiltersData();
+  const dataset = await getLocalDataset();
   const envSet = new Set();
   let absMin = Infinity;
   let absMax = -Infinity;
-  (data || []).forEach((row) => {
-    if (Array.isArray(row.environment)) {
-      row.environment.forEach((env) => envSet.add(env));
+
+  dataset.forEach((sp) => {
+    if (Array.isArray(sp.environment)) {
+      sp.environment.forEach((env) => envSet.add(env));
     }
-    const mins = [row.f_min, row.m_min].filter((v) => v !== null && v !== undefined);
-    const maxs = [row.f_max, row.m_max].filter((v) => v !== null && v !== undefined);
+    const mins = [sp.f_min, sp.m_min].filter((v) => v !== null && v !== undefined);
+    const maxs = [sp.f_max, sp.m_max].filter((v) => v !== null && v !== undefined);
+    
     mins.forEach((v) => { if (v < absMin) absMin = v; });
     maxs.forEach((v) => { if (v > absMax) absMax = v; });
   });
+
   return [ // Option-type and Range-type inputs for "Identify" page
     {
       id: "sex", label: "Sex", type: "select", placeholder: "All",
@@ -57,8 +101,8 @@ export const getFilters = async () => {
     {
       id: "length", label: "Body Length (mm)", type: "range",
       inputs: [
-        { id: "minLength", label: "Min", placeholder: `Min (es. ${absMin !== Infinity ? absMin : 0})` },
-        { id: "maxLength", label: "Max", placeholder: `Max (es. ${absMax !== -Infinity ? absMax : 15})` }
+        { id: "minLength", label: "Min", placeholder: `Min (e.g. ${absMin !== Infinity ? absMin : 0})` },
+        { id: "maxLength", label: "Max", placeholder: `Max (e.g. ${absMax !== -Infinity ? absMax : 15})` }
       ]
     }
   ];
@@ -122,47 +166,33 @@ export const getTaxonomyGBIF = async (gbifKey) => {
 
 export const getIdentificationDataset = async () => {
   try {
-    // 1. Esegui query parallele a Supabase per versioning matrice e release FAIR
-    const [remoteMatrixVersion, remoteReleaseInfo] = await Promise.all([
-      db.getMatrixVersion(),
-      db.getActiveReleaseInfo()
-    ]);
+    // 1. Gets matrix versioning and FAIR release
+    const { matrixVersion: remoteMatrixVersion, releaseInfo: remoteReleaseInfo } = 
+      await db.getMetadataBatch();
 
-    // 2. Leggi la cache locale
+    // 2. Reads local cache
     const cachedMatrixVersion = await cacheManager.get("matrix_version");
     const cachedDatasetVersion = await cacheManager.get("dataset_version");
     const cachedData = await cacheManager.get("matrix_data");
-
     const isMatrixValid = cachedMatrixVersion === remoteMatrixVersion;
     const isDatasetVersionValid = remoteReleaseInfo?.dataset_version
       ? cachedDatasetVersion === remoteReleaseInfo.dataset_version
       : true;
 
-    // 3. Cache HIT: Se sia la versione matrice sia la release FAIR coincidono
+    // 3. Cache HIT: both matrix versioning and FAIR release match
     if (isMatrixValid && isDatasetVersionValid && cachedData) {
-      return {
-        dataset: cachedData,
-        release: remoteReleaseInfo
-      };
+      return { dataset: cachedData, release: remoteReleaseInfo };
     }
 
-    // 4. Cache MISS / Invalidation: Scarica il dataset aggiornato
+    // 4. Cache MISS / Invalidation: downloads dataset
     const rawMatrix = await db.getFullIdentificationMatrix();
-
     const processedDataset = (rawMatrix || []).map((sp) => {
       const traitsMap = {};
-      if (Array.isArray(sp.traits)) {
-        sp.traits.forEach((t) => {
-          traitsMap[t.id_trait] = t;
-        });
-      }
-      return {
-        ...sp,
-        traitsMap
-      };
+      if (Array.isArray(sp.traits)) { sp.traits.forEach((t) => { traitsMap[t.id_trait] = t; }); }
+      return { ...sp, traitsMap };
     });
 
-    // 5. Scrittura transazionale della nuova cache
+    // 5. Updates cache
     await Promise.all([
       cacheManager.set("matrix_version", remoteMatrixVersion),
       cacheManager.set("dataset_version", remoteReleaseInfo?.dataset_version || "1.0.0"),
@@ -170,18 +200,14 @@ export const getIdentificationDataset = async () => {
       cacheManager.set("matrix_data", processedDataset)
     ]);
 
-    return {
-      dataset: processedDataset,
-      release: remoteReleaseInfo
-    };
-  } catch (error) {
+    return { dataset: processedDataset, release: remoteReleaseInfo };
+  }
+  catch (error) {
     console.error("Error fetching or syncing identification dataset:", error);
-    // Fallback disconnessione: prova ad usare i dati memorizzati
+    // Disconnection fallback disconnessione: tries to use memorized data
     const cachedData = await cacheManager.get("matrix_data");
     const cachedRelease = await cacheManager.get("fair_release_info");
-    if (cachedData) {
-      return { dataset: cachedData, release: cachedRelease };
-    }
+    if (cachedData) { return { dataset: cachedData, release: cachedRelease }; }
     throw error;
   }
 };

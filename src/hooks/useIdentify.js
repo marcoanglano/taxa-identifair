@@ -5,47 +5,45 @@ import { calculateMatchesJS } from '../utils/matchingEngine';
 
 const getValidStates = (arr) => (Array.isArray(arr) ? arr.filter(s => s && s.trim() !== "") : []);
 
+
+// ##### Core Identification Logic Hook #####
+// Manages contextual filters, trait selections (including asymmetries) and species matching
 export default function useIdentify() {
-    // Statics / Schema
+
+    // States
     const emptyState = { sex: "", environment: "", minLength: "", maxLength: "" };
     const [filtersSchema, setFiltersSchema] = useState([]);
     const [loadingFilters, setLoadingFilters] = useState(true);
     const [filters, setFilters] = useState(emptyState);
     const [appliedFilters, setAppliedFilters] = useState(emptyState);
-
-    // Full Local Dataset state (Caricamento automatico da IndexedDB/Supabase)
     const [dataset, setDataset] = useState([]);
     const [loadingDataset, setLoadingDataset] = useState(true);
-
     const [allTraits, setAllTraits] = useState([]);
     const [selectedTraits, setSelectedTraits] = useState([]);
     const [loadingTraits, setLoadingTraits] = useState(true);
     const [error, setError] = useState(null);
 
-    // 1. CARICAMENTO AUTOMATICO DATASET & FILTRI AL MOUNT
+    // 1. AUTOMATIC DATASET LOADING, FILTERS HANDLING, TRAITS HANDLING
     useEffect(() => {
         let isMounted = true;
         const loadInitialData = async () => {
             try {
                 setLoadingFilters(true);
                 setLoadingDataset(true);
-                
                 const [schema, datasetResult] = await Promise.all([
                     getFilters(),
                     getIdentificationDataset()
                 ]);
-
                 if (isMounted) {
                     setFiltersSchema(schema);
                     const fullData = Array.isArray(datasetResult) 
                         ? datasetResult 
                         : (datasetResult?.dataset || []);
-
                     setDataset(fullData);
                 }
-            } catch (err) {
-                if (isMounted) setError(err.message || "Errore nel caricamento del dataset.");
-            } finally {
+            }
+            catch (err) { if (isMounted) setError(err.message || "Error in dataset loading."); }
+            finally {
                 if (isMounted) {
                     setLoadingFilters(false);
                     setLoadingDataset(false);
@@ -56,12 +54,12 @@ export default function useIdentify() {
         return () => { isMounted = false; };
     }, []);
 
-    // Debounce filtri contestuali
+    // Contextual filters debounce
     useEffect(() => {
         const handler = setTimeout(() => { setAppliedFilters(filters); }, 300);
         return () => clearTimeout(handler);
     }, [filters]);
-
+    // Contextual filters handling
     const handleFilterChange = (key, value) => { setFilters((prev) => ({ ...prev, [key]: value })); };
     const handleClearFilters = () => {
         setFilters(emptyState);
@@ -71,7 +69,7 @@ export default function useIdentify() {
         (val) => val !== "" && val !== null && val !== undefined
     );
 
-    // Fetch Tratti
+    // Fetch Traits
     useEffect(() => {
         let isMounted = true;
         const loadTraits = async () => {
@@ -97,17 +95,15 @@ export default function useIdentify() {
                     }));
                     setAllTraits(normalizedTraits);
                 }
-            } catch (err) {
-                if (isMounted) setError(err.message || "Error fetching traits.");
-            } finally {
-                if (isMounted) setLoadingTraits(false);
             }
+            catch (err) { if (isMounted) setError(err.message || "Error fetching traits."); }
+            finally { if (isMounted) setLoadingTraits(false); }
         };
         loadTraits();
         return () => { isMounted = false; };
     }, []);
 
-    // Gestione gerarchia tratti parent/child
+    // Trait hierarchies
     const availableTraits = useMemo(() => {
         const selectedStateMap = new Map();
         selectedTraits.forEach(st => {
@@ -118,14 +114,12 @@ export default function useIdentify() {
                 if (st.rightStateId) selectedStateMap.set(st.traitId, st.rightStateId);
             }
         });
-        
         return allTraits.filter(trait => {
             if (!trait.parentTraitId) return true;
             const parentSelectedState = selectedStateMap.get(trait.parentTraitId);
             return parentSelectedState === trait.requiredStateId;
         });
     }, [allTraits, selectedTraits]);
-
     useEffect(() => {
         const activeTraitIds = new Set(availableTraits.map(t => t.id));
         setSelectedTraits(prev => {
@@ -135,18 +129,15 @@ export default function useIdentify() {
         });
     }, [availableTraits]);
 
-    // 2. ESECUZIONE MATCHING IN-MEMORY ISTANTANEO (Zero latenza di rete!)
+    // 2. INSTANT MATCHING
     const rawMatchingSpecies = useMemo(() => {
         if (!selectedTraits.length || !dataset.length) return [];
-        
         const results = calculateMatchesJS(dataset, selectedTraits);
-
         return results.map(sp => {
             const dbTraitsMap = new Map((sp.traits_info || []).map(t => [t.id_trait, t]));
             const completeTraitsInfo = selectedTraits.map(st => {
                 const dbTrait = dbTraitsMap.get(st.traitId);
                 const traitObj = allTraits.find(t => t.id === st.traitId);
-
                 return {
                     id_trait: st.traitId,
                     trait_name: traitObj?.name || "",
@@ -166,17 +157,17 @@ export default function useIdentify() {
                     m_notes_url: dbTrait?.m_notes_url || null,
                 };
             });
-
             return { ...sp, traits_info: completeTraitsInfo };
         });
     }, [dataset, selectedTraits, allTraits]);
 
-    // Handlers
+    // HANDLERS:
+
+    //      - Asymmetry
     const handleToggleAsymmetry = (traitId, isAsymmetric) => {
         setSelectedTraits((prev) => {
             const existing = prev.find((t) => t.traitId === traitId);
             const traitObj = allTraits.find((t) => t.id === traitId);
-
             if (!existing) {
                 if (!isAsymmetric) return prev;
                 return [...prev, {
@@ -188,7 +179,6 @@ export default function useIdentify() {
                     stateId: null, stateValue: null, iconUrl: null
                 }];
             }
-
             if (!isAsymmetric) {
                 const stateId = existing.stateId || existing.leftStateId || existing.rightStateId || null;
                 if (!stateId) return prev.filter((t) => t.traitId !== traitId);
@@ -203,7 +193,6 @@ export default function useIdentify() {
                     rightStateId: null, rightStateValue: null, rightIconUrl: null
                 } : t);
             }
-
             return prev.map((t) => t.traitId === traitId ? {
                 ...t,
                 isAsymmetric: true,
@@ -215,10 +204,10 @@ export default function useIdentify() {
         });
     };
 
+    //      - Trait selection
     const handleTraitSelect = (traitObj, stateObj, side = null) => {
         setSelectedTraits((prev) => {
             const existing = prev.find((item) => item.traitId === traitObj.id);
-
             if (!side) {
                 if (existing) {
                     if (existing.stateId === stateObj.id) {
@@ -241,12 +230,10 @@ export default function useIdentify() {
                     iconUrl: stateObj.stateIcon
                 }];
             }
-
             const isLeft = side === "left";
             const keyId = isLeft ? "leftStateId" : "rightStateId";
             const keyVal = isLeft ? "leftStateValue" : "rightStateValue";
             const keyIcon = isLeft ? "leftIconUrl" : "rightIconUrl";
-
             if (existing) {
                 const isDeselect = existing[keyId] === stateObj.id;
                 const updated = {
@@ -256,13 +243,11 @@ export default function useIdentify() {
                     [keyVal]: isDeselect ? null : stateObj.value,
                     [keyIcon]: isDeselect ? null : stateObj.stateIcon
                 };
-
                 if (!updated.leftStateId && !updated.rightStateId) {
                     return prev.filter((item) => item.traitId !== traitObj.id);
                 }
                 return prev.map((item) => item.traitId === traitObj.id ? updated : item);
             }
-
             return [...prev, {
                 traitId: traitObj.id,
                 traitName: traitObj.name,
@@ -274,6 +259,7 @@ export default function useIdentify() {
         });
     };
 
+    //      - Trait de-selection
     const handleRemoveTrait = (traitId, side = null) => {
         setSelectedTraits((prev) => {
             if (!side) {
@@ -293,13 +279,12 @@ export default function useIdentify() {
         });
     };
 
-    // Filter contestuali sulle specie matchate
+    //      - Apply filters on matches
     const filteredMatchingSpecies = useMemo(() => {
         if (!rawMatchingSpecies || rawMatchingSpecies.length === 0) return [];
         const { sex, environment, minLength, maxLength } = appliedFilters;
         const reqMin = minLength !== "" && minLength !== null ? parseFloat(minLength) : null;
         const reqMax = maxLength !== "" && maxLength !== null ? parseFloat(maxLength) : null;
-        
         const isWithinRange = (spMin, spMax) => {
             if (spMin === null && spMax === null) return true;
             const effectiveMin = spMin ?? spMax;
@@ -312,35 +297,27 @@ export default function useIdentify() {
         return rawMatchingSpecies
             .map((sp) => {
                 const { f_min = null, f_max = null, m_min = null, m_max = null } = sp.filters || {};
-                
                 let match_f = Boolean(sp.match_f) && (sex !== "male") && isWithinRange(f_min, f_max);
                 let match_m = Boolean(sp.match_m) && (sex !== "female") && isWithinRange(m_min, m_max);
-                
                 const missing_f = [];
                 const missing_m = [];
-
                 if ((reqMin !== null || reqMax !== null)) {
                     if (match_f && f_min === null) missing_f.push("Female body length");
                     if (match_m && m_min === null) missing_m.push("Male body length");
                 }
-
                 const speciesTraitsMap = new Map((sp.traits_info || []).map((t) => [t.id_trait, t]));
-
                 selectedTraits.forEach((st) => {
-                    const traitData = speciesTraitsMap.get(st.traitId);
-                    
+                    const traitData = speciesTraitsMap.get(st.traitId); 
                     if (!traitData) {
                         if (match_f) missing_f.push(`${st.traitName} (♀)`);
                         if (match_m) missing_m.push(`${st.traitName} (♂)`);
                         return;
                     }
-
-                    if (match_f) {
+                    if (match_f) { // FEMALE
                         if (!st.isAsymmetric) {
                             const fLeft = getValidStates(traitData.f_left_states);
                             const fRight = getValidStates(traitData.f_right_states);
-                            const fStates = fLeft.length > 0 ? fLeft : fRight;
-                            
+                            const fStates = fLeft.length > 0 ? fLeft : fRight;                
                             if (fStates.length === 0) {
                                 missing_f.push(`${st.traitName} (♀)`);
                             } else if (st.stateId && !fStates.includes(st.stateId)) {
@@ -359,8 +336,7 @@ export default function useIdentify() {
                             }
                         }
                     }
-
-                    if (match_m) {
+                    if (match_m) { // MALE
                         if (!st.isAsymmetric) {
                             const mLeft = getValidStates(traitData.m_left_states);
                             const mRight = getValidStates(traitData.m_right_states);
@@ -386,20 +362,14 @@ export default function useIdentify() {
                     }
                 });
 
+                // Missing data
                 const fHasMissing = match_f && missing_f.length > 0;
                 const mHasMissing = match_m && missing_m.length > 0;
-
                 const hasMissingData = fHasMissing || mHasMissing;
-
                 let shouldDemote = false;
-                if (match_f && match_m) {
-                    shouldDemote = fHasMissing && mHasMissing;
-                } else if (match_f) {
-                    shouldDemote = fHasMissing;
-                } else if (match_m) {
-                    shouldDemote = mHasMissing;
-                }
-
+                if (match_f && match_m) { shouldDemote = fHasMissing && mHasMissing; }
+                else if (match_f) { shouldDemote = fHasMissing; }
+                else if (match_m) { shouldDemote = mHasMissing; }
                 const missingInfo = [...new Set([...(match_f ? missing_f : []), ...(match_m ? missing_m : [])])];
 
                 return { ...sp, match_f, match_m, hasMissingData, shouldDemote, missingInfo };
@@ -412,6 +382,7 @@ export default function useIdentify() {
             });
     }, [rawMatchingSpecies, appliedFilters, selectedTraits]);
 
+
     return {
         filtersSchema,
         loadingFilters: loadingFilters || loadingDataset,
@@ -422,7 +393,7 @@ export default function useIdentify() {
         selectedTraits,
         matchingSpecies: filteredMatchingSpecies,
         loadingTraits,
-        loadingMatching: false, // Azzerato! Non c'è più attesa di rete quando si selezionano i tratti
+        loadingMatching: false,
         error,
         handleFilterChange,
         handleClearFilters,

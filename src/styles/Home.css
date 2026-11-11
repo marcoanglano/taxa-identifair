@@ -1,0 +1,83 @@
+/* ##### BLOCKS ##### */
+.block-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  margin-top: 1rem;
+}
+.block {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 2rem;
+  background-color: var(--sec-color-D);
+  overflow: hidden;
+  max-height: 250px;
+}
+/* Alternate design */
+.block:nth-child(even) .block-content { order: 2; }
+.block:nth-child(even) .block-image-wrapper { order: 1; }
+
+
+/* ##### CONTENT ##### */
+.block-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 1.5rem;
+}
+.block-main h4 { margin-bottom: 0.8rem; }
+.block-main p { color: var(--prim-color-L); }
+.block-footer {
+  font-size: 0.8rem;
+  color: var(--prim-color-LLL);
+  margin-top: 1.6rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--prim-color-LLL);
+}
+
+
+/* ##### IMAGE ##### */
+.block-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 250px;
+}
+.block-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+
+  /* Gradient */
+  -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
+  mask-image: linear-gradient(to left, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
+}
+.block:nth-child(even) .block-image {
+  -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
+  mask-image: linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
+}
+
+
+/* ##### RESPONSIVE DESIGN ##### */
+@media (max-width: 768px) {
+    .block {
+        grid-template-columns: 1fr;
+        max-height: none;
+        min-height: auto;
+    }
+
+    .block:nth-child(even) .block-content { order: 1; }
+    .block:nth-child(even) .block-image-wrapper { order: 2; }
+    .block-image-wrapper { height: 200px; }
+
+    .block-image,
+    .block:nth-child(even) .block-image {
+        -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
+        mask-image: linear-gradient(to top, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
+    }
+}

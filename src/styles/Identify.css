@@ -20,7 +20,7 @@
 
 
 /* ##### LEFT COLUMN: FILTERS, TRAITS ##### */
-#identify-title { margin-bottom: 20px; }
+#identify-title, #identify-tutorial { margin-bottom: 10px; }
 #filters-traits-container {
   display: flex;
   flex-direction: column;

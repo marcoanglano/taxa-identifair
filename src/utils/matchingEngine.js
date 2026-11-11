@@ -1,7 +1,10 @@
+// src/utils/matchingEngine.js
+// In-Memory Trait Matching Engine
+
 export function calculateMatchesJS(dataset = [], selectedTraits = []) {
   if (!selectedTraits.length) return [];
 
-  // 1. Separazione degli stati selezionati
+  // 1. Separates selected states
   const symmetricStates = selectedTraits
     .filter((t) => !t.isAsymmetric && t.stateId)
     .map((t) => t.stateId);
@@ -12,47 +15,41 @@ export function calculateMatchesJS(dataset = [], selectedTraits = []) {
     .filter((t) => t.isAsymmetric && t.rightStateId)
     .map((t) => t.rightStateId);
 
-  // 2. Filtraggio specie
+  // 2. Match species
   return dataset
     .map((sp) => {
       const traitsMap = sp.traitsMap || {};
 
-      // Helper interno: verifica se gli stati richiesti sono soddisfatti da un array di stati della specie
+      // Check matching states
       const checkStates = (requestedStates, getSpeciesStates) => {
         if (!requestedStates.length) return true;
         return requestedStates.every((reqState) => {
-          // Ricerca rapida del tratto associato allo stato selezionato
           const traitObj = Object.values(traitsMap).find((t) =>
             (t.f_left || []).includes(reqState) ||
             (t.f_right || []).includes(reqState) ||
             (t.m_left || []).includes(reqState) ||
             (t.m_right || []).includes(reqState)
           );
-
-          if (!traitObj) return true; // Dato assente nella specie -> passa il filtro (mancante)
-
+          // Missing data -> in the list
+          if (!traitObj) return true;
           const specStates = getSpeciesStates(traitObj);
-          if (!specStates || specStates.length === 0) return true; // Dato assente -> passa
+          if (!specStates || specStates.length === 0) return true;
 
           return specStates.includes(reqState);
         });
       };
 
-      // --- MATCH FEMMINA (♀) ---
+      // FEMALE MATCH
       const match_f =
         checkStates(symmetricStates, (t) => [...(t.f_left || []), ...(t.f_right || [])]) &&
         checkStates(leftStates, (t) => t.f_left || []) &&
         checkStates(rightStates, (t) => t.f_right || []);
-
-      // --- MATCH MASCHIO (♂) ---
+      // MALE MATCH
       const match_m =
         checkStates(symmetricStates, (t) => [...(t.m_left || []), ...(t.m_right || [])]) &&
         checkStates(leftStates, (t) => t.m_left || []) &&
         checkStates(rightStates, (t) => t.m_right || []);
-
       if (!match_f && !match_m) return null;
-
-      // Estraiamo traits_info formattato per la resa visiva in ID_matching
       const traits_info = Object.values(traitsMap);
 
       return {

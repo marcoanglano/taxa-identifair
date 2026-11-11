@@ -2,7 +2,7 @@
   "name": "taxa-identifair",
   "title": "Taxa IdentiFAIR",
   "subtitle": "Interactive identification of adult Calanoida",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Website which collects the main information available on each species of Calanoida. The main aim is to provide an identification tool down to the species level, using data archived on GBIF, Supabase and other databases. The search occurs by exclusion using the provided filters (environment, sex, length etc.) and traits (anatomical details).",
   "author": {
     "name": "Marco Anglano",
@@ -29,7 +29,9 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-leaflet": "^5.0.0",
-    "react-router-dom": "^7.9.6"
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.9.6",
+    "rehype-raw": "^7.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

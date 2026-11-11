@@ -1,6 +1,6 @@
 // ##### IMPORTS #####
 // LIB
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 // SERVICES
 import { getFamilyCounts, getSpeciesByFamily } from "../services/dataService";
 
@@ -12,8 +12,6 @@ export function useFamilies() {
   const [loadingFamilies, setLoadingFamilies] = useState(true);
   const [errorFamilies, setErrorFamilies] = useState(null);
   const [familyCache, setFamilyCache] = useState({});
-  const [familyStatus, setFamilyStatus] = useState({});
-  const requestSeq = useRef(0);
 
 
   // ##### LOADING FAMILY #####
@@ -29,55 +27,22 @@ export function useFamilies() {
     fetchInitialData();
   }, []);
 
-  // ##### PROGRESS BAR SIMULATION #####
-  const startProgress = (family) => {
-    let p = 0;
-    setFamilyStatus((prev) => ({
-      ...prev,
-      [family]: { loading: true, loaded: false, progress: 0 },
-    }));
-    const t = setInterval(() => {
-      p = Math.min(90, p + Math.random() * 12);
-      setFamilyStatus((prev) => {
-        const cur = prev[family];
-        if (!cur || !cur.loading) return prev;
-        return { ...prev, [family]: { ...cur, progress: p } };
-      });
-    }, 180);
-    return () => clearInterval(t);
-  };
-
 
   // ##### LOADING SPECIES #####
   const fetchFamilySpecies = async (family) => {
-    if (familyCache[family]?.length || familyStatus[family]?.loading) return;
-    const seq = ++requestSeq.current;
-    const stop = startProgress(family);
+    if (familyCache[family]) return;
     try {
       const data = await getSpeciesByFamily(family);
-      if (seq !== requestSeq.current) return;
       setFamilyCache((prev) => ({ ...prev, [family]: data }));
-      setFamilyStatus((prev) => ({
-        ...prev,
-        [family]: { loading: false, loaded: true, progress: 100 },
-      }));
-    } catch (err) {
-      setFamilyStatus((prev) => ({
-        ...prev,
-        [family]: { loading: false, loaded: false, progress: 0, error: err.message },
-      }));
-    } finally {
-      stop();
-    }
+    } 
+    catch (err) { console.error(`Error loading species for family ${family}:`, err); }
   };
-
   
   return {
     families,
     loadingFamilies,
     errorFamilies,
     familyCache,
-    familyStatus,
     fetchFamilySpecies
   };
 }

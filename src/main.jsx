@@ -1,5 +1,5 @@
 // ##### IMPORTS #####
-// LIBRARIES
+// LIB
 import React from "react"
 import ReactDOM from "react-dom/client"
 import { BrowserRouter } from "react-router-dom"
@@ -9,7 +9,8 @@ import App from "./App.jsx"
 import "./styles/index.css"
 
 
-// ##### ROOT RENDER #####
+// ##### Application Entry Point #####
+// Mounts the React root component wrapped in StrictMode and BrowserRouter for HTML5 routing.
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>

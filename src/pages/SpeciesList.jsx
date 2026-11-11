@@ -8,6 +8,8 @@ import { useFamilies } from "../hooks/useSpeciesList";
 // LIB
 import { Link } from "react-router-dom";
 import { useMemo } from "react";
+// UTILS
+import { formatScientificName } from "../utils/speciesHelpers";
 
 export default function SpeciesList() {
 
@@ -19,34 +21,27 @@ export default function SpeciesList() {
     loadingFamilies, 
     errorFamilies, 
     familyCache, 
-    familyStatus, 
     fetchFamilySpecies 
   } = useFamilies();
 
-  // Converting data into accordion items
+
+  // ##### CREATE ACCORDIONS #####
   const accordionItems = useMemo(() => {
     return families.map((f) => {
       const family = f.family;
-      const st = familyStatus[family] || { loading: false, loaded: false, progress: 0 };
       const list = familyCache[family] || [];
-
       return {
         id: family,
         title: `${family} (${f.count})`,
-        meta: {
-          loading: !!st.loading,
-          loaded: !!st.loaded,
-          progress: st.progress ?? 0,
-        },
         content: (
           <div>
             {/* LOADING */}
-            {st.loading && <Skeleton className="species-list" height="24px" width="200px" count={3} />}
+            {loadingFamilies && <Skeleton className="species-list" height="24px" width="200px" count={3} />}
             {/* LOADED: ERROR */}
-            {!st.loading && st.error && <ErrorComponent title="Oh no!" message={st.error} />}
+            {loadingFamilies && errorFamilies && <ErrorComponent title="Oh no!" message={errorFamilies} />}
 
             {/* LOADED: SUCCESS */}
-            {!st.loading && !st.error && st.loaded && (
+            {!loadingFamilies && !errorFamilies && (
               <ul className="species-list">
                 {list.map((sp) => (
                   <li key={sp.id_species}>
@@ -55,7 +50,7 @@ export default function SpeciesList() {
                       target='_blank'
                       rel="noopener noreferrer"
                     >
-                        <em>{sp.scientific_name}</em> <span className="sp-li-authority">{sp.authority}</span>
+                      {formatScientificName(sp.scientific_name)} <span className="sp-li-authority">{sp.authority}</span>
                     </Link>
                   </li>
                 ))}
@@ -65,7 +60,7 @@ export default function SpeciesList() {
         ),
       };
     });
-  }, [families, familyStatus, familyCache]);
+  }, [families, familyCache]);
 
 
   // ##### RENDERING #####
@@ -84,7 +79,7 @@ export default function SpeciesList() {
       {/* LOADED: SUCCESS */}
       {!loadingFamilies && !errorFamilies && (
         <>
-          <p id="list-tutorial">Select a family, then a species to view details.</p>
+          <p id="list-tutorial">In this page you can access the full list of species available in the dataset. Select a family, then a species to see its details.</p>
           <Accordion
             items={accordionItems}
             defaultAllOpen={false}
@@ -92,8 +87,6 @@ export default function SpeciesList() {
             onToggle={(family, nextIsOpen) => {
               if (nextIsOpen) fetchFamilySpecies(family);
             }}
-            hasProgressbar={true}
-            getHeaderState={(it) => it.meta}
           />
         </>
       )}
