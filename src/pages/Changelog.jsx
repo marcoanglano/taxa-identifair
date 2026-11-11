@@ -5,7 +5,7 @@ import Accordion from "../components/Accordion";
 import { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 // CHANGELOG
-import changelogText from "../../CHANGELOG.md?raw";
+import changelogText from "../CHANGELOG.md?raw";
 
 
 // ##### CREATING ACCORDIONS #####
