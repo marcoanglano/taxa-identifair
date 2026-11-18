@@ -200,7 +200,9 @@ export default function Icon({
                     />
                 )}
                 {tooltipText && (
-                    <span className="fixed-tooltip-text">{tooltipText}</span>
+                    <span
+                        className={tooltipImage ? "fixed-tooltip-text" : "fixed-tooltip-text-only"}
+                    >{tooltipText}</span>
                 )}
             </div>
         );

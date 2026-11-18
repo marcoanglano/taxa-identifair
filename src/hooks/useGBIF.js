@@ -2,11 +2,11 @@
 // LIB
 import { useEffect, useState } from 'react';
 // SERVICES
-import { checkStatusGBIF, getNomenclatureGBIF, getTaxonomyGBIF } from '../services/dataService';
+import { checkStatusGBIF, getTaxonomyGBIF } from '../services/dataService';
 
 
 // ##### NOMENCLATURE & TAXONOMY #####
-export const useGBIF = (gbifKey) => {
+export const useGBIF = (gbifID) => {
 
   // ### STATES ###
   const [basionym, setBasionym] = useState(null);
@@ -17,64 +17,78 @@ export const useGBIF = (gbifKey) => {
 
   // ### DATA EXTRACTION ###
   useEffect(() => {
-    if (!gbifKey) return;
-    let isMounted = true;
+    if (!gbifID) return;
+    const controller = new AbortController();
     const fetchGBIFData = async () => {
       setLoadingGBIF(true);
       setErrorGBIF(null);
+
       try {
-
+        const info = await getTaxonomyGBIF(gbifID, { signal: controller.signal });
         // Taxonomy
-        const taxData = await getTaxonomyGBIF(gbifKey);
-        if (!isMounted) return;
-        setTaxonomyGBIF(taxData);
-
+        setTaxonomyGBIF({
+          kingdom: info.kingdom,
+          phylum: info.phylum,
+          class: info.class,
+          order: info.order,
+          family: info.family,
+          genus: info.genus
+        });
         // Nomenclature
-        const nomData = await getNomenclatureGBIF(gbifKey, taxData?.basionymKey);
-        if (!isMounted) return;
-        setSynonyms(nomData.synonyms);
-        setBasionym(nomData.basionym);
-
-      } catch (err) {
-        if (isMounted) {
-          console.error("Error recovering GBIF data:", err);
-          setErrorGBIF(err.message);
-        }
-      } finally {
-        if (isMounted) setLoadingGBIF(false);
+        setSynonyms(info.synonyms);
+        setBasionym(info.basionym);
       }
+      catch (err) { if (error.name !== "AbortError") setErrorGBIF(error.message); }
+      finally { if (!controller.signal.aborted) setLoadingGBIF(false); }
     };
     fetchGBIFData();
-    return () => { isMounted = false; };
-  }, [gbifKey]);
+    return () => controller.abort();
+  }, [gbifID]);
 
   return { taxonomy, synonyms, basionym, loading, error };
 };
 
 
 // ##### OCCURRENCES #####
-export const useOccurrencesGBIF = (gbifKey) => {
+export const useOccurrencesGBIF = (gbifID) => {
 
-    // ### STATES ###
-    const [mapReady, setMapReady] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+  // ### STATES ###
+  const [gbifOldID, setgbifOldID] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-    // ### GET MAP ###
-    useEffect(() => {
-            if (!gbifKey) return;
-            const checkMapService = async () => {
-                setLoading(true);
-                setError(null);
-                try {
-                    await checkStatusGBIF(gbifKey);
-                    setMapReady(true);
-                }
-                catch (err) { setError(err.message); }
-                finally { setLoading(false); }
-            };
-            checkMapService();
-        }, [gbifKey]);
+  // ### GET MAP ###
+  useEffect(() => {
+    if (!gbifID) {
+      setgbifOldID(null);
+      return;
+    }
+    let isMounted = true;
+    const checkMapService = async () => {
+      setLoading(true);
+      setError(null);
+      setgbifOldID(null);
 
-    return { mapReady, loading, error };
+      try {
+        const resolvedID = await checkStatusGBIF(gbifID);
+        if (isMounted) setgbifOldID(resolvedID);
+      }
+      catch (err) {
+        if (isMounted) {
+          setError(err.message);
+          setgbifOldID(null);
+        }
+      }
+      finally { if (isMounted) setLoading(false); }
+    };
+    checkMapService();
+    return () => { isMounted = false; };
+  }, [gbifID]);
+
+  return {
+    gbifOldID,
+    mapReady: Boolean(gbifOldID),
+    loading,
+    error
+  };
 };

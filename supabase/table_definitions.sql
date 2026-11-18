@@ -38,8 +38,7 @@ create index IF not exists idx_filters_environment_gin on public.filters using g
 -- 3. SPECIES (Taxonomy & External Identifiers)
 create table public.species (
   id_species text not null primary key,                                               -- es. 'anomalocera_patersonii'
-  gbif_key integer not null,                                                          -- es. '5166357'
-  gbif_link text null,                                                                -- es. '676T9'
+  gbif_id text null,                                                                -- es. '676T9'
   aphia_id integer null,                                                              -- es. '364368'
   other_id integer null,                                                              -- es. '1184'
   family text not null,                                                               -- es. 'Pontellidae'

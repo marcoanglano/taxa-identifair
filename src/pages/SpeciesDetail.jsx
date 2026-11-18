@@ -27,8 +27,8 @@ export default function SpeciesDetail() {
   const { id } = useParams();
   // Hooks (fetch/cache)
   const {species, traits, ref, loading: s_load, error: s_err} = useSpeciesDetail(id);
-  const {taxonomy, basionym, synonyms, loading: g_load, error: g_err} = useGBIF(species?.gbif_key);
-  const {loading: map_load, error: map_err} = useOccurrencesGBIF(species?.gbif_key);
+  const {taxonomy, basionym, synonyms, loading: g_load, error: g_err} = useGBIF(species?.gbif_id);
+  const {gbifOldID, loading: map_load, error: map_err} = useOccurrencesGBIF(species?.gbif_id);
   const isDataReady = !s_load && !g_load && (taxonomy || g_err); // Avoids loading problem (GBIF skeleton)
   // Length data
   const lengthData = useMemo(() => {
@@ -41,7 +41,7 @@ export default function SpeciesDetail() {
     return { fMin: fMin, fMax: fMax, mMin: mMin, mMax: mMax, fMean: fMean, mMean: mMean };
   }, [species]);
   // URLs
-  const gbifUrl = getGBIFLink(species?.gbif_key);
+  const gbifUrl = getGBIFLink(species?.gbif_id);
   const wormsUrl = getWormsLink(species?.aphia_id);
   const otherUrl = getOtherLink(species?.other_id);
 
@@ -92,9 +92,9 @@ export default function SpeciesDetail() {
               { // Map
                 map_load ? ( <Skeleton className="card-section" height={400} /> ) :
                 map_err ? ( <ErrorComponent title="Oh no!" message="GBIF Map Service unavailable" id="gbif-error" /> ) :
-                ( <SD_card_map gbifKey={species?.gbif_key} /> )
+                ( <SD_card_map gbifOldID={gbifOldID} /> )
               }
-              <SD_card_ref gbifKey={species?.gbif_key} customRef={ref} />
+              <SD_card_ref gbifID={species?.gbif_id} customRef={ref} />
             </> )}
           </div>
         )}

@@ -55,7 +55,7 @@ export const formatScientificName = (fullName) => {
 /* GBIF */
 export const getGBIFLink = (gbifId) => {
   if (!gbifId) return false;
-  return `https://www.gbif.org/species/${gbifId}`;
+  return `https://www.gbif.org/taxon/${gbifId}`;
 };
 /* WoRMS */
 export const getWormsLink = (wormsId) => {

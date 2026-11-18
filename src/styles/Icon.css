@@ -8,8 +8,7 @@
 
 /* ##### TOOLTIP ##### */
 .fixed-tooltip-box {
-  background-color: var(--prim-color);
-  color: var(--sec-color);
+  background-color: var(--sec-color-D);
   border: 1px solid var(--prim-color-LL);
   border-radius: 6px;
   padding: 8px 12px;
@@ -27,8 +26,6 @@
 }
 .fixed-tooltip-img {
   border-radius: 4px;
-  filter: brightness(0) invert(1);
-
   min-width: 50px;
   min-height: 50px;
   max-width: 400px;
@@ -36,6 +33,10 @@
   width: auto;
   height: auto;
   object-fit: contain;
+}
+.fixed-tooltip-text {
+  border-top: 1px solid var(--prim-color);
+  padding-top: 0.5rem;
 }
 
 

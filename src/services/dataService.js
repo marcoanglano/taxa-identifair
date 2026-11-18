@@ -114,49 +114,67 @@ export const getFilters = async () => {
 // ================================================
 
 // ##### GBIF #####
+const UUID = "7ddf754f-d193-4cc9-b351-99906754a03b" // UUID Catalogue of Life XR
 
 // # Check status #
-export const checkStatusGBIF = async (gbifKey) => {
-  if (!gbifKey) return false;
-  const response = await fetch(`https://api.gbif.org/v1/occurrence/search?taxonKey=${gbifKey}&limit=1`);
+export const checkStatusGBIF = async (gbifID) => {
+  if (!gbifID) return false;
+  const response = await fetch(`https://api.gbif.org/v1/occurrence/search?checklistKey=${UUID}&taxonKey=${gbifID}&limit=1`);
   if (!response.ok) throw new Error(`GBIF API error: ${response.status}`);
-  return true;
+  // get old ID
+  const data = await response.json();
+  const firstResult = data.results?.[0];
+  return firstResult ? (firstResult.acceptedTaxonKey || firstResult.taxonKey) : null;
 };
 
-// # Basionym & Synonyms #
-export const getNomenclatureGBIF = async (gbifKey, basionymKey) => {
+// # Taxonomy + Basionym & Synonyms #
+export const getTaxonomyGBIF = async (gbifID, options = {}) => {
   try {
-    const promises = [
-      fetch(`https://api.gbif.org/v1/species/${gbifKey}/synonyms`).then(res => res.json())
-    ];
-    if (basionymKey && basionymKey !== parseInt(gbifKey, 10)) {
-      promises.push(fetch(`https://api.gbif.org/v1/species/${basionymKey}`).then(res => res.json()));
+    const res = await fetch(`https://api.checklistbank.org/dataset/3LR/taxon/${gbifID}/info`, options);
+    if (!res.ok) throw new Error(`ChecklistBank HTTP ${res.status}`);
+    const data = await res.json();
+
+    const taxonomy = {};
+    if (Array.isArray(data.classification)) {
+      for (const item of data.classification) {
+        if (item.rank) {
+          taxonomy[item.rank.toLowerCase()] = item.name;
+        }
+      }
     }
-    const [synData, basData] = await Promise.all(promises);
+
+    const basionymName = data.taxon?.basionym?.name?.scientificName || null;
+    const homotypic = data.synonyms?.homotypic || [];
+    const heterotypic = data.synonyms?.heterotypic || [];
+    const misapplied = data.synonyms?.misapplied || [];
+    const allSynonyms = [...homotypic, ...heterotypic, ...misapplied]
+      .map(s => s.name?.scientificName)
+      .filter(name => Boolean(name) && name !== basionymName);
+
     return {
-      synonyms: synData.results ? [...new Set(synData.results.map(s => s.scientificName))] : [],
-      basionym: basData ? basData.scientificName : null
+      kingdom: taxonomy.kingdom || null,
+      phylum: taxonomy.phylum || null,
+      class: taxonomy.class || null,
+      order: taxonomy.order || null,
+      family: taxonomy.family || null,
+      genus: taxonomy.genus || null,
+      basionym: basionymName,
+      synonyms: [...new Set(allSynonyms)]
     };
   } catch (error) {
-    console.error("GBIF Nomenclature Error:", error);
-    return { synonyms: [], basionym: null };
+    if (error.name === "AbortError") throw error;
+    console.error("ChecklistBank Nomenclature Error:", error);
+    return {
+      kingdom: null,
+      phylum: null,
+      class: null,
+      order: null,
+      family: null,
+      genus: null,
+      basionym: null,
+      synonyms: []
+    };
   }
-};
-
-// # Taxonomy #
-export const getTaxonomyGBIF = async (gbifKey) => {
-  const response = await fetch(`https://api.gbif.org/v1/species/${gbifKey}`);
-  if (!response.ok) throw new Error("Errore in recovering GBIF taxonomy");
-  const data = await response.json();
-  return {
-    kingdom: data.kingdom,
-    phylum: data.phylum,
-    class: data.class,
-    order: data.order,
-    family: data.family,
-    genus: data.genus,
-    basionymKey: data.basionymKey
-  };
 };
 
 

@@ -21,7 +21,7 @@ export default function Home() {
       text: "The main goal of <b>Taxa IdentiFAIR</b> is to assist in the identification of any planktonic organism (and maybe far beyond in the future!). The website <b>dinamically adapts</b> to the chosen dataset, updating details of the species and criteria to identify them. Calanoida Copepoda is just a starting taxon; if you are an expert of any other group of organisms in the planktonic environment, please, contact us! (Email in the footer)"
     },
     { title: `What's new? (v${version})`, credits: "", image: Home_3,
-      text: "The v1.0.0 was published a few days ago (2026-11-09). In v1.0.1 the basic <b>homepage</b> was replaced by the one you see now, hosting a website description, the roadmap and the latest update (with images). <b>Short descriptions</b> were added to 'Species' and 'Identify' pages, to help new users. The <b>footer</b> was expanded to give several new details about licences, versioning and contacts. Frontend/Backend were revised to improve <b>readability</b> and <b>efficiency</b>."
+      text: "The v1.0.2 patch is characterized by minor style changes both in the website and in the Calanoida dataset (v1.0.2, as well). The visualization of <b>species occurrences</b> was improved, and <b>drawings</b> are now displayed with a lighter background to support the new style (arrows and lines added by us are now thicker and red). Additionally, the <b>Prosome front shape</b> trait now supports a new state ('Subtriangular'). <i>More details in the full Changelog</i>."
     },
   ]
 
